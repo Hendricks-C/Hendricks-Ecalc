@@ -3,7 +3,14 @@ function Register() {
 
   return (
     <>
-      <RegisterBox />
+      <div className='flex flex-row justify-evenly items-center'>
+        <div>
+          <img src="../assets/react.svg" alt="Hendricks Foundation" />
+        </div>
+        <div>
+          <RegisterBox />
+        </div>
+      </div>
     </>
   )
 }
