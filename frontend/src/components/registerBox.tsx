@@ -1,5 +1,7 @@
 
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+
 function RegisterBox() {
   const [email, setEmail] = useState('')
   const [company, setCompany] = useState('')
@@ -22,7 +24,7 @@ function RegisterBox() {
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     required
-                    className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
+                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
                     />
                 </div>
                 <div>
@@ -32,7 +34,7 @@ function RegisterBox() {
                     placeholder="Optional"
                     value={company}
                     onChange={e => setCompany(e.target.value)}
-                    className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
+                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
                     />
                 </div>
                 <div>
@@ -43,11 +45,14 @@ function RegisterBox() {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     required
-                    className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
+                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
                     />
                 </div>
                 <div className="flex flex-col justify-center">
                     <button className="border items-center rounded-md" type="submit">Sign Up</button>
+                </div>
+                <div>
+                    <p>Already have an account? <Link to="/login" className='no-underline hover:underline'>Login here</Link></p>
                 </div>
             </form>
         </div>

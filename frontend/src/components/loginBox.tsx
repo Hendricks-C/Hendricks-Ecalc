@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 function LoginBox() {
     const [email, setEmail] = useState('')
@@ -13,7 +14,7 @@ function LoginBox() {
         <div className="flex flex-col items-center">
             <h1>Information</h1>
             <h2>Fill in the fields below</h2>
-            <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-gray-100">
+            <div className="p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-gray-100">
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div>
                         <label className="flex">Email:</label>
@@ -23,7 +24,7 @@ function LoginBox() {
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         required
-                        className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
+                        className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
                         />
                     </div>
                     <div>
@@ -33,7 +34,7 @@ function LoginBox() {
                         placeholder="Optional"
                         value={company}
                         onChange={e => setCompany(e.target.value)}
-                        className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
+                        className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
                         />
                     </div>
                     <div>
@@ -44,14 +45,18 @@ function LoginBox() {
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required
-                        className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
+                        className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
                         />
                     </div>
                     <div className="flex flex-col justify-center">
                         <button className="border items-center rounded-md" type="submit">Login</button>
                         <button className="border items-center rounded-md" type="button">Skip</button>
                     </div>
+                    <div>
+                        <p>Don't have an account? <Link to="/register" className='no-underline hover:underline'>Create one now.</Link></p>
+                    </div>
                 </form>
+                
             </div>
         </div>
     )
