@@ -52,7 +52,7 @@ function RegisterBox() {
                     <button className="border items-center rounded-md" type="submit">Sign Up</button>
                 </div>
                 <div>
-                    <p>Already have an account? <Link to="/login" className='no-underline hover:underline'>Login here</Link></p>
+                    <p>Already have an account? <Link to="/login" className='no-underline hover:underline  text-blue-500'>Login here</Link></p>
                 </div>
             </form>
         </div>

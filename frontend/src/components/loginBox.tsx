@@ -53,7 +53,7 @@ function LoginBox() {
                         <button className="border items-center rounded-md" type="button">Skip</button>
                     </div>
                     <div>
-                        <p>Don't have an account? <Link to="/register" className='no-underline hover:underline'>Create one now.</Link></p>
+                        <p>Don't have an account? <Link to="/register" className='no-underline hover:underline text-blue-500'>Create one now</Link></p>
                     </div>
                 </form>
                 
