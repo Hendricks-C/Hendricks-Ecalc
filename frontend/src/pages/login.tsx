@@ -1,4 +1,4 @@
-import LoginBox from '../components/loginBox'
+import LoginBox from './loginBox.tsx'
 function Login() {
 
   return (

@@ -1,4 +1,4 @@
-import RegisterBox from '../components/registerBox'
+import RegisterBox from './registerBox.tsx'
 function Register() {
 
   return (
