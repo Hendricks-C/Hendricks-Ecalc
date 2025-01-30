@@ -1,13 +1,30 @@
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
+import supabase from '../utils/supabase.ts'
+import { AuthResponse } from '@supabase/supabase-js'
 
 function Login() {
-  const [email, setEmail] = useState('')
-  const [company, setCompany] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState<string>('')
+  const [company, setCompany] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-      event.preventDefault();
+    event.preventDefault();
+    const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      console.error('Error logging in:', error.message)
+      if (error.message === 'Invalid login credentials') {
+        alert('Invalid login credentials. Please try again.')
+      } else {
+        alert(error.message)
+      }
+      return
+    }
+    console.log('logged in: ', data.user)
   }
 
   return (

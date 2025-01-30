@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/login.tsx'
 import Register from './pages/register.tsx'
+import Welcome from './pages/welcome.tsx'
 import Navbar from './components/navbar.tsx'
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
         <Route path="/contact" element={<h1>Work in Progress</h1>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>} />
+        <Route path="/welcome" element={<Welcome/>} />
       </Routes>
     </BrowserRouter>
     

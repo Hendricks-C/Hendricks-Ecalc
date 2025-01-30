@@ -1,13 +1,30 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import supabase from '../utils/supabase.ts'
+import {AuthResponse} from "@supabase/supabase-js";
 
 function Register() {
-  const [email, setEmail] = useState('')
-  const [company, setCompany] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState<string>('')
+  const [company, setCompany] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
       event.preventDefault();
+      const { data, error }: AuthResponse = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: 'http://localhost:5173/welcome',
+        },
+      })
+
+      if (error) {
+        console.error('Error signing up:', error.message)
+        alert(error.message)
+        return
+      }
+      console.log('Account Created: ', data.user)
+      alert('Signup successful! Check your email for confirmation.');
   }
 
   return (
