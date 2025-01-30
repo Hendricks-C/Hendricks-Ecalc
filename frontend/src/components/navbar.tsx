@@ -21,7 +21,7 @@ function Navbar() {
                     <Link to="/contact" className='no-underline hover:underline'>Contact</Link>
                     <Link to="/login" className='no-underline hover:underline'>Login</Link>
                     <Link to="/register" className='no-underline hover:underline'>Register</Link>
-                    <button onClick={handleClick} className="border items-center rounded-md">Sign Out</button>
+                    <button onClick={handleClick} className="border p-1 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600">Sign Out</button>
                 </div>
         </nav>
     )  

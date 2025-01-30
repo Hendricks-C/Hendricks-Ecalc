@@ -77,9 +77,9 @@ function Login() {
                         className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
                         />
                     </div>
-                    <div className="flex flex-col justify-center">
-                        <button className="border items-center rounded-md" type="submit">Login</button>
-                        <button className="border items-center rounded-md" type="button">Skip</button>
+                    <div className="flex flex-col justify-center gap-2 items-center">
+                        <button className="border w-1/2 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Login</button>
+                        <button className="border w-1/2 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="button">Skip</button>
                     </div>
                     <div>
                         <p>Don't have an account? <Link to="/register" className='no-underline hover:underline text-blue-500'>Create one now</Link></p>
