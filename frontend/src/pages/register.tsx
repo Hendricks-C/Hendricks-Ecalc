@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import supabase from '../utils/supabase.ts'
 import {AuthResponse} from "@supabase/supabase-js";
 
@@ -7,6 +7,17 @@ function Register() {
   const [email, setEmail] = useState<string>('')
   const [company, setCompany] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+      if (session) {
+        navigate("/welcome");
+      }
+    });
+  
+    return () => authListener.subscription.unsubscribe();
+  }, [navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
       event.preventDefault();
@@ -34,7 +45,8 @@ function Register() {
             <img src="../assets/react.svg" alt="Hendricks Foundation" />
             </div>
             <div className="flex flex-col items-center">
-                <h1>Fill in the fields below to create an account.</h1>
+                <h1>Register</h1>
+                <h2>Fill in the fields below</h2>
                 <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-gray-100">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                         <div>

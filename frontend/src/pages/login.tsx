@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import supabase from '../utils/supabase.ts'
 import { AuthResponse } from '@supabase/supabase-js'
 
@@ -7,24 +7,31 @@ function Login() {
   const [email, setEmail] = useState<string>('')
   const [company, setCompany] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+      if (session) {
+        navigate("/welcome");
+      }
+    });
+  
+    return () => authListener.subscription.unsubscribe();
+  }, [navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault();
+    event.preventDefault()
     const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
     if (error) {
-      console.error('Error logging in:', error.message)
-      if (error.message === 'Invalid login credentials') {
-        alert('Invalid login credentials. Please try again.')
-      } else {
-        alert(error.message)
-      }
+      alert(error.message)
       return
     }
     console.log('logged in: ', data.user)
+    navigate('/welcome')
   }
 
   return (
@@ -34,7 +41,7 @@ function Login() {
           <img src="../assets/react.svg" alt="Hendricks Foundation" />
         </div>
         <div className="flex flex-col items-center">
-            <h1>Information</h1>
+            <h1>Login</h1>
             <h2>Fill in the fields below</h2>
             <div className="p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-gray-100">
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
