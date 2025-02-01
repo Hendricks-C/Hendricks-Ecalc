@@ -82,7 +82,8 @@ function Login() {
                         <button className="border w-1/2 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="button">Skip</button>
                     </div>
                     <div>
-                        <p>Don't have an account? <Link to="/register" className='no-underline hover:underline text-blue-500'>Create one now</Link></p>
+                        <p>Don't have an account? <Link to="/register" className='no-underline hover:underline text-blue-500'>Create one now.</Link></p>
+                        <p>Forgot your password? <Link to="/forgot-password" className='no-underline hover:underline text-blue-500'>Reset it here.</Link></p>
                     </div>
                 </form>
                 
