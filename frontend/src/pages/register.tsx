@@ -33,6 +33,10 @@ function Register() {
         console.error('Error signing up:', error.message)
         alert(error.message)
         return
+      } else if (data.user?.identities?.length === 0) {
+        console.error('User already Exists')
+        alert('User already Exists')
+        return
       }
       console.log('Account Created: ', data.user)
       alert('Signup successful! Check your email for confirmation.');
