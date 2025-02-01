@@ -1,42 +1,73 @@
-import { useState } from 'react';
+import { useState, useEffect, } from 'react';
 import supabase from '../utils/supabase';
 
-function ResetPassword() {
-    const [email, setEmail] = useState<string>('')
+function ForgotPassword() {
+    const [password, setPassword] = useState<string>('')
+    const [confirm, setConfirm] = useState<string>('')
+    const [validSession, setValidSession] = useState<boolean>(false)
     // const [visibility, setVisibility] = useState<boolean>(false)
+
+    useEffect(() => {
+        supabase.auth.onAuthStateChange(async (event, session) => {
+          if (event == "PASSWORD_RECOVERY") {
+            setValidSession(true)
+          }
+        })
+    }, [])
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault()
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'https://example.com/update-password',
-        })
-
-        if (error) {
-            console.error(error.message)
-            alert(error.message)
+        if (!validSession) {
+            alert('Invalid session. Please request a new password reset email.')
             return
+        } 
+        else if (password !== confirm) {
+            alert('Passwords do not match.')
+            return
+        } else {
+            alert('Password reset successful. You may close this tab.')
+            setValidSession(false)
         }
-        
-        console.log('Password reset email sent')
-        alert('Password reset email sent')
     }
 
     return (
-        <div>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <label className="flex">Email:</label>
-                <input
-                type="text"
-                placeholder="email@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
-                />
-                <button className="border w-1/2 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Send Reset Instructions</button>
-            </form>
-        </div>
+        <>
+            <div className='flex justify-center items-center'>
+                <div className="flex flex-col w-1/4 p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-gray-100 ">
+                    <div className="flex flex-col gap-2 mb-4">
+                        <h1 className="text-2xl">Reset Your Password</h1>
+                        <p>Please enter a new password below.</p>
+                    </div>
+                    <div className="">
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+                            <div className='flex flex-col gap-1'>   
+                                <label className="flex">New password:</label>
+                                <input
+                                type="password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                required
+                                className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
+                                />
+                            </div>
+                            <div className='flex flex-col gap-1'>
+                                <label className="flex">Confirm new password:</label>
+                                <input
+                                type="password"
+                                value={confirm}
+                                onChange={e => setConfirm(e.target.value)}
+                                required
+                                className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
+                                />
+                            </div>
+                            <button className="mt-5 border p-2 w-full items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Reset Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </>
+        
     );
 }
 
-export default ResetPassword;
+export default ForgotPassword;
