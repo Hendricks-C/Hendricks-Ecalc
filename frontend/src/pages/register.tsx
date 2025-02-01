@@ -86,7 +86,7 @@ function Register() {
                             />
                         </div>
                         <div className="flex flex-col justify-center gap-2 items-center">
-                            <button className="border w-1/2 items-center rounded-md bg-green-300 cursor-pointer hover:bg-green-200 active:bg-green-600" type="submit">Sign Up</button>
+                            <button className="border p-1 w-1/2 items-center rounded-md bg-green-300 cursor-pointer hover:bg-green-200 active:bg-green-600" type="submit">Sign Up</button>
                         </div>
                         <div>
                             <p>Already have an account? <Link to="/login" className='no-underline hover:underline  text-blue-500'>Login here</Link></p>
