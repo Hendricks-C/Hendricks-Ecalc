@@ -1,4 +1,5 @@
-import { useState, useEffect, } from 'react';
+import { useState, useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
 import supabase from '../utils/supabase';
 
 function ForgotPassword() {
@@ -6,6 +7,8 @@ function ForgotPassword() {
     const [confirm, setConfirm] = useState<string>('')
     const [validSession, setValidSession] = useState<boolean>(false)
     // const [visibility, setVisibility] = useState<boolean>(false)
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         supabase.auth.onAuthStateChange(async (event, session) => {
@@ -25,8 +28,17 @@ function ForgotPassword() {
             alert('Passwords do not match.')
             return
         } else {
-            alert('Password reset successful. You may close this tab.')
+            const { data, error } = await supabase.auth.updateUser({
+                password: password
+            })
+            if (error) {
+                console.error('Error updating password:', error.message)
+                alert(error.message)
+                return
+            }
+            alert('Password reset successful. Redirecting you to login.')
             setValidSession(false)
+            navigate('/login')
         }
     }
 
