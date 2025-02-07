@@ -20,26 +20,27 @@ function Register() {
   }, [navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-      event.preventDefault();
-      const { data, error }: AuthResponse = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: 'http://localhost:5173/welcome',
-        },
-      })
+    event.preventDefault();
+    const { data, error }: AuthResponse = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: 'http://localhost:5173/welcome',
+        data: { company: company.trim() } // Send company info in metadata
+      },
+    })
 
-      if (error) {
-        console.error('Error signing up:', error.message)
-        alert(error.message)
-        return
-      } else if (data.user?.identities?.length === 0) {
-        console.error('User already Exists')
-        alert('User already Exists')
-        return
-      }
-      console.log('Account Created: ', data.user)
-      alert('Signup successful! Check your email for confirmation.');
+    if (error) {
+      console.error('Error signing up:', error.message)
+      alert(error.message)
+      return
+    } else if (data.user?.identities?.length === 0) {
+      console.error('User already Exists')
+      alert('User already Exists')
+      return
+    }
+    console.log('Account Created: ', data.user)
+    alert('Signup successful! Check your email for confirmation.');
   }
 
   return (
