@@ -7,15 +7,18 @@ function ForgotPassword() {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault()
-        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: 'http://localhost:5173/reset-password',
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email, { //call reset password function from supabase
+            redirectTo: 'http://localhost:5173/reset-password', //temporary reset link
         })
 
+        // Error handling
         if (error) {
             console.error(error.message)
             alert(error.message)
             return
         }
+
+        // Success message
         if (data) {
             console.log('Password reset email sent')
             alert('Password reset email sent. You may close this tab.')

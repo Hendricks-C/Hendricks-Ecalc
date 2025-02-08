@@ -9,6 +9,7 @@ function Login() {
   const [password, setPassword] = useState<string>('')
   const navigate = useNavigate()
 
+  //checking for existing user session
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
       if (session) {
@@ -16,20 +17,24 @@ function Login() {
       }
     });
   
-    return () => authListener.subscription.unsubscribe();
+    return () => authListener.subscription.unsubscribe(); //clean up
   }, [navigate]);
 
+  //login user
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
-    const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({
+    const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({ //call signin function from supabase
       email,
       password,
     })
 
+    // error handling
     if (error) {
       alert(error.message)
       return
     }
+
+    // success message
     console.log('logged in: ', data.user)
     navigate('/welcome')
   }

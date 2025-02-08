@@ -10,6 +10,7 @@ function ForgotPassword() {
 
     const navigate = useNavigate()
 
+    // Check for existing user session
     useEffect(() => {
         supabase.auth.onAuthStateChange(async (event, session) => {
           if (event == "PASSWORD_RECOVERY") {
@@ -18,24 +19,30 @@ function ForgotPassword() {
         })
     }, [])
 
+    // Reset password
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault()
-        if (!validSession) {
+        if (!validSession) { // Check if session is valid
             alert('Invalid session. Please request a new password reset email.')
             return
         } 
-        else if (password !== confirm) {
+        else if (password !== confirm) { // Check if passwords match
             alert('Passwords do not match.')
             return
-        } else {
-            const { data, error } = await supabase.auth.updateUser({
+        } 
+        else { // reset password if all checks pass
+            const { data, error } = await supabase.auth.updateUser({ //call update user function from supabase
                 password: password
             })
-            if (error) {
+
+            // Error handling
+            if (error) { 
                 console.error('Error updating password:', error.message)
                 alert(error.message)
                 return
             }
+
+            // Success message
             alert('Password reset successful. Redirecting you to login.')
             setValidSession(false)
             navigate('/login')
@@ -52,6 +59,7 @@ function ForgotPassword() {
                     </div>
                     <div className="">
                         <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+                            {/* Form fields */}
                             <div className='flex flex-col gap-1'>   
                                 <label className="flex">New password:</label>
                                 <input

@@ -7,38 +7,43 @@ function Register() {
   const [email, setEmail] = useState<string>('')
   const [company, setCompany] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const navigate = useNavigate()
+  const navigate = useNavigate() //used to redirect to different page
 
+  //checking for existing user session
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
       if (session) {
-        navigate("/welcome");
+        navigate("/welcome"); //redirect to welcome page if user is already logged in
       }
     });
   
-    return () => authListener.subscription.unsubscribe();
+    return () => authListener.subscription.unsubscribe(); //clean up
   }, [navigate]);
 
+  //register user
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    const { data, error }: AuthResponse = await supabase.auth.signUp({
+    const { data, error }: AuthResponse = await supabase.auth.signUp({ //call signup function from supabase
       email,
       password,
       options: {
-        emailRedirectTo: 'http://localhost:5173/welcome',
+        emailRedirectTo: 'http://localhost:5173/welcome', //temporary welcome link
         data: { company: company.trim() } // Send company info in metadata
       },
     })
 
+    //error handling
     if (error) {
-      console.error('Error signing up:', error.message)
-      alert(error.message)
+      console.error('Error signing up:', error.message) 
+      alert(error.message) 
       return
     } else if (data.user?.identities?.length === 0) {
       console.error('User already Exists')
       alert('User already Exists')
       return
     }
+
+    //success message
     console.log('Account Created: ', data.user)
     alert('Signup successful! Check your email for confirmation.');
   }
@@ -54,6 +59,7 @@ function Register() {
                 <h2>Fill in the fields below</h2>
                 <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-gray-100">
                     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                        {/* Form fields */}
                         <div>
                             <label className="flex">Email:</label>
                             <input

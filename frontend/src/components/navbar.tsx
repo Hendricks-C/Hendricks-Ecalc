@@ -28,9 +28,10 @@ function Navbar() {
         return () => authListener.subscription.unsubscribe();
     }, []);
 
+    // handle signout button
     const handleClick = async () => {
         const { error } = await supabase.auth.signOut()
-        if (error) {
+        if (error) { // Error handling
             console.error('Error logging out:', error.message)
             return
         }
