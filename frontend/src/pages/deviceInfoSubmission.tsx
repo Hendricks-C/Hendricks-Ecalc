@@ -30,7 +30,7 @@ function DeviceInfoSubmission() {
         return () => authListener.subscription.unsubscribe(); //clean up
      }, [navigate]);
 
-    // handles submission of device(s) info to supabase
+    // should handle submission of device(s) info to supabase database
     const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
         for (let i = 0; i < devices.length; i++) {
             console.log(devices[i]);
