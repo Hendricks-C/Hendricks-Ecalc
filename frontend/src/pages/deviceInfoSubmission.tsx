@@ -30,11 +30,29 @@ function DeviceInfoSubmission() {
         return () => authListener.subscription.unsubscribe(); //clean up
      }, [navigate]);
 
-    // should handle submission of device(s) info to supabase database
+    // handles submission of device(s) info to supabase database
     const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-        for (let i = 0; i < devices.length; i++) {
-            console.log(devices[i]);
+        const { data: { user } } = await supabase.auth.getUser();
+        console.log(user);
+
+        // mapping device info to the correct table column attributes for bulk insertion as an array
+        const mapToInsert = devices.map((device) => {
+            return {
+                user_id: user?.id,
+                device_type: device.device,
+                manufacturer: device.manufacturer,
+                device_condition: device.deviceCondition,
+                weight: parseFloat(device.weight)
+            }
+        });
+        const { error } = await supabase.from('devices').insert(mapToInsert);
+
+        // error handling
+        if (error) {
+            console.error('Error inserting devices:', error.message);
+            return;
         }
+
     }
 
     // adds more devices when "+ Add more devices" is clicked
