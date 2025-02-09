@@ -5,6 +5,7 @@ import Welcome from './pages/welcome.tsx'
 import Navbar from './components/navbar.tsx'
 import ForgotPassword from './pages/forgotPassword.tsx'
 import ResetPassword from './pages/resetPassword.tsx'
+import DeviceInfoSubmission from './pages/deviceInfoSubmission.tsx'
 function App() {
 
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/welcome" element={<Welcome/>} />
         <Route path="/forgot-password" element={<ForgotPassword/>} />
         <Route path="/reset-password" element={<ResetPassword/>} />
+        <Route path="/device-info-submission" element={<DeviceInfoSubmission/>} />
       </Routes>
     </BrowserRouter>
     

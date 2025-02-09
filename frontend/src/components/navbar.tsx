@@ -52,7 +52,10 @@ function Navbar() {
                         <Link to="/register" className="no-underline hover:underline">Register</Link>
                     </>
                     ) : (
+                    <>
+                        <Link to="/device-info-submission" className="no-underline hover:underline">Devices</Link>
                         <button onClick={handleClick} className="border p-1 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600">Sign Out</button>
+                    </>
                     )}
                     
                 </div>
