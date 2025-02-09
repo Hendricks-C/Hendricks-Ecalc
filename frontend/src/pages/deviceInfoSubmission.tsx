@@ -32,8 +32,7 @@ function DeviceInfoSubmission() {
 
     // handles submission of device(s) info to supabase database
     const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-        const { data: { user } } = await supabase.auth.getUser();
-        console.log(user);
+        const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
 
         // mapping device info to the correct table column attributes for bulk insertion as an array
         const mapToInsert = devices.map((device) => {
