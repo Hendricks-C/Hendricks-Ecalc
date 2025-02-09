@@ -6,6 +6,8 @@ import Navbar from './components/navbar.tsx'
 import ForgotPassword from './pages/forgotPassword.tsx'
 import ResetPassword from './pages/resetPassword.tsx'
 import DeviceInfoSubmission from './pages/deviceInfoSubmission.tsx'
+import SerialNumInput from './pages/serialNumInput.tsx'
+
 function App() {
 
   return (
@@ -23,6 +25,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword/>} />
         <Route path="/reset-password" element={<ResetPassword/>} />
         <Route path="/device-info-submission" element={<DeviceInfoSubmission/>} />
+        <Route path="/serialNumInput" element={<SerialNumInput/>} />
       </Routes>
     </BrowserRouter>
     
