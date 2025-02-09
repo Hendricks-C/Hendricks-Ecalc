@@ -85,27 +85,27 @@ function DeviceInfoSubmission() {
                                 <label className="flex">Device:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Devices</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
+                                    <option value="1">Apple MacBook Air (M2, 2022)</option>
+                                    <option value="2">Lenovo ThinkPad X1 Carbon (Gen 9)</option>
+                                    <option value="3">ASUS ZenBook 13 OLED</option>
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>   
                                 <label className="flex">Manufacturer:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Manufacturer</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
+                                    <option value="1">Apple</option>
+                                    <option value="2">Lenovo</option>
+                                    <option value="3">Asus</option>
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>   
                                 <label className="flex">Device Condition:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'deviceCondition', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Device Condition</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
+                                    <option value="1">Excellent</option>
+                                    <option value="2">Lightly Used</option>
+                                    <option value="3">Worn/Damaged</option>
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>   
