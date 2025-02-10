@@ -9,6 +9,15 @@ interface DeviceInfo {
     weight: string;
 }
 
+const laptopManufacturers = [
+    "Acer", "Alienware", "Apple", "Asus", "Averatec", "Clevo", "Compaq", "Dell", "Digital Storm",
+    "eMachines", "Everex", "EVGA Corporation", "Falcon Northwest", "Founder", "Fujitsu", "Gateway",
+    "Gigabyte Technology", "Google", "Gradiente", "Haier", "Hasee", "HP", "Huawei", "Hyundai",
+    "iBall", "IBM", "Lanix", "Lemote", "Lenovo", "LG", "Maingear", "Medion", "Micro-Star International (MSI)",
+    "Microsoft", "NEC", "Origin PC", "Panasonic", "Positivo", "Razer", "Samsung Electronics",
+    "Sharp", "Sony", "System76", "Toshiba", "Tongfang", "VIA", "Vizio", "Walton", "Xiaomi"
+  ];
+
 function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
     const [devices, setDevices] = useState<DeviceInfo[]>([{
@@ -97,9 +106,9 @@ function DeviceInfoSubmission() {
                                 <label className="flex">Manufacturer:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Manufacturer</option>
-                                    <option value="Apple">Apple</option>
-                                    <option value="Lenovo">Lenovo</option>
-                                    <option value="Asus">Asus</option>
+                                    {laptopManufacturers.map((manufacturer) => (
+                                        <option value={manufacturer}>{manufacturer}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>
