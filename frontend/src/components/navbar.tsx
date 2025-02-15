@@ -18,11 +18,7 @@ function Navbar() {
             }
             
             // Check if the user is an admin based on their email domain
-            const userEmail = data?.user?.email;
-            const emailExtension = userEmail?.split('@')[1];
-            if (emailExtension === 'gmail.com') {
-                setIsAdmin(true);
-            }
+            setIsAdmin(data?.user?.email?.endsWith('@gmail.com') || false);
         }
 
         checkUser();
@@ -30,6 +26,7 @@ function Navbar() {
         // Listen for auth state changes
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             setUser(session?.user || null);
+            setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);
         });
 
         //Cleans up the listener when the component unmounts.
