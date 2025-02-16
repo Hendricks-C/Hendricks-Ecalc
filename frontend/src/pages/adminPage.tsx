@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import {useReactTable, ColumnDef, getCoreRowModel, flexRender} from '@tanstack/react-table'
 
 interface DevicesQuery{
-    user_id: string;
+    name: string;
     device_type: string;
     weight: number;
     device_condition: string;
@@ -20,19 +20,36 @@ function AdminPage() {
         async function fetchData() {
             const { data, error } = await supabase
                 .from('devices')
-                .select('user_id, device_type, weight, device_condition, manufacturer, date_donated');
+                .select('device_type, weight, device_condition, manufacturer, date_donated, profiles (first_name, last_name)')
             if (error) {
                 console.error("Error fetching devices:", error.message);
             } else {
-                setDevices(data ?? []);
+                console.log("Devices fetched successfully:", data);
+
+                //flattening the data and formatting it to be displayed in the table
+                const formattedData = data.map((device) => {
+                    return (
+                        {
+                            name: `${device.profiles.first_name} ${device.profiles.last_name}`,
+                            device_type: device.device_type,
+                            weight: device.weight,
+                            device_condition: device.device_condition,
+                            manufacturer: device.manufacturer,
+                            date_donated: device.date_donated
+                        }
+                    )
+                }) ?? [];
+                setDevices(formattedData);
+                console.log('Devices', devices);
             }
         }
         fetchData();
+        
     },[]);
 
     //columns definition for tanstack table
     const columns: ColumnDef<DevicesQuery>[] = [
-        { accessorKey: "user_id", header: "User ID", cell: (props) => <p>{String(props.getValue()).split('-')[0]}</p> },
+        { accessorKey: "name", header: "Full Name", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_type", header: "Device Type", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "weight", header: "Weight (lbs)", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_condition", header: "Condition", cell: (props) => <p>{String(props.getValue())}</p> },
