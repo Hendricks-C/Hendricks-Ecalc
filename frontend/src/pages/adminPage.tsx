@@ -14,6 +14,24 @@ interface DevicesQuery{
 
 function AdminPage() {
     const [devices, setDevices] = useState<DevicesQuery[]>([]);
+    const [user, setUser] = useState<any>(null)
+    const [isAdmin, setIsAdmin] = useState(true);
+    const navigate = useNavigate();
+    // checking for existing user session
+    useEffect(() => {
+        const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+            if (!session) {
+                navigate("/welcome");
+            }
+            setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);
+            if (!isAdmin) {
+                navigate("/welcome");
+            }
+        });
+
+        return () => authListener.subscription.unsubscribe(); //clean up
+    }, [isAdmin]);
+
 
     //fetching devices data from supabase database
     useEffect(()=>{
