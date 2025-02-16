@@ -14,6 +14,8 @@ interface DevicesQuery{
 
 function AdminPage() {
     const [devices, setDevices] = useState<DevicesQuery[]>([]);
+
+    //fetching devices data from supabase database
     useEffect(()=>{
         async function fetchData() {
             const { data, error } = await supabase
@@ -38,14 +40,13 @@ function AdminPage() {
         { accessorKey: "date_donated", header: "Date Donated", cell: (props) => <p>{String(props.getValue())}</p> },
     ];
 
-    //admin table instance declaration
+    //admin table react-table instance declaration
     const adminTable = useReactTable({
         data: devices,
         columns,
         getCoreRowModel: getCoreRowModel(),
     });
 
-    console.log("table raw", adminTable.getHeaderGroups());
     return (
         <>
             <div className='flex flex-col justify-center rounded-lg bg-white border border-gray-300 m-4'>
@@ -64,36 +65,38 @@ function AdminPage() {
                         className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white w-full"
                     />
                 </div>
-                <table className="table-auto w-[95%] border-collapse rounded-xl border-neutral-200 bg-gray-100 m-8">
-                    <thead>
-                        {adminTable.getHeaderGroups().map(headerGroup => 
-                            <tr key={headerGroup.id}>
-                                {headerGroup.headers.map(
-                                    header => 
-                                    <th key={header.id} className='border-b-[0.5px] border-neutral-200 px-4 py-2 text-left'>
-                                        {String(header.column.columnDef.header)}
-                                    </th>
-                                )}
-                            </tr>
-                        )}
-                        
-                    </thead>
-                    <tbody>
-                        {adminTable.getRowModel().rows.map(row => 
-                            <tr key={row.id}>
-                                {row.getVisibleCells().map(cell => 
-                                    <td key={cell.id} className='border-b-[0.5px] border-neutral-200 px-4 py-2 text-left'>
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    </td>
-                                )}
-                            </tr>
-                        )}                        
-                    </tbody>
-                </table>
-                
+
+                <div className='flex'>
+                    <table className="table-auto w-full border-collapse rounded-xl border-neutral-200 bg-gray-100 m-8">
+                        <thead>
+                            {adminTable.getHeaderGroups().map(headerGroup => 
+                                <tr key={headerGroup.id}>
+                                    {headerGroup.headers.map(
+                                        header => 
+                                        <th key={header.id} className='border-b-[0.5px] border-neutral-200 px-4 py-2 text-left'>
+                                            {String(header.column.columnDef.header)}
+                                        </th>
+                                    )}
+                                </tr>
+                            )}
+                            
+                        </thead>
+                        <tbody>
+                            {adminTable.getRowModel().rows.map(row => 
+                                <tr key={row.id}>
+                                    {row.getVisibleCells().map(cell => 
+                                        <td key={cell.id} className='border-b-[0.5px] border-neutral-200 px-4 py-2 text-left'>
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </td>
+                                    )}
+                                </tr>
+                            )}                        
+                        </tbody>
+                    </table>              
+                </div>
             </div>
         </>
     )
