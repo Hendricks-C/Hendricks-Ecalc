@@ -96,10 +96,21 @@ function DeviceInfoSubmission() {
                             <div className='flex flex-col gap-1'>
                                 <label className="flex">Device:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
-                                    <option value="none">Devices</option>
-                                    <option value="Apple MacBook Air (M2, 2022)">Apple MacBook Air (M2, 2022)</option>
-                                    <option value="Lenovo ThinkPad X1 Carbon (Gen 9)">Lenovo ThinkPad X1 Carbon (Gen 9)</option>
-                                    <option value="ASUS ZenBook 13 OLED">ASUS ZenBook 13 OLED</option>
+                                    <option value="none">Device</option>
+                                    <option value="CPU">CPU</option>
+                                    <option value="smartphone">Smartphone</option>
+                                    <option value="tablet">Tablet</option>
+                                    <option value="laptop">Laptop</option>
+                                    <option value="modern monitor">Modern monitor</option>
+                                    <option value="laptop screen">Laptop screen</option>
+                                    <option value="CRT monitor (older, not in laptop)">CRT monitor (older, not in laptop)</option>
+                                    <option value="mouse">Mouse</option>
+                                    <option value="keyboard">Keyboard</option>
+                                    <option value="external hard drive">External hard drive</option>
+                                    <option value="charger">Charger</option>
+                                    <option value="printer">Printer</option>
+                                    <option value="scanner">Scanner</option>
+                                    <option value="copier">Copier</option>
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>
