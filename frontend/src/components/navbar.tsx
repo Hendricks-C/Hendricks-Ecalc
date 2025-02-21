@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 function Navbar() {
 
     const [user, setUser] = useState<any>(null)
+    const[isAdmin, setIsAdmin] = useState(false)
     const navigate = useNavigate()
 
     // Check for existing user session
@@ -15,6 +16,9 @@ function Navbar() {
             if (!error) {
                 setUser(data?.user || null);
             }
+            
+            // Check if the user is an admin based on their email domain
+            setIsAdmin(data?.user?.email?.endsWith('@gmail.com') || false);
         }
 
         checkUser();
@@ -22,6 +26,7 @@ function Navbar() {
         // Listen for auth state changes
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             setUser(session?.user || null);
+            setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);
         });
 
         //Cleans up the listener when the component unmounts.
@@ -54,6 +59,7 @@ function Navbar() {
                     ) : (
                     <>
                         <Link to="/device-info-submission" className="no-underline hover:underline">Devices</Link>
+                        {isAdmin ? <Link to="/admin" className="no-underline hover:underline">Admin</Link> : null}
                         <button onClick={handleClick} className="border p-1 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600">Sign Out</button>
                     </>
                     )}
