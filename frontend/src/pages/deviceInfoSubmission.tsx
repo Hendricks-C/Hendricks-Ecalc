@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
-import { calculateCO2Emissions, calculateMaterialComposition } from './ewasteCalculations'
 // interface for DeviceInfo values
 export interface DeviceInfo {
     device: string;

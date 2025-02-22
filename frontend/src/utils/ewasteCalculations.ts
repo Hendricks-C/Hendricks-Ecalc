@@ -176,5 +176,5 @@ export function calculateCO2Emissions(device: DeviceInfo): number {
     if (!co2Emissions) {
         return 0;
     }
-    return weight / lbsToShortTon * co2Emissions;
+    return weight / lbsToShortTon * co2Emissions * lbsToShortTon;
 }
