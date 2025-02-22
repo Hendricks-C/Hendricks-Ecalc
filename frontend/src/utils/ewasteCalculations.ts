@@ -1,4 +1,4 @@
-import { DeviceInfo } from "./deviceInfoSubmission";
+import { DeviceInfo } from "../pages/deviceInfoSubmission";
 
 //interface for material composition of a device, used for both material weight and CO2 emissions calculations
 interface MaterialComposition {
@@ -129,7 +129,7 @@ const categoryToMaterialComposition: Map<string, MaterialComposition> = new Map(
     ],
 ]);
 
-//takes in a device and returns the amount of materials of the device saved
+//takes in a device and returns the weight composition of materials saved
 export function calculateMaterialComposition(device: DeviceInfo): MaterialComposition {
     const weightComposition: MaterialComposition = {
         ferrousMetal: 0,
@@ -166,7 +166,7 @@ export function calculateMaterialComposition(device: DeviceInfo): MaterialCompos
 
 //takes in a device and returns the amount of CO2 emissions saved
 export function calculateCO2Emissions(device: DeviceInfo): number {
-    const shortTonToKg: number = 907.185;
+    const lbsToShortTon: number = 2000;
     const weight: number = Number(device.weight);
     const category: string | undefined = deviceToCategory.get(device.device);
     if (!category) {
@@ -176,5 +176,5 @@ export function calculateCO2Emissions(device: DeviceInfo): number {
     if (!co2Emissions) {
         return 0;
     }
-    return weight / shortTonToKg * co2Emissions;
+    return weight / lbsToShortTon * co2Emissions;
 }
