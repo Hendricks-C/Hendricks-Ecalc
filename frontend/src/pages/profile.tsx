@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import supabase from "../utils/supabase";
+import { AuthResponse } from '@supabase/supabase-js'
 import { useNavigate } from "react-router-dom";
 
 const UserProfile = () => {
-  const [currentEmail, setEmail] = useState<String>();
-  const [newEmail, setNewEmail] = useState<String>();
+  const [currentEmail, setEmail] = useState<string>();
+  const [newEmail, setNewEmail] = useState<string>();
 
-  const [currentPassword, setPassword] = useState<String>();
-  const [newPassword, setNewPassword] = useState<String>();
-  const [confirmPassword, setConfirmPassword] = useState<String>();
+  const [currentPassword, setPassword] = useState<string>();
+  const [newPassword, setNewPassword] = useState<string>();
+  const [confirmPassword, setConfirmPassword] = useState<string>();
 
   const [passLenErrorCurr, setPassLenErrorCurr] = useState(false);
   const [passLenErrorNew, setPassLenErrorNew] = useState(false);
   const [passwordConfirmError, setPasswordConfirmError] = useState(false);
+  const [wrongPassword, setWrongPasswordError] = useState(false);
 
   const changePassword = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -35,8 +37,28 @@ const UserProfile = () => {
       setPasswordConfirmError(true);
     }
 
-    
+    const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({
+      email: currentEmail,
+      password: currentPassword,
+    })
 
+    // error handling
+    if (error) {
+      setWrongPasswordError(true);
+      return;
+    }
+
+    // Update password in Supabase
+    const { user, error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      alert(updateError.message);
+      return;
+    }
+
+    alert('Password updated successfully!');
     
   }
   
@@ -118,6 +140,7 @@ const UserProfile = () => {
                         className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
                         />
                         {passLenErrorCurr && <p className="text-red-400">Password must be at least 8 characters.</p>}
+                        {wrongPassword && <p className="text-red-400">Incorrect password</p>}
                     </div>
                     <div>
                         <label>New password</label>
