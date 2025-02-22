@@ -41,8 +41,16 @@ function DeviceInfoSubmission() {
 
     // handles submission of device(s) info to supabase database
     const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-        const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
+        //making sure all fields are filled
+        for (let i = 0; i < devices.length; i++) {
+            if (devices[i].device === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
+                alert('Please fill in all fields');
+                return;
+            }
+        }
         
+        const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
+
         // mapping device info to the correct table column attributes for bulk insertion as an array
         const mapToInsert = devices.map((device) => {
             return {
