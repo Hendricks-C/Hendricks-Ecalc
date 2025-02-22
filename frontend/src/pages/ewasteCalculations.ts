@@ -1,5 +1,6 @@
 import { DeviceInfo } from "./deviceInfoSubmission";
 
+//interface for material composition of a device, used for both material weight and CO2 emissions calculations
 interface MaterialComposition {
     ferrousMetal: number;
     aluminum: number;
@@ -12,6 +13,7 @@ interface MaterialComposition {
     battery: number;
 }
 
+//maps devices to their respective categories
 const deviceToCategory: Map<string, string> = new Map([
     ["CPU", "CPU"],
     ["Smartphone", "portable devices"],
@@ -39,6 +41,7 @@ const categoryToCO2Emissions: Map<string, number> = new Map([
     ["hard copy devices", 1.91],
 ]);
 
+//material composition is in percentage of the device weight
 const categoryToMaterialComposition: Map<string, MaterialComposition> = new Map([
     [
       "CPU",
@@ -126,6 +129,7 @@ const categoryToMaterialComposition: Map<string, MaterialComposition> = new Map(
     ],
 ]);
 
+//takes in a device and returns the amount of materials of the device saved
 export function calculateMaterialComposition(device: DeviceInfo): MaterialComposition {
     const weightComposition: MaterialComposition = {
         ferrousMetal: 0,
@@ -160,6 +164,7 @@ export function calculateMaterialComposition(device: DeviceInfo): MaterialCompos
     return weightComposition;
 }
 
+//takes in a device and returns the amount of CO2 emissions saved
 export function calculateCO2Emissions(device: DeviceInfo): number {
     const shortTonToKg: number = 907.185;
     const weight: number = Number(device.weight);
