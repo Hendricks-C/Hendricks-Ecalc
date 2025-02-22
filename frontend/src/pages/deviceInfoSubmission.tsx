@@ -9,7 +9,7 @@ interface DeviceInfo {
     weight: string;
 }
 
-const laptopManufacturers = [
+const manufacturers = [
     "Acer", "Alienware", "Apple", "Asus", "Averatec", "Clevo", "Compaq", "Dell", "Digital Storm",
     "eMachines", "Everex", "EVGA Corporation", "Falcon Northwest", "Founder", "Fujitsu", "Gateway",
     "Gigabyte Technology", "Google", "Gradiente", "Haier", "Hasee", "HP", "Huawei", "Hyundai",
@@ -98,26 +98,26 @@ function DeviceInfoSubmission() {
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Device</option>
                                     <option value="CPU">CPU</option>
-                                    <option value="smartphone">Smartphone</option>
-                                    <option value="tablet">Tablet</option>
-                                    <option value="laptop">Laptop</option>
-                                    <option value="modern monitor">Modern monitor</option>
-                                    <option value="laptop screen">Laptop screen</option>
+                                    <option value="Smartphone">Smartphone</option>
+                                    <option value="Tablet">Tablet</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="Modern monitor">Modern monitor</option>
+                                    <option value="Laptop screen">Laptop screen</option>
                                     <option value="CRT monitor (older, not in laptop)">CRT monitor (older, not in laptop)</option>
-                                    <option value="mouse">Mouse</option>
-                                    <option value="keyboard">Keyboard</option>
-                                    <option value="external hard drive">External hard drive</option>
-                                    <option value="charger">Charger</option>
-                                    <option value="printer">Printer</option>
-                                    <option value="scanner">Scanner</option>
-                                    <option value="copier">Copier</option>
+                                    <option value="Mouse">Mouse</option>
+                                    <option value="Keyboard">Keyboard</option>
+                                    <option value="External hard drive">External hard drive</option>
+                                    <option value="Charger">Charger</option>
+                                    <option value="Printer">Printer</option>
+                                    <option value="Scanner">Scanner</option>
+                                    <option value="Copier">Copier</option>
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex">Manufacturer:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Manufacturer</option>
-                                    {laptopManufacturers.map((manufacturer) => (
+                                    {manufacturers.map((manufacturer) => (
                                         <option value={manufacturer}>{manufacturer}</option>
                                     ))}
                                 </select>
