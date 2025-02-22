@@ -48,7 +48,7 @@ function DeviceInfoSubmission() {
                 return;
             }
         }
-        
+
         const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
 
         // mapping device info to the correct table column attributes for bulk insertion as an array
@@ -77,6 +77,13 @@ function DeviceInfoSubmission() {
     // adds more devices when "+ Add more devices" is clicked
     const addDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
         setDevices([...devices, { device: '', manufacturer: '', deviceCondition: '', weight: '' }]);
+    }
+
+    // removes a device when "- Remove device" is clicked if there is more than one device
+    const removeDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
+        const newDevices = [...devices];
+        newDevices.pop();
+        setDevices(newDevices);
     }
 
     // function that updates device info values in devices array according to user input
@@ -145,7 +152,10 @@ function DeviceInfoSubmission() {
                             </div>
                         </div>
                     ))}
-                    <a onClick={addDevice} className="self-end bg-none hover:underline cursor-pointer">+ Add more devices</a>
+                    <div className="flex flex-col">
+                        <a onClick={addDevice} className="self-end bg-none hover:underline cursor-pointer">+ Add a device</a>
+                        {devices.length > 1 ? <a onClick={removeDevice} className="self-end bg-none hover:underline cursor-pointer">- Remove device</a> : null}
+                    </div> 
                 </div>
                 <button onClick={handleNext} className="mt-5 border p-2 w-1/4 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Next</button>
             </div>
