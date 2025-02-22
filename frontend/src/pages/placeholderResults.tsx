@@ -9,10 +9,10 @@ function PlaceholderResults() {
 
     return (
         <>
-            <h1>Results</h1>
+            <h1 className='m-10'>Results</h1>
             <div>
                 {devices.map((device, index) => (
-                    <div key={index}>
+                    <div className="flex flex-col justify-center m-10" key={index}>
                         <h2>Device {index + 1}</h2>
                         <p>Device: {device.device}</p>
                         <h3>Material Composition</h3>
