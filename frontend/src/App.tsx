@@ -8,6 +8,7 @@ import ResetPassword from './pages/resetPassword.tsx'
 import DeviceInfoSubmission from './pages/deviceInfoSubmission.tsx'
 import SerialNumInput from './pages/serialNumInput.tsx'
 import AdminPage from './pages/adminPage.tsx'
+import PlaceholderResults from './pages/placeholderResults.tsx'
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/device-info-submission" element={<DeviceInfoSubmission/>} />
         <Route path="/serialNumInput" element={<SerialNumInput/>} />
         <Route path="/admin" element={<AdminPage/>} />
+        <Route path="/results" element={<PlaceholderResults/>} />
       </Routes>
     </BrowserRouter>
     

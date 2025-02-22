@@ -1,12 +1,17 @@
 import { calculateCO2Emissions, calculateMaterialComposition } from './ewasteCalculations'
 import {DeviceInfo} from './deviceInfoSubmission'
+import { useLocation } from 'react-router-dom';
 
-function PlaceholderResults(props: {device: DeviceInfo[]}) {
+
+function PlaceholderResults() {
+    const location = useLocation();
+    const devices = location.state.devices as DeviceInfo[];
+
     return (
         <>
             <h1>Results</h1>
             <div>
-                {props.device.map((device, index) => (
+                {devices.map((device, index) => (
                     <div key={index}>
                         <h2>Device {index + 1}</h2>
                         <p>Device: {device.device}</p>

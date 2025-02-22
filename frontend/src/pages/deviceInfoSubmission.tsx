@@ -62,7 +62,7 @@ function DeviceInfoSubmission() {
             return;
         } else {
             console.log('devices successfully added')
-            navigate("/serialNumInput");
+            navigate('/results', { state: { devices } });
         }
 
     }
@@ -102,12 +102,12 @@ function DeviceInfoSubmission() {
                                     <option value="Smartphone">Smartphone</option>
                                     <option value="Tablet">Tablet</option>
                                     <option value="Laptop">Laptop</option>
-                                    <option value="Modern monitor">Modern monitor</option>
-                                    <option value="Laptop screen">Laptop screen</option>
-                                    <option value="CRT monitor (older, not in laptop)">CRT monitor (older, not in laptop)</option>
+                                    <option value="Modern Monitor">Modern Monitor</option>
+                                    <option value="Laptop Screen">Laptop Screen</option>
+                                    <option value="CRT Monitor (Older, Not In Laptop)">CRT monitor (older, not in laptop)</option>
                                     <option value="Mouse">Mouse</option>
                                     <option value="Keyboard">Keyboard</option>
-                                    <option value="External hard drive">External hard drive</option>
+                                    <option value="External Hard Drive">External hard drive</option>
                                     <option value="Charger">Charger</option>
                                     <option value="Printer">Printer</option>
                                     <option value="Scanner">Scanner</option>
