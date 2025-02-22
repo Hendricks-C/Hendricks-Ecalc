@@ -16,6 +16,10 @@ const UserProfile = () => {
   const [passwordConfirmError, setPasswordConfirmError] = useState(false);
   const [wrongPassword, setWrongPasswordError] = useState(false);
 
+  /**
+   * @returns Uses the signInWithPassword to check if the current password the user inputs is the one tied to the 
+   * account. Then will update the password accordingly.
+   */
   const changePassword = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
 
@@ -87,12 +91,11 @@ const UserProfile = () => {
     return () => authListener.subscription.unsubscribe(); //clean up
   }, [navigate]);
 
-    // Handle password change for dynamic validation
+    // Handle password changes for dynamic validation
     const handleCurrentPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const password = e.target.value;
       setPassword(password);
-  
-      // Check password length on each change
+
       if (password.length >= 8) {
         setPassLenErrorCurr(false);
       } else {
@@ -104,7 +107,6 @@ const UserProfile = () => {
       const password = e.target.value;
       setNewPassword(password);
   
-      // Check password length on each change
       if (password.length >= 8) {
         setPassLenErrorNew(false);
       } else {
