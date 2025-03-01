@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
+import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
+
+
+
 // interface for DeviceInfo values
 export interface DeviceInfo {
     device: string;
@@ -50,18 +54,30 @@ function DeviceInfoSubmission() {
         }
 
         const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
-
-        // mapping device info to the correct table column attributes for bulk insertion as an array
+        
+        // function for mapping device info to the correct table column attributes for bulk insertion as an array
         const mapToInsert = devices.map((device) => {
+            const materialCompositionSaved: MaterialComposition = calculateMaterialComposition(device);
+            const co2Emissions: number = calculateCO2Emissions(device);
             return {
                 user_id: user?.id,
                 device_type: device.device,
                 manufacturer: device.manufacturer,
                 device_condition: device.deviceCondition,
-                weight: parseFloat(device.weight)
+                weight: parseFloat(device.weight),
+                ferrous_metals: materialCompositionSaved.ferrousMetal,
+                aluminum: materialCompositionSaved.aluminum,
+                copper: materialCompositionSaved.copper,
+                other_metals: materialCompositionSaved.otherMetals,
+                plastics: materialCompositionSaved.plastic,
+                pcb: materialCompositionSaved.pcb,
+                flat_panel_display_module: materialCompositionSaved.flatPanelDisplayModule,
+                crt_glass_and_lead: materialCompositionSaved.crtGlassAndLead,
+                batteries: materialCompositionSaved.battery,
+                co2_emissions: co2Emissions,
             }
         });
-        const { error } = await supabase.from('devices').insert(mapToInsert);
+        const { error } = await supabase.from('devices').insert(mapToInsert); //actual insertion of devices into supabase database
 
         // error handling
         if (error) {

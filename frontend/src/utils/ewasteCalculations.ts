@@ -72,7 +72,7 @@ const categoryToMaterialComposition: Map<string, MaterialComposition> = new Map(
       },
     ],
     [
-      "flat-panel displays",
+      "flat panel displays",
       {
         ferrousMetal: 37,
         aluminum: 7,
