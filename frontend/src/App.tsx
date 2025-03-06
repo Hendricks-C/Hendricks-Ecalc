@@ -9,6 +9,7 @@ import DeviceInfoSubmission from './pages/deviceInfoSubmission.tsx'
 import SerialNumInput from './pages/serialNumInput.tsx'
 import AdminPage from './pages/adminPage.tsx'
 import Profile from './pages/profile.tsx'
+import PlaceholderResults from './pages/placeholderResults.tsx'
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/serialNumInput" element={<SerialNumInput />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminPage/>} />
+        <Route path="/results" element={<PlaceholderResults/>} />
       </Routes>
     </BrowserRouter>
   );

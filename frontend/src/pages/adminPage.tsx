@@ -10,12 +10,21 @@ interface DevicesQuery{
     device_condition: string;
     manufacturer: string;
     date_donated: string;
+    ferrous_metals: number;
+    aluminum: number;
+    copper: number;
+    other_metals: number;
+    plastics: number;
+    pcb: number;
+    flat_panel_display_module: number;
+    crt_glass_and_lead: number;
+    batteries: number;
+    co2_emissions: number;
 }
 
 function AdminPage() {
     const [devices, setDevices] = useState<DevicesQuery[]>([]);
-    const [user, setUser] = useState<any>(null)
-    const [isAdmin, setIsAdmin] = useState(true);
+    const [isAdmin, setIsAdmin] = useState<boolean>(true);
     const navigate = useNavigate();
     // checking for existing user session
     useEffect(() => {
@@ -30,7 +39,7 @@ function AdminPage() {
         });
 
         return () => authListener.subscription.unsubscribe(); //clean up
-    }, [isAdmin]);
+    }, [navigate, isAdmin]);
 
 
     //fetching devices data from supabase database
@@ -38,7 +47,7 @@ function AdminPage() {
         async function fetchData() {
             const { data, error } = await supabase
                 .from('devices')
-                .select('device_type, weight, device_condition, manufacturer, date_donated, profiles (first_name, last_name)')
+                .select('device_type, weight, device_condition, manufacturer, date_donated, ferrous_metals, aluminum, copper, other_metals, plastics, pcb, flat_panel_display_module, crt_glass_and_lead, batteries, co2_emissions, profiles (first_name, last_name)')
             if (error) {
                 console.error("Error fetching devices:", error.message);
             } else {
@@ -53,7 +62,17 @@ function AdminPage() {
                             weight: device.weight,
                             device_condition: device.device_condition,
                             manufacturer: device.manufacturer,
-                            date_donated: device.date_donated
+                            date_donated: device.date_donated,
+                            ferrous_metals: device.ferrous_metals,
+                            aluminum: device.aluminum,
+                            copper: device.copper,
+                            other_metals: device.other_metals,
+                            plastics: device.plastics,
+                            pcb: device.pcb,
+                            flat_panel_display_module: device.flat_panel_display_module,
+                            crt_glass_and_lead: device.crt_glass_and_lead,
+                            batteries: device.batteries,
+                            co2_emissions: device.co2_emissions
                         }
                     )
                 }) ?? [];
@@ -73,6 +92,16 @@ function AdminPage() {
         { accessorKey: "device_condition", header: "Condition", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "manufacturer", header: "Manufacturer", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "date_donated", header: "Date Donated", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "ferrous_metals", header: "Ferrous Metals", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "aluminum", header: "Aluminum", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "copper", header: "Copper", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "other_metals", header: "Other Metals", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "plastics", header: "Plastics", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "pcb", header: "PCB", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "flat_panel_display_module", header: "Flat Panel Display Module", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "crt_glass_and_lead", header: "CRT Glass and Lead", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "batteries", header: "Batteries", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "co2_emissions", header: "CO2 Emissions", cell: (props) => <p>{String(props.getValue())}</p> },
     ];
 
     //admin table react-table instance declaration
@@ -101,8 +130,8 @@ function AdminPage() {
                     />
                 </div>
 
-                <div className='flex'>
-                    <table className="table-auto w-full border-collapse rounded-xl border-neutral-200 bg-gray-100 m-8">
+                <div className='flex overflow-auto m-8 border border-gray-300 rounded-xl h-[60vh]'>
+                    <table className="table-auto border-collapse rounded-xl border-neutral-200 bg-gray-100 w-full">
                         <thead>
                             {adminTable.getHeaderGroups().map(headerGroup => 
                                 <tr key={headerGroup.id}>
