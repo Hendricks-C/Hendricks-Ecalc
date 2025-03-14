@@ -3,6 +3,11 @@ import supabase from "../utils/supabase";
 import { AuthResponse } from '@supabase/supabase-js'
 import { useNavigate } from "react-router-dom";
 
+interface Badge {
+    id: number;
+    name: string;
+}
+
 const UserProfile = () => {
 
     const [user, setUser] = useState<any>(null);
@@ -29,6 +34,8 @@ const UserProfile = () => {
     const [passLenErrorNew, setPassLenErrorNew] = useState(false);
     const [passwordConfirmError, setPasswordConfirmError] = useState(false);
     const [wrongPassword, setWrongPasswordError] = useState(false);
+
+    const [badges, setBadges] = useState<Badge[]>([]);
 
     /**
      * @returns Uses the signInWithPassword to check if the current password the user inputs is the one tied to the 
@@ -117,6 +124,8 @@ const UserProfile = () => {
                         last_name: profileData.last_name || "",
                         company: profileData.company || "",
                     });
+
+                    fetchUserBadges(userId);
                 }
 
 
@@ -216,6 +225,41 @@ const UserProfile = () => {
             setPasswordConfirmError(true);
         }
     };
+
+    // Fetch user badges
+    const fetchUserBadges = async (userId: string) => {
+        // First fetch the badges IDs from user_badges for this user
+        const { data: userBadgesData, error: userBadgesError } = await supabase
+            .from("user_badges")
+            .select("badge_id")
+            .eq("user_id", userId);
+
+        if (userBadgesError) {
+            console.error("Error fetching user badges:", userBadgesError.message);
+            return;
+        }
+
+        if (!userBadgesData || userBadgesData.length === 0) {
+            return; // No badges found
+        }
+
+        // Extract badge IDs
+        const badgeIds = userBadgesData.map(badge => badge.badge_id);
+
+        // Fetch badge details
+        const { data: badgesData, error: badgesError } = await supabase
+            .from("badges")
+            .select("*")
+            .in("id", badgeIds);
+
+        if (badgesError) {
+            console.error("Error fetching badge details:", badgesError.message);
+            return;
+        }
+
+        setBadges(badgesData || []);
+    };
+
 
     return (
         <div className='flex flex-row justify-evenly items-center'>
@@ -397,6 +441,24 @@ const UserProfile = () => {
                             <button className="border p-1 w-1/2 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Change Password</button>
                         </div>
                     </form>
+                </div>
+
+                <hr className="my-6" />
+
+                {/* Badges Section */}
+                <div>
+                    <h1 className="text-2xl text-center mb-4 font-bold">Badges</h1>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {badges.length > 0 ? (
+                            badges.map((badge, index) => (
+                                <span key={index} className="px-3 py-1 bg-blue-200 text-blue-800 rounded-md text-sm">
+                                    {badge.name}
+                                </span>
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No badges earned yet.</p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
