@@ -268,7 +268,6 @@ const UserProfile = () => {
             <div className="flex flex-col w-1/3 p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-gray-100">
                 <h1 className="text-2xl text-center mb-4 font-bold">Profile</h1>
 
-                <Alert text="Hello" show={true}/>
                 {/* User Profile Display */}
                 {!editingProfile ? (
                     <>

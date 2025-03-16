@@ -79,13 +79,15 @@ function DeviceInfoSubmission() {
         });
         const { error } = await supabase.from('devices').insert(mapToInsert); //actual insertion of devices into supabase database
 
+        const alertText = await checkForBadge();
+
         // error handling
         if (error) {
             console.error('Error inserting devices:', error.message);
             return;
         } else {
             console.log('devices successfully added')
-            navigate('/results', { state: { devices } });
+            navigate('/results', { state: { devices, alertText} });
         }
 
     }
@@ -112,6 +114,45 @@ function DeviceInfoSubmission() {
         }
         setDevices(newDevices);
     };
+
+    const checkForBadge = async () => {
+        let gotBadge = "";
+
+        const { data: authData, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !authData?.user) {
+            console.error("Error fetching user:", authError?.message);
+            return;
+        }
+
+        const userId = authData.user.id;
+
+        const { data: deviceData, error: deviceError } = await supabase
+            .from("devices")
+            .select("*")
+            .eq("user_id", userId);
+
+        if (deviceError) {
+            console.error("Error fetching user badges:", deviceError.message);
+            return;
+        }
+
+        console.log(deviceData);
+
+        if (deviceData.length === 5 ){
+            const { error } = await supabase
+            .from("user_badges")
+            .insert({ user_id: userId, badge_id: 3 });
+            gotBadge = "You have unlocked a badge for donating 5 devices! ";
+        } else if (deviceData.length === 10){
+            const { error } = await supabase
+            .from("user_badges")
+            .insert({ user_id: userId, badge_id: 4 });
+            gotBadge = "You have unlocked a badge for donating 10 devices! ";
+        }
+
+        return gotBadge;
+    }
 
     return (
         <>
