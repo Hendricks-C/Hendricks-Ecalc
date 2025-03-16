@@ -6,11 +6,11 @@ import Alert from '../components/alert';
 function PlaceholderResults() {
     const location = useLocation();
     const devices = location.state.devices as DeviceInfo[];
-    const showBadgeAlert = location.state.alertText;
+    const showBadgeAlert = location.state?.alertText;
 
     return (
         <>
-            {showBadgeAlert.length > 0 && <Alert text={showBadgeAlert} show={true}/>}
+            {showBadgeAlert && <Alert text={showBadgeAlert} show={true} />}
             <h1 className='m-[1vw]'>Results</h1>
             <div className='flex flex-row justify-start'>
                 {devices.map((device, index) => (

@@ -3,7 +3,7 @@ import supabase from "../utils/supabase";
 import { AuthResponse } from '@supabase/supabase-js'
 import { useNavigate } from "react-router-dom";
 
-import Alert from "../components/alert"
+import currentBadges from "../utils/api";
 
 interface Badge {
     id: number;
@@ -230,36 +230,25 @@ const UserProfile = () => {
 
     // Fetch user badges
     const fetchUserBadges = async (userId: string) => {
-        // First fetch the badges IDs from user_badges for this user
-        const { data: userBadgesData, error: userBadgesError } = await supabase
-            .from("user_badges")
-            .select("badge_id")
-            .eq("user_id", userId);
-
-        if (userBadgesError) {
-            console.error("Error fetching user badges:", userBadgesError.message);
-            return;
-        }
-
-        if (!userBadgesData || userBadgesData.length === 0) {
-            return; // No badges found
-        }
-
+        
         // Extract badge IDs
-        const badgeIds = userBadgesData.map(badge => badge.badge_id);
+        const badgeIds = await currentBadges(userId);
 
-        // Fetch badge details
-        const { data: badgesData, error: badgesError } = await supabase
+        if (badgeIds) {
+            // Fetch badge details
+            const { data: badgesData, error: badgesError } = await supabase
             .from("badges")
             .select("*")
             .in("id", badgeIds);
 
-        if (badgesError) {
-            console.error("Error fetching badge details:", badgesError.message);
-            return;
+            if (badgesError) {
+                console.error("Error fetching badge details:", badgesError.message);
+                return;
+            }
+            setBadges(badgesData || []);
+        } else {
+            setBadges([]);
         }
-
-        setBadges(badgesData || []);
     };
 
 
