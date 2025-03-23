@@ -48,9 +48,9 @@ function Navbar() {
         <nav className="flex justify-between items-center px-10 py-4 m-4 bg-white rounded-full shadow-md">
             <div className="flex items-center">
                 <img src={HendricksLogo} alt="Hendricks Foundation Logo" className="w-10 h-10 rounded-full mr-4"/>
-                <Link to="/" className='text-lg no-underline'>HENDRICKS FOUNDATION</Link>
+                <Link to="/" className='text-sm sm:text-lg no-underline'>HENDRICKS FOUNDATION</Link>
             </div>
-            <div className="flex gap-10 text-black font-bitter text-lg">
+            <div className="flex gap-2 sm:gap-10 text-black font-bitter text-sm sm:text-lg">
                 <Link to="/about" className='no-underline hover:underline'>About Us</Link>
                 <Link to="/contact" className='no-underline hover:underline'>Contact</Link>
                 {!user ? (
