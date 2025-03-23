@@ -104,6 +104,7 @@ function Login() {
                 />
               </div>
 
+              {/* Buttons */}
               <div className="flex flex-col justify-center gap-2 items-center mt-3">
                 <button
                   className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4"
@@ -113,6 +114,7 @@ function Login() {
                   type="button">Skip</button>
               </div>
 
+              {/* Link to register page */}
               <div className="mt-3 text-center text-sm text-gray-700">
                 <p className="mb-1">
                   Don’t have an account?{" "}
