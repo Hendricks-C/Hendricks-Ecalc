@@ -209,7 +209,7 @@ function ResultsPage() {
                         ]}
                         xAxis={[{ data: cumulativeChartData.map((d) => d.month), scaleType: 'point' }]}
                         yAxis={[{ scaleType: 'linear' }]}
-                        grid={{ vertical: true, horizontal: true }}  // ✅ Add grid
+                        grid={{ vertical: true, horizontal: true }}
                     />
                 </Box>
             </div>
