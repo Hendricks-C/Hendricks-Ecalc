@@ -107,10 +107,10 @@ function Login() {
               {/* Buttons */}
               <div className="flex flex-col justify-center gap-2 items-center mt-3">
                 <button
-                  className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4"
+                  className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 cursor-pointer hover:brightness-105"
                   type="submit">Login</button>
                 <button
-                  className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4"
+                  className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 cursor-pointer hover:brightness-105"
                   type="button">Skip</button>
               </div>
 
