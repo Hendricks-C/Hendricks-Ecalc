@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 body {
-    @apply bg-gradient-to-r from-[#187362] via-[#A8D5BA] to-[#FBE598];
+    background: linear-gradient(135deg, #187362, #A8D5BA, #FBE598);
     font-family: 'Bitter', serif;
     min-height: 100vh;
     background-size: cover;
