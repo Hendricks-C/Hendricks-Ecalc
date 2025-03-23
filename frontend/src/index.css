@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+body {
+    @apply bg-gradient-to-r from-[#187362] via-[#A8D5BA] to-[#FBE598];
+    font-family: 'Bitter', serif;
+    min-height: 100vh;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
