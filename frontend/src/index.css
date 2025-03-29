@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+body {
+    background: linear-gradient(135deg, #187362, #A8D5BA, #FBE598);
+    font-family: 'Bitter', serif;
+    min-height: 100vh;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
