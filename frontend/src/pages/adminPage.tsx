@@ -1,14 +1,16 @@
 import {useState, useEffect} from 'react';
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
-import {useReactTable, ColumnDef, getCoreRowModel, flexRender, getFilteredRowModel, VisibilityState} from '@tanstack/react-table'
+import {useReactTable, ColumnDef, getCoreRowModel, flexRender, getFilteredRowModel, VisibilityState, getPaginationRowModel} from '@tanstack/react-table'
 
 interface DevicesQuery{
     name: string;
+    device_id: number;
     device_type: string;
     weight: number;
     device_condition: string;
     manufacturer: string;
+    serial_number: string;
     date_donated: string;
     ferrous_metals: number;
     aluminum: number;
@@ -26,10 +28,12 @@ type ViewKey = "All" | "Donors" | "Devices" | "Ewaste";
 const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
     All: {
         name: true,
+        device_id: true,
         device_type: true,
         weight: true,
         device_condition: true,
         manufacturer: true,
+        serial_number: true,
         date_donated: true,
         ferrous_metals: true,
         aluminum: true,
@@ -44,10 +48,12 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
     },
     Donors: {
         name: true,
+        device_id: false,
         device_type: false,
         weight: false,
         device_condition: false,
         manufacturer: false,
+        serial_number: false,
         date_donated: false,
         ferrous_metals: false,
         aluminum: false,
@@ -61,11 +67,13 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         co2_emissions: false
     },
     Devices: {
-        name: true,
+        name: false,
+        device_id: true,
         device_type: true,
         weight: true,
         device_condition: true,
         manufacturer: true,
+        serial_number: true,
         date_donated: true,
         ferrous_metals: false,
         aluminum: false,
@@ -80,10 +88,12 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
     },
     Ewaste: {
         name: true,
-        device_type: true,
+        device_id: true,
+        device_type: false,
         weight: false,
         device_condition: false,
         manufacturer: false,
+        serial_number: false,
         date_donated: false,
         ferrous_metals: true,
         aluminum: true,
@@ -125,7 +135,7 @@ function AdminPage() {
         async function fetchData() {
             const { data, error } = await supabase
                 .from('devices')
-                .select('device_type, weight, device_condition, manufacturer, date_donated, ferrous_metals, aluminum, copper, other_metals, plastics, pcb, flat_panel_display_module, crt_glass_and_lead, batteries, co2_emissions, profiles (first_name, last_name)')
+                .select('device_type, device_id, weight, device_condition, manufacturer, serial_number, date_donated, ferrous_metals, aluminum, copper, other_metals, plastics, pcb, flat_panel_display_module, crt_glass_and_lead, batteries, co2_emissions, profiles (first_name, last_name)')
             if (error) {
                 console.error("Error fetching devices:", error.message);
             } else {
@@ -146,10 +156,12 @@ function AdminPage() {
                     return (
                         {
                             name: `${device.profiles.first_name} ${device.profiles.last_name}`,
+                            device_id: device.device_id,
                             device_type: device.device_type,
                             weight: device.weight,
                             device_condition: device.device_condition,
                             manufacturer: device.manufacturer,
+                            serial_number: device.serial_number,
                             date_donated: String(formattedDate),
                             ferrous_metals: device.ferrous_metals,
                             aluminum: device.aluminum,
@@ -174,10 +186,12 @@ function AdminPage() {
     //columns definition for tanstack table
     const columns: ColumnDef<DevicesQuery>[] = [
         { accessorKey: "name", header: "Full Name", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "device_id", header: "Device ID", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_type", header: "Device Type", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "weight", header: "Weight (lbs)", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_condition", header: "Condition", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "manufacturer", header: "Manufacturer", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "serial_number", header: "Serial Number", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "date_donated", header: "Date Donated", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "ferrous_metals", header: "Ferrous Metals", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "aluminum", header: "Aluminum", cell: (props) => <p>{String(props.getValue())}</p> },
@@ -191,16 +205,21 @@ function AdminPage() {
         { accessorKey: "co2_emissions", header: "CO2 Emissions", cell: (props) => <p>{String(props.getValue())}</p> },
     ];
 
+    const [pagination, setPagination] = useState({pageIndex: 0, pageSize: 10});
+
     //admin table react-table instance declaration
     const adminTable = useReactTable({
         state: {
-            columnVisibility
+            columnVisibility,
+            pagination
         },
         data: devices,
         columns,
         getCoreRowModel: getCoreRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         getFilteredRowModel: getFilteredRowModel(),
+        onPaginationChange: setPagination,
+        getPaginationRowModel: getPaginationRowModel(),
         globalFilterFn: 'includesString'
     });
 
@@ -211,8 +230,8 @@ function AdminPage() {
     
     return (
         <>
-            <div className='flex flex-col justify-center rounded-lg bg-white border border-gray-300 m-4'>
-                <div className="m-8 flex flex-row gap-2 mb-0">
+            <div className='flex flex-col justify-center rounded-4xl bg-white border border-gray-300 m-4 h-[85vh] p-0'>
+                <div className="ml-[4vh] mr-[4vh] mb-[2vh] flex flex-row gap-2 mt-0">
                     <table className="table-auto border-collapse">
                         <tr className='[&>td>button]:w-full [&>td>button]:py-2 [&>td>button]:px-4 [&>td]:border-gray-100 [&>td>button]:cursor-pointer'>
                             <td><button onClick={() => handleViewChange("All")} className={`border border-neutral-200 rounded-l-md ${view === "All" ? "bg-blue-200 text-blue-500" : "bg-gray-100 text-black"}`}>All</button></td>
@@ -229,14 +248,14 @@ function AdminPage() {
                     />
                 </div>
 
-                <div className='flex overflow-auto m-8 border border-gray-300 rounded-xl h-[60vh]'>
+                <div className='flex overflow-auto ml-[4vh] mr-[4vh] border border-gray-300 rounded-xl h-[60vh] mb-[2vh]'>
                     <table className="table-auto border-collapse rounded-xl border-neutral-200 bg-gray-100 w-full">
                         <thead>
                             {adminTable.getHeaderGroups().map(headerGroup => 
                                 <tr key={headerGroup.id}>
                                     {headerGroup.headers.map(
                                         header => 
-                                        <th key={header.id} className='border-b-[0.5px] border-neutral-200 px-4 py-2 text-left'>
+                                        <th key={header.id} className='border-b-[0.5px] border-neutral-200 whitespace-nowrap w-auto px-4 py-2 text-left'>
                                             {String(header.column.columnDef.header)}
                                         </th>
                                     )}
@@ -248,17 +267,29 @@ function AdminPage() {
                             {adminTable.getRowModel().rows.map(row => 
                                 <tr key={row.id}>
                                     {row.getVisibleCells().map(cell => 
-                                        <td key={cell.id} className='border-b-[0.5px] border-neutral-200 px-4 py-2 text-left'>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
+                                        <td key={cell.id} className='border-b-[0.5px] border-neutral-200 whitespace-nowrap w-auto px-4 py-2 text-left'>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </td>
                                     )}
                                 </tr>
                             )}                        
                         </tbody>
                     </table>              
+                </div>
+
+                <div className='flex justify-center gap-10'>
+                    <button className='text-xl text-gray-500 hover:text-black cursor-pointer' onClick={() => adminTable.firstPage()} disabled={!adminTable.getCanPreviousPage()}>
+                        {'<<'}
+                    </button>
+                    <button className='text-xl text-gray-500 hover:text-black cursor-pointer' onClick={() => adminTable.previousPage()} disabled={!adminTable.getCanPreviousPage()}>
+                        {'<'}
+                    </button>
+                    <button className='text-xl text-gray-500 hover:text-black cursor-pointer' onClick={() => adminTable.nextPage()} disabled={!adminTable.getCanNextPage()}>
+                        {'>'}
+                    </button>
+                    <button className='text-xl text-gray-500 hover:text-black cursor-pointer' onClick={() => adminTable.lastPage()} disabled={!adminTable.getCanNextPage()}>
+                        {'>>'}
+                    </button>
                 </div>
             </div>
         </>
