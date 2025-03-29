@@ -7,6 +7,7 @@ interface DevicesQuery{
     name: string;
     device_id: number;
     device_type: string;
+    device_model: string;
     weight: number;
     device_condition: string;
     manufacturer: string;
@@ -30,6 +31,7 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         name: true,
         device_id: true,
         device_type: true,
+        device_model: true,
         weight: true,
         device_condition: true,
         manufacturer: true,
@@ -50,6 +52,7 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         name: true,
         device_id: false,
         device_type: false,
+        device_model: false,
         weight: false,
         device_condition: false,
         manufacturer: false,
@@ -70,6 +73,7 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         name: false,
         device_id: true,
         device_type: true,
+        device_model: true,
         weight: true,
         device_condition: true,
         manufacturer: true,
@@ -90,6 +94,7 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         name: true,
         device_id: true,
         device_type: false,
+        device_model: false,
         weight: false,
         device_condition: false,
         manufacturer: false,
@@ -135,7 +140,7 @@ function AdminPage() {
         async function fetchData() {
             const { data, error } = await supabase
                 .from('devices')
-                .select('device_type, device_id, weight, device_condition, manufacturer, serial_number, date_donated, ferrous_metals, aluminum, copper, other_metals, plastics, pcb, flat_panel_display_module, crt_glass_and_lead, batteries, co2_emissions, profiles (first_name, last_name)')
+                .select('device_type, model, device_id, weight, device_condition, manufacturer, serial_number, date_donated, ferrous_metals, aluminum, copper, other_metals, plastics, pcb, flat_panel_display_module, crt_glass_and_lead, batteries, co2_emissions, profiles (first_name, last_name)')
             if (error) {
                 console.error("Error fetching devices:", error.message);
             } else {
@@ -158,6 +163,7 @@ function AdminPage() {
                             name: `${device.profiles.first_name} ${device.profiles.last_name}`,
                             device_id: device.device_id,
                             device_type: device.device_type,
+                            device_model: device.model,
                             weight: device.weight,
                             device_condition: device.device_condition,
                             manufacturer: device.manufacturer,
@@ -188,6 +194,7 @@ function AdminPage() {
         { accessorKey: "name", header: "Full Name", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_id", header: "Device ID", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_type", header: "Device Type", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "device_model", header: "Model", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "weight", header: "Weight (lbs)", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_condition", header: "Condition", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "manufacturer", header: "Manufacturer", cell: (props) => <p>{String(props.getValue())}</p> },
@@ -249,7 +256,7 @@ function AdminPage() {
                 </div>
 
                 <div className='flex overflow-auto ml-[4vh] mr-[4vh] border border-gray-300 rounded-xl h-[60vh] mb-[2vh]'>
-                    <table className="table-auto border-collapse rounded-xl border-neutral-200 bg-gray-100 w-full">
+                    <table className="table-auto border-collapse rounded-xl border-neutral-200 bg-white w-full">
                         <thead>
                             {adminTable.getHeaderGroups().map(headerGroup => 
                                 <tr key={headerGroup.id}>
@@ -267,7 +274,7 @@ function AdminPage() {
                             {adminTable.getRowModel().rows.map(row => 
                                 <tr key={row.id}>
                                     {row.getVisibleCells().map(cell => 
-                                        <td key={cell.id} className='border-b-[0.5px] border-neutral-200 whitespace-nowrap w-auto px-4 py-2 text-left'>
+                                        <td key={cell.id} className='border-b-[0.5px] border-neutral-200 whitespace-nowrap w-auto px-4 py-2 text-left text-gray-800'>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </td>
                                     )}
