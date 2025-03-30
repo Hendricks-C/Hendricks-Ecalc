@@ -3,11 +3,17 @@ import { useEffect, useState } from 'react'
 import supabase from '../utils/supabase.ts'
 import { AuthResponse } from '@supabase/supabase-js'
 import Laptop from '../assets/laptop.png'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 function Login() {
   const [email, setEmail] = useState<string>('')
   const [company, setCompany] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
+  const [captchaKey, setCaptchaKey] = useState(0);
+
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
   const navigate = useNavigate()
 
   //checking for existing user session
@@ -24,14 +30,27 @@ function Login() {
   //login user
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
+
+    if (!captchaToken) {
+      setCaptchaError('Please complete the captcha');
+      return;
+    }
+
+    setCaptchaError(null);
+
     const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({ //call signin function from supabase
       email,
       password,
+      options: { captchaToken },
     })
 
+    //Reset the token after submission
+    setCaptchaToken(null);
+    
     // error handling
     if (error) {
       alert(error.message)
+      setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component
       return
     }
 
@@ -102,6 +121,16 @@ function Login() {
                   onChange={e => setCompany(e.target.value)}
                   className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
                 />
+              </div>
+
+
+              <div >
+                <Turnstile
+                  key={captchaKey} // Change this key to reset
+                  siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                  onSuccess={(token) => { setCaptchaToken(token) }} />
+
+                {captchaError && <p style={{ color: 'red', fontSize: '0.75rem' }}>{captchaError}</p>}
               </div>
 
               {/* Buttons */}
