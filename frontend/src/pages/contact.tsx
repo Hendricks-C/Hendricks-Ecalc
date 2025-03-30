@@ -1,3 +1,4 @@
+import { Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
 
 const Contact = () => {
   return(
@@ -5,14 +6,17 @@ const Contact = () => {
     <div className="flex flex-row flex-wrap justify-start items-center px-[24px] py-[40px]">
       
       {/* Left side – Contact Info box */}
-      <div className="flex flex-col flex-wrap justify-start items-stretch z-1 lg:mr-[-280px] bg-black text-white p-8 rounded-2xl shadow-lg w-full mx-auto lg:w-[30%]">
+      <div className="flex flex-col flex-wrap justify-start items-stretch z-1 lg:mr-[-280px] bg-black text-white px-8 py-16 rounded-2xl shadow-lg w-full mx-auto lg:w-[30%]">
         
         {/* Title */}
         <h2 className="text-2xl font-bold mb-4 text-center">Contact Us</h2>
 
         {/* Email */}
         <div className="mb-4">
-          <p className="font-semibold">Email</p>
+          <div className="flex items-center mb-2">
+            <Mail className="h-[30px] w-[30px]"/>
+            <p className="text-2xl font-semibold ml-2">Email</p>
+          </div>
           <a href="mailto:info@hendricks-foundation.org" className="text-yellow-300 underline">
             info@hendricks-foundation.org
           </a>
@@ -20,11 +24,23 @@ const Contact = () => {
 
         {/* Socials */}
         <div>
-          <p className="font-semibold mb-2">Socials</p>
+          <div className="flex items-center mb-2">
+            <MapPin className="h-[30px] w-[30px]" />
+            <p className="text-2xl font-semibold ml-2">Socials</p>
+          </div>
           <div className="flex space-x-4 text-2xl">
-            <i className="fab fa-facebook"></i>
-            <i className="fab fa-twitter"></i>
-            <i className="fab fa-instagram"></i>
+            <a href="https://www.facebook.com/hendricksfound" target="_blank" rel="noopener noreferrer">
+              <Facebook className="w-6 h-6 hover:text-yellow-300 transition" />
+            </a>
+            <a href="https://twitter.com/hendricksfound" target="_blank" rel="noopener noreferrer">
+              <Twitter className="w-6 h-6 hover:text-yellow-300 transition" />
+            </a>
+            <a href="https://www.linkedin.com/company/hendricks-foundation/" target="_blank" rel="noopener noreferrer">
+              <Linkedin className="w-6 h-6 hover:text-yellow-300 transition" />
+            </a>
+            <a href="https://www.instagram.com/hendricksfoundation/" target="_blank" rel="noopener noreferrer">
+              <Instagram className="w-6 h-6 hover:text-yellow-300 transition" />
+            </a>
           </div>
         </div>
       </div>
