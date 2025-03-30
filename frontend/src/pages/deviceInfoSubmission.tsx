@@ -8,6 +8,7 @@ import { calculateCO2Emissions, calculateMaterialComposition, MaterialCompositio
 // interface for DeviceInfo values
 export interface DeviceInfo {
     device: string;
+    model: string;
     manufacturer: string;
     deviceCondition: string;
     weight: string;
@@ -26,6 +27,7 @@ function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
     const [devices, setDevices] = useState<DeviceInfo[]>([{
         device: '',
+        model: '',
         manufacturer: '',
         deviceCondition: '',
         weight: ''
@@ -47,7 +49,7 @@ function DeviceInfoSubmission() {
     const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
         //making sure all fields are filled
         for (let i = 0; i < devices.length; i++) {
-            if (devices[i].device === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
+            if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
                 alert('Please fill in all fields');
                 return;
             }
@@ -62,6 +64,7 @@ function DeviceInfoSubmission() {
             return {
                 user_id: user?.id,
                 device_type: device.device,
+                model: device.model,
                 manufacturer: device.manufacturer,
                 device_condition: device.deviceCondition,
                 weight: parseFloat(device.weight),
@@ -92,7 +95,7 @@ function DeviceInfoSubmission() {
 
     // adds more devices when "+ Add more devices" is clicked
     const addDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
-        setDevices([...devices, { device: '', manufacturer: '', deviceCondition: '', weight: '' }]);
+        setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' }]);
     }
 
     // removes a device when "- Remove device" is clicked if there is more than one device
@@ -120,12 +123,12 @@ function DeviceInfoSubmission() {
                     <h1 className="text-2xl">Details</h1>
                     <p>Enter device details below</p>
                 </div>
-                <div className="flex flex-col w-1/3 h-auto p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-gray-100 gap-[2vh]">
+                <div className="flex flex-col w-1/3 h-auto p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-white/50 backdrop-blur-md gap-[2vh]">
                     {/* using map so multiple devices can be added*/}
                     {devices.map((device, index) => (
-                        <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-gray-50 shadow-md">
+                        <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             <div className='flex flex-col gap-1'>
-                                <label className="flex">Device:</label>
+                                <label className="flex">Device Type:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Device</option>
                                     <option value="CPU">CPU</option>
@@ -143,6 +146,10 @@ function DeviceInfoSubmission() {
                                     <option value="Scanner">Scanner</option>
                                     <option value="Copier">Copier</option>
                                 </select>
+                            </div>
+                            <div className='flex flex-col gap-1'>
+                                <label className="flex">Device Model:</label>
+                                <input type="text" placeholder="Model" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex">Manufacturer:</label>
