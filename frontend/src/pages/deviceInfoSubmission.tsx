@@ -1,15 +1,20 @@
 import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
+import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
+
+
+
 // interface for DeviceInfo values
-interface DeviceInfo {
+export interface DeviceInfo {
     device: string;
+    model: string;
     manufacturer: string;
     deviceCondition: string;
     weight: string;
 }
 
-const laptopManufacturers = [
+const manufacturers = [
     "Acer", "Alienware", "Apple", "Asus", "Averatec", "Clevo", "Compaq", "Dell", "Digital Storm",
     "eMachines", "Everex", "EVGA Corporation", "Falcon Northwest", "Founder", "Fujitsu", "Gateway",
     "Gigabyte Technology", "Google", "Gradiente", "Haier", "Hasee", "HP", "Huawei", "Hyundai",
@@ -22,6 +27,7 @@ function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
     const [devices, setDevices] = useState<DeviceInfo[]>([{
         device: '',
+        model: '',
         manufacturer: '',
         deviceCondition: '',
         weight: ''
@@ -41,19 +47,40 @@ function DeviceInfoSubmission() {
 
     // handles submission of device(s) info to supabase database
     const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-        const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
+        //making sure all fields are filled
+        for (let i = 0; i < devices.length; i++) {
+            if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
+                alert('Please fill in all fields');
+                return;
+            }
+        }
 
-        // mapping device info to the correct table column attributes for bulk insertion as an array
+        const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
+        
+        // function for mapping device info to the correct table column attributes for bulk insertion as an array
         const mapToInsert = devices.map((device) => {
+            const materialCompositionSaved: MaterialComposition = calculateMaterialComposition(device);
+            const co2Emissions: number = calculateCO2Emissions(device);
             return {
                 user_id: user?.id,
                 device_type: device.device,
+                model: device.model,
                 manufacturer: device.manufacturer,
                 device_condition: device.deviceCondition,
-                weight: parseFloat(device.weight)
+                weight: parseFloat(device.weight),
+                ferrous_metals: materialCompositionSaved.ferrousMetal,
+                aluminum: materialCompositionSaved.aluminum,
+                copper: materialCompositionSaved.copper,
+                other_metals: materialCompositionSaved.otherMetals,
+                plastics: materialCompositionSaved.plastic,
+                pcb: materialCompositionSaved.pcb,
+                flat_panel_display_module: materialCompositionSaved.flatPanelDisplayModule,
+                crt_glass_and_lead: materialCompositionSaved.crtGlassAndLead,
+                batteries: materialCompositionSaved.battery,
+                co2_emissions: co2Emissions,
             }
         });
-        const { error } = await supabase.from('devices').insert(mapToInsert);
+        const { error } = await supabase.from('devices').insert(mapToInsert); //actual insertion of devices into supabase database
 
         // error handling
         if (error) {
@@ -61,14 +88,21 @@ function DeviceInfoSubmission() {
             return;
         } else {
             console.log('devices successfully added')
-            navigate("/serialNumInput");
+            navigate('/results', { state: { devices } });
         }
 
     }
 
     // adds more devices when "+ Add more devices" is clicked
     const addDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
-        setDevices([...devices, { device: '', manufacturer: '', deviceCondition: '', weight: '' }]);
+        setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' }]);
+    }
+
+    // removes a device when "- Remove device" is clicked if there is more than one device
+    const removeDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
+        const newDevices = [...devices];
+        newDevices.pop();
+        setDevices(newDevices);
     }
 
     // function that updates device info values in devices array according to user input
@@ -89,24 +123,39 @@ function DeviceInfoSubmission() {
                     <h1 className="text-2xl">Details</h1>
                     <p>Enter device details below</p>
                 </div>
-                <div className="flex flex-col w-1/3 h-auto p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-gray-100 gap-[2vh]">
+                <div className="flex flex-col w-1/3 h-auto p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-white/50 backdrop-blur-md gap-[2vh]">
                     {/* using map so multiple devices can be added*/}
                     {devices.map((device, index) => (
-                        <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-gray-50 shadow-md">
+                        <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             <div className='flex flex-col gap-1'>
-                                <label className="flex">Device:</label>
+                                <label className="flex">Device Type:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
-                                    <option value="none">Devices</option>
-                                    <option value="Apple MacBook Air (M2, 2022)">Apple MacBook Air (M2, 2022)</option>
-                                    <option value="Lenovo ThinkPad X1 Carbon (Gen 9)">Lenovo ThinkPad X1 Carbon (Gen 9)</option>
-                                    <option value="ASUS ZenBook 13 OLED">ASUS ZenBook 13 OLED</option>
+                                    <option value="none">Device</option>
+                                    <option value="CPU">CPU</option>
+                                    <option value="Smartphone">Smartphone</option>
+                                    <option value="Tablet">Tablet</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="Modern Monitor">Modern Monitor</option>
+                                    <option value="Laptop Screen">Laptop Screen</option>
+                                    <option value="CRT Monitor (Older, Not In Laptop)">CRT monitor (older, not in laptop)</option>
+                                    <option value="Mouse">Mouse</option>
+                                    <option value="Keyboard">Keyboard</option>
+                                    <option value="External Hard Drive">External hard drive</option>
+                                    <option value="Charger">Charger</option>
+                                    <option value="Printer">Printer</option>
+                                    <option value="Scanner">Scanner</option>
+                                    <option value="Copier">Copier</option>
                                 </select>
+                            </div>
+                            <div className='flex flex-col gap-1'>
+                                <label className="flex">Device Model:</label>
+                                <input type="text" placeholder="Model" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex">Manufacturer:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Manufacturer</option>
-                                    {laptopManufacturers.map((manufacturer) => (
+                                    {manufacturers.map((manufacturer) => (
                                         <option value={manufacturer}>{manufacturer}</option>
                                     ))}
                                 </select>
@@ -126,7 +175,10 @@ function DeviceInfoSubmission() {
                             </div>
                         </div>
                     ))}
-                    <a onClick={addDevice} className="self-end bg-none hover:underline cursor-pointer">+ Add more devices</a>
+                    <div className="flex flex-col">
+                        <a onClick={addDevice} className="self-end bg-none hover:underline cursor-pointer">+ Add a device</a>
+                        {devices.length > 1 ? <a onClick={removeDevice} className="self-end bg-none hover:underline cursor-pointer">- Remove device</a> : null}
+                    </div> 
                 </div>
                 <button onClick={handleNext} className="mt-5 border p-2 w-1/4 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Next</button>
             </div>
