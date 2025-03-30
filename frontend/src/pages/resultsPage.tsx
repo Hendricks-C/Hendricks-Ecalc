@@ -6,14 +6,17 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import { LineChart } from '@mui/x-charts/LineChart';
 import supabase from '../utils/supabase';
 import { useEffect, useState } from 'react';
+import { getQuarterlyData, getOneYearMonthlyData, getFiveYearData, getAllTimeData } from '../utils/lineChartUtils';
 
 function ResultsPage() {
     const location = useLocation();
     const devices_from_submission = location.state?.devices as DeviceInfo[] || [];
 
     const [userDevices, setUserDevices] = useState<any[]>([]);
-    const [cumulativeChartData, setCumulativeChartData] = useState<any[]>([]);
 
+    //Line Chart Data
+    const [lineChartData, setLineChartData] = useState<any[]>([]);
+    const [selectedRange, setSelectedRange] = useState('Quarter');
 
     useEffect(() => {
         const fetchUserDevices = async () => {
@@ -24,7 +27,8 @@ function ResultsPage() {
                 return;
             }
 
-            // Fetch past donations order by `date_donated`
+            // Fetch past donations ordered by `date_donated`
+            // from oldest to newest
             const { data, error } = await supabase
                 .from('devices')
                 .select('*')
@@ -37,81 +41,24 @@ function ResultsPage() {
                 setUserDevices(data || []);
             }
         };
-
         fetchUserDevices();
     }, []);
+    
 
     useEffect(() => {
-        console.log("Fetched User Devices:", userDevices); // Check if we have valid data
+        if (userDevices.length === 0) return;
 
-        if (userDevices.length > 0) {
-            const updatedChartData = aggregateCumulativeDataByMonth(userDevices);
-            setCumulativeChartData(updatedChartData);
-            //console.log("Updated Chart Data:", updatedChartData);
+        //set line chart data
+        if (selectedRange === 'Quarter') {
+            setLineChartData(getQuarterlyData(userDevices));
+        } else if (selectedRange === '1 Year') {
+            setLineChartData(getOneYearMonthlyData(userDevices));
+        } else if (selectedRange === '5 Years') {
+            setLineChartData(getFiveYearData(userDevices));
+        } else if (selectedRange === 'All Time') {
+            setLineChartData(getAllTimeData(userDevices));
         }
-    }, [userDevices]);
-
-
-
-    // Function to aggregate cumulative emissions by month
-    const aggregateCumulativeDataByMonth = (devices: any[]) => {
-        const monthlyData: Record<string, { metals: number; plastics: number; co2: number }> = {};
-
-        let cumulativeMetals = 0;
-        let cumulativePlastics = 0;
-        let cumulativeCO2 = 0;
-
-        devices.forEach(device => {
-            if (!device.date_donated) {
-                console.warn("Skipping device with missing date:", device);
-                return;
-            }
-
-            // Debugging
-            //console.log("Processing device:", device);
-
-            // Extract materials from db
-            const metals =
-                (device.ferrous_metals || 0) +
-                (device.aluminum || 0) +
-                (device.copper || 0) +
-                (device.other_metals || 0);
-            const plastics = device.plastics || 0;
-            const co2 = device.co2_emissions || 0;
-
-            // Parse date to month format
-            const month = new Date(device.date_donated).toLocaleString('default', {
-                month: 'short',
-                year: 'numeric',
-            });
-
-            // Cumulative sum
-            cumulativeMetals += metals;
-            cumulativePlastics += plastics;
-            cumulativeCO2 += co2;
-
-            // Store cumulative values per month
-            if (!monthlyData[month]) {
-                monthlyData[month] = { metals: 0, plastics: 0, co2: 0 };
-            }
-
-            monthlyData[month].metals = cumulativeMetals;
-            monthlyData[month].plastics = cumulativePlastics;
-            monthlyData[month].co2 = cumulativeCO2;
-        });
-
-        console.log("Final Aggregated Data:", monthlyData);
-
-        return Object.keys(monthlyData).map(month => ({
-            month,
-            metals: monthlyData[month].metals,
-            plastics: monthlyData[month].plastics,
-            co2: monthlyData[month].co2,
-        }));
-    };
-
-
-
+    }, [userDevices, selectedRange]);
 
     const totalMaterials = devices_from_submission.reduce((acc, device) => {
         const materials = calculateMaterialComposition(device);
@@ -143,6 +90,7 @@ function ResultsPage() {
         crtGlassAndLead: 0,
     });
 
+    //Pie chart data
     const pieChartData = [
         { id: 0, value: totalMaterials.ferrousMetal + totalMaterials.aluminum + totalMaterials.copper + totalMaterials.otherMetals, label: "Metals", color: "#6b7280" },
         { id: 1, value: totalMaterials.plastic, label: "Plastics", color: "#10b981" },
@@ -154,11 +102,11 @@ function ResultsPage() {
     return (
         <div className="flex flex-col items-center justify-center p-10">
 
-            <div className="flex justify-between w-full">
+            <div className="flex w-full gap-6 justify-center mb-6">
 
                 {/* Left side - Title & Description */}
                 <div className="w-1/2 p-5 border rounded-lg">
-                    <h1 className="text-2xl font-bold">Results</h1>
+                    <h1 className="text-2xl font-bold text-center">Results</h1>
                     <p>Here is where a description of the results is displayed!</p>
                 </div>
 
@@ -172,7 +120,6 @@ function ResultsPage() {
                     <p>Plastic: {totalMaterials.plastic} lbs</p>
                     <p>Batteries: {totalMaterials.battery} lbs</p>
                     <p>CO2 Emissions: {totalMaterials.co2Emissions} lbs</p>
-                    <p className="mt-2 font-bold">Not in Figma:</p>
                     <p>PCB: {totalMaterials.pcb} lbs</p>
                     <p>Flat Panel Display Module: {totalMaterials.flatPanelDisplayModule} lbs</p>
                     <p>CRT Glass and Lead: {totalMaterials.crtGlassAndLead} lbs</p>
@@ -197,17 +144,34 @@ function ResultsPage() {
                 </Box>
             </div>
 
-            <div className="w-full p-5 mt-5 border rounded-lg">
+
+            <div className="w-full p-5 mt-5 border rounded-lg relative">
+
+                {/* Dropdown top-right */}
+                <div className="absolute top-4 right-4 z-10">
+                    <select
+                        value={selectedRange}
+                        onChange={(e) => setSelectedRange(e.target.value)}
+                        className="border border-[#2E7D32] text-[#2E7D32] font-medium px-4 py-2 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] bg-white"
+                    >
+                        <option value="Quarter">Quarter</option>
+                        <option value="1 Year">1 Year</option>
+                        <option value="5 Years">5 Years</option>
+                        <option value="All Time">All Time</option>
+                    </select>
+                </div>
+
+                {/* Line Chart */}
                 <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                     <LineChart
                         width={600}
                         height={300}
                         series={[
-                            { data: cumulativeChartData.map((d) => d.metals), label: 'Metals', color: "#6b7280" },
-                            { data: cumulativeChartData.map((d) => d.plastics), label: 'Plastics', color: "#10b981" },
-                            { data: cumulativeChartData.map((d) => d.co2), label: 'CO2 Emissions', color: "#facc15" },
+                            { data: lineChartData.map((d) => d.metals), label: 'Metals', color: "#6b7280" },
+                            { data: lineChartData.map((d) => d.plastics), label: 'Plastics', color: "#10b981" },
+                            { data: lineChartData.map((d) => d.co2), label: 'CO2 Emissions', color: "#facc15" },
                         ]}
-                        xAxis={[{ data: cumulativeChartData.map((d) => d.month), scaleType: 'point' }]}
+                        xAxis={[{ data: lineChartData.map((d) => d.label), scaleType: 'point' }]}
                         yAxis={[{ scaleType: 'linear' }]}
                         grid={{ vertical: true, horizontal: true }}
                     />
