@@ -180,7 +180,7 @@ function Login() {
               </div>
 
 
-              <div >
+              <div className='flex justify-center items-center'>
                 <Turnstile
                   key={captchaKey} // Change this key to reset
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
