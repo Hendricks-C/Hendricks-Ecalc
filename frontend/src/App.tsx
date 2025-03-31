@@ -11,6 +11,7 @@ import AdminPage from './pages/adminPage.tsx'
 import Profile from './pages/profile.tsx'
 import PlaceholderResults from './pages/placeholderResults.tsx'
 import ResultsPage from './pages/resultsPage.tsx'
+import Contact from './pages/contact.tsx'
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
       <Routes>
         {/* <Route exact path="/" element={Home} /> */}
         <Route path="/about" element={<h1>Work in Progress</h1>} />
-        <Route path="/contact" element={<h1>Work in Progress</h1>} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/welcome" element={<Welcome />} />
