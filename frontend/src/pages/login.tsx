@@ -5,6 +5,8 @@ import { AuthResponse } from '@supabase/supabase-js'
 import Laptop from '../assets/laptop.png'
 import { Turnstile } from '@marsidev/react-turnstile'
 
+import currentBadges from '../utils/api.ts'
+
 function Login() {
   const [email, setEmail] = useState<string>('')
   const [company, setCompany] = useState<string>('')
@@ -56,7 +58,61 @@ function Login() {
 
     // success message
     console.log('logged in: ', data.user)
-    navigate('/welcome')
+
+    let userId;
+    let createdAt;
+    let alertText;
+
+    if(data.user){
+      userId = data.user.id;
+      createdAt = data.user.created_at;
+      alertText = await checkHowLongMember(userId, createdAt);
+    }
+
+    console.log(alertText);
+    navigate('/welcome', { state: { alertText } })
+  }
+
+  const checkHowLongMember = async (id:string, whenCreated:string) => {
+
+    // Extract badge IDs
+    const badgeIds = await currentBadges(id);
+
+    const givenDate = new Date(whenCreated);
+    const currentDate = new Date();
+
+    const differenceInMonths = (currentDate.getMonth() + 1) - (givenDate.getMonth() + 1);
+    const differenceInYear = (currentDate.getFullYear()) - (givenDate.getFullYear());
+
+    let gotBadge = "";
+
+
+    if (differenceInMonths >= 1 && differenceInYear == 0 && !badgeIds.includes(5)){
+      const { error } = await supabase
+      .from("user_badges")
+      .insert({ user_id: id, badge_id: 5 });
+  
+      if (error) {
+          console.error("Error inserting badge for user:", error.message);
+          return;
+      } else {
+          gotBadge = "Happy 1 month on the site! You just unlocked the 1 month badge";
+      }
+  
+    } else if (differenceInMonths >= 2 && differenceInYear == 0 && !badgeIds.includes(6)){
+      const { error } = await supabase
+      .from("user_badges")
+      .insert({ user_id: id, badge_id: 6 });
+  
+      if (error) {
+          console.error("Error inserting badge for user:", error.message);
+          return;
+      } else {
+          gotBadge = "Happy 2 months on the site! You just unlocked the 2 months badge";
+      }
+    }
+
+    return gotBadge;
   }
 
   return (
@@ -124,7 +180,7 @@ function Login() {
               </div>
 
 
-              <div >
+              <div className='flex justify-center items-center'>
                 <Turnstile
                   key={captchaKey} // Change this key to reset
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}

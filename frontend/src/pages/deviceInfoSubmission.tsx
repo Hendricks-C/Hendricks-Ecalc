@@ -3,7 +3,7 @@ import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
 
-
+import currentBadges from '../utils/api'
 
 // interface for DeviceInfo values
 export interface DeviceInfo {
@@ -55,14 +55,19 @@ function DeviceInfoSubmission() {
             }
         }
 
-        const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
+        const { data: user, error: authError } = await supabase.auth.getUser(); //getting currently logged in user
+        
+        if (authError || !user?.user) {
+            console.error("Error fetching user:", authError?.message);
+            return;
+        }
         
         // function for mapping device info to the correct table column attributes for bulk insertion as an array
         const mapToInsert = devices.map((device) => {
             const materialCompositionSaved: MaterialComposition = calculateMaterialComposition(device);
             const co2Emissions: number = calculateCO2Emissions(device);
             return {
-                user_id: user?.id,
+                user_id: user.user.id,
                 device_type: device.device,
                 model: device.model,
                 manufacturer: device.manufacturer,
@@ -82,13 +87,15 @@ function DeviceInfoSubmission() {
         });
         const { error } = await supabase.from('devices').insert(mapToInsert); //actual insertion of devices into supabase database
 
+        const alertText = await checkForBadge(user.user.id);
+
         // error handling
         if (error) {
             console.error('Error inserting devices:', error.message);
             return;
         } else {
             console.log('devices successfully added')
-            navigate('/results', { state: { devices } });
+            navigate('/results', { state: { devices, alertText} });
         }
 
     }
@@ -115,6 +122,62 @@ function DeviceInfoSubmission() {
         }
         setDevices(newDevices);
     };
+
+    const checkForBadge = async (userId:string) => {
+        let gotBadge = "";
+
+        const { data: deviceData, error: deviceError } = await supabase
+            .from("devices")
+            .select("*")
+            .eq("user_id", userId);
+
+        if (deviceError) {
+            console.error("Error fetching user donated devices:", deviceError.message);
+            return;
+        }
+
+        const badgeIds = await currentBadges(userId);
+
+        if (deviceData.length >= 1 && !badgeIds.includes(2)){
+            const { error } = await supabase
+            .from("user_badges")
+            .insert({ user_id: userId, badge_id: 2 });
+
+            if (error) {
+                console.error("Error inserting badge for user:", error.message);
+                return;
+            } else {
+                gotBadge = "You have unlocked a badge for donating a device for the first time! ";
+            }
+
+        } else if (deviceData.length >= 5 && !badgeIds.includes(3)){
+            const { error } = await supabase
+            .from("user_badges")
+            .insert({ user_id: userId, badge_id: 3 });
+
+            if (error) {
+                console.error("Error inserting badge for user:", error.message);
+                return;
+            } else {
+                gotBadge = "You have unlocked a badge for donating 5 devices! ";
+            }
+
+        } else if (deviceData.length >= 10 && !badgeIds.includes(4)){
+            const { error } = await supabase
+            .from("user_badges")
+            .insert({ user_id: userId, badge_id: 4 });
+
+            if (error) {
+                console.error("Error inserting badge for user:", error.message);
+                return;
+            } else {
+                gotBadge = "You have unlocked a badge for donating 10 devices! ";
+            }
+
+        }
+
+        return gotBadge;
+    }
 
     return (
         <>
