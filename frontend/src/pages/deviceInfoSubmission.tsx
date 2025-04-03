@@ -3,7 +3,7 @@ import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
 
-import currentBadges from '../utils/api'
+import {currentBadges} from '../utils/api'
 
 // interface for DeviceInfo values
 export interface DeviceInfo {

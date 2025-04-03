@@ -3,7 +3,7 @@ import supabase from "../utils/supabase";
 import { AuthResponse } from '@supabase/supabase-js'
 import { useNavigate } from "react-router-dom";
 
-import currentBadges from "../utils/api";
+import {currentBadges} from "../utils/api";
 
 interface Badge {
     id: number;
