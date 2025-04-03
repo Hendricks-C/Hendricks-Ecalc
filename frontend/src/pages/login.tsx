@@ -1,63 +1,83 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import supabase from '../utils/supabase.ts'
-import { AuthResponse } from '@supabase/supabase-js'
-import Laptop from '../assets/laptop.png'
-import { Turnstile } from '@marsidev/react-turnstile'
-
-import axios from 'axios'
+import { Link, useNavigate } from 'react-router-dom';
+import { useState, FormEvent } from 'react';
+import supabase from '../utils/supabase';
+import { AuthResponse, User } from '@supabase/supabase-js';
+import Laptop from '../assets/laptop.png';
+import { Turnstile } from '@marsidev/react-turnstile';
+import TwoFAModal from '../components/twoFA'; // Import the new modal component
+import axios from 'axios';
 
 function Login() {
-  const [email, setEmail] = useState<string>('')
-  const [company, setCompany] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
+  const [email, setEmail] = useState<string>('');
+  const [company, setCompany] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-
-  const [captchaKey, setCaptchaKey] = useState(0);
-
+  const [captchaKey, setCaptchaKey] = useState<number>(0);
   const [captchaError, setCaptchaError] = useState<string | null>(null);
-  const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  // New state for 2FA modal
+  const [showTwoFAModal, setShowTwoFAModal] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  
+  const navigate = useNavigate();
 
   //login user
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault()
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    setIsLoading(true);
 
     if (!captchaToken) {
       setCaptchaError('Please complete the captcha');
+      setIsLoading(false);
       return;
     }
 
     setCaptchaError(null);
 
-    const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({ //call signin function from supabase
-      email,
-      password,
-      options: { captchaToken },
-    })
+    try {
+      const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({
+        email,
+        password,
+        options: { captchaToken },
+      });
 
-    //Reset the token after submission
-    setCaptchaToken(null);
-    
-    // error handling
-    if (error) {
-      alert(error.message)
-      setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component
-      return
+      //Reset the token after submission
+      setCaptchaToken(null);
+      
+      // error handling
+      if (error) {
+        alert(error.message);
+        setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component
+        setIsLoading(false);
+        return;
+      }
+
+      // success message
+      console.log('logged in: ', data.user);
+
+      if(!data.user) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Send 2FA code but don't navigate away - instead show the modal
+      await axios.post("http://localhost:3000/api/users/2FA", {
+        userEmail: data.user.email,
+        userId: data.user.id
+      });
+
+      // Set the current user and show the 2FA modal
+      setCurrentUser(data.user);
+      
+      setShowTwoFAModal(true);
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred during login. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    // success message
-    console.log('logged in: ', data.user)
-
-    if(!data.user) return;
-
-    await axios.post("http://localhost:3000/api/users/2FA", {
-      userEmail: data.user.email,
-      userId: data.user.id
-    });
-
-    console.log("Navigating to /2fa");
-    navigate('/2fa');
-  }
+  };
 
   return (
     <>
@@ -69,7 +89,7 @@ function Login() {
         </div>
 
         {/* Right - Login Form */}
-        <div className="w-full max-w-xl flex flex-col items-center  mt-5 px-4 sm:px-5 md:px-6">
+        <div className="w-full max-w-xl flex flex-col items-center mt-5 px-4 sm:px-5 md:px-6">
 
           {/* Title Section */}
           <div className="mb-4 text-center">
@@ -123,12 +143,12 @@ function Login() {
                 />
               </div>
 
-
               <div className='flex justify-center items-center'>
                 <Turnstile
-                  key={captchaKey} // Change this key to reset
+                  key={captchaKey}
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => { setCaptchaToken(token) }} />
+                  onSuccess={(token) => { setCaptchaToken(token) }} 
+                />
 
                 {captchaError && <p style={{ color: 'red', fontSize: '0.75rem' }}>{captchaError}</p>}
               </div>
@@ -136,17 +156,26 @@ function Login() {
               {/* Buttons */}
               <div className="flex flex-col justify-center gap-2 items-center mt-3">
                 <button
-                  className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 cursor-pointer hover:brightness-105"
-                  type="submit">Login</button>
+                  className={`bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 ${
+                    isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:brightness-105'
+                  }`}
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </button>
                 <button
                   className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 cursor-pointer hover:brightness-105"
-                  type="button">Skip</button>
+                  type="button"
+                >
+                  Skip
+                </button>
               </div>
 
               {/* Link to register page */}
               <div className="mt-3 text-center text-sm text-gray-700">
                 <p className="mb-1">
-                  Don’t have an account?{" "}
+                  Don't have an account?{" "}
                   <Link to="/register" className="text-[#95C6A9] hover:underline">
                     Create one now.
                   </Link>
@@ -164,8 +193,16 @@ function Login() {
           </div>
         </div>
       </div>
+
+      {/* 2FA Modal */}
+      <TwoFAModal 
+        isOpen={showTwoFAModal} 
+        onClose={() => setShowTwoFAModal(false)} 
+        userData={currentUser}
+        navigate={navigate}
+      />
     </>
-  )
+  );
 }
 
-export default Login
+export default Login;

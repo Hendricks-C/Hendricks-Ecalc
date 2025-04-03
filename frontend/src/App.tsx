@@ -11,7 +11,6 @@ import AdminPage from './pages/adminPage.tsx'
 import Profile from './pages/profile.tsx'
 import ResultsPage from './pages/resultsPage.tsx'
 import Contact from './pages/contact.tsx'
-import TwoFA from './pages/twoFA.tsx'
 
 function App() {
   return (
@@ -35,7 +34,6 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminPage/>} />
         <Route path="/results" element={<ResultsPage/>} />
-        <Route path="/2fa" element={<TwoFA />} />
       </Routes>
     </BrowserRouter>
   );
