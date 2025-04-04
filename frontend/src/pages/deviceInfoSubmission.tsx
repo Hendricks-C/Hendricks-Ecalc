@@ -3,11 +3,12 @@ import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
 
-
+import currentBadges from '../utils/api'
 
 // interface for DeviceInfo values
 export interface DeviceInfo {
     device: string;
+    model: string;
     manufacturer: string;
     deviceCondition: string;
     weight: string;
@@ -26,6 +27,7 @@ function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
     const [devices, setDevices] = useState<DeviceInfo[]>([{
         device: '',
+        model: '',
         manufacturer: '',
         deviceCondition: '',
         weight: ''
@@ -47,21 +49,27 @@ function DeviceInfoSubmission() {
     const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
         //making sure all fields are filled
         for (let i = 0; i < devices.length; i++) {
-            if (devices[i].device === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
+            if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
                 alert('Please fill in all fields');
                 return;
             }
         }
 
-        const { data: { user } } = await supabase.auth.getUser(); //getting currently logged in user
+        const { data: user, error: authError } = await supabase.auth.getUser(); //getting currently logged in user
+        
+        if (authError || !user?.user) {
+            console.error("Error fetching user:", authError?.message);
+            return;
+        }
         
         // function for mapping device info to the correct table column attributes for bulk insertion as an array
         const mapToInsert = devices.map((device) => {
             const materialCompositionSaved: MaterialComposition = calculateMaterialComposition(device);
             const co2Emissions: number = calculateCO2Emissions(device);
             return {
-                user_id: user?.id,
+                user_id: user.user.id,
                 device_type: device.device,
+                model: device.model,
                 manufacturer: device.manufacturer,
                 device_condition: device.deviceCondition,
                 weight: parseFloat(device.weight),
@@ -79,20 +87,22 @@ function DeviceInfoSubmission() {
         });
         const { error } = await supabase.from('devices').insert(mapToInsert); //actual insertion of devices into supabase database
 
+        const alertText = await checkForBadge(user.user.id);
+
         // error handling
         if (error) {
             console.error('Error inserting devices:', error.message);
             return;
         } else {
             console.log('devices successfully added')
-            navigate('/results', { state: { devices } });
+            navigate('/results', { state: { devices, alertText} });
         }
 
     }
 
     // adds more devices when "+ Add more devices" is clicked
     const addDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
-        setDevices([...devices, { device: '', manufacturer: '', deviceCondition: '', weight: '' }]);
+        setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' }]);
     }
 
     // removes a device when "- Remove device" is clicked if there is more than one device
@@ -113,6 +123,62 @@ function DeviceInfoSubmission() {
         setDevices(newDevices);
     };
 
+    const checkForBadge = async (userId:string) => {
+        let gotBadge = "";
+
+        const { data: deviceData, error: deviceError } = await supabase
+            .from("devices")
+            .select("*")
+            .eq("user_id", userId);
+
+        if (deviceError) {
+            console.error("Error fetching user donated devices:", deviceError.message);
+            return;
+        }
+
+        const badgeIds = await currentBadges(userId);
+
+        if (deviceData.length >= 1 && !badgeIds.includes(2)){
+            const { error } = await supabase
+            .from("user_badges")
+            .insert({ user_id: userId, badge_id: 2 });
+
+            if (error) {
+                console.error("Error inserting badge for user:", error.message);
+                return;
+            } else {
+                gotBadge = "You have unlocked a badge for donating a device for the first time! ";
+            }
+
+        } else if (deviceData.length >= 5 && !badgeIds.includes(3)){
+            const { error } = await supabase
+            .from("user_badges")
+            .insert({ user_id: userId, badge_id: 3 });
+
+            if (error) {
+                console.error("Error inserting badge for user:", error.message);
+                return;
+            } else {
+                gotBadge = "You have unlocked a badge for donating 5 devices! ";
+            }
+
+        } else if (deviceData.length >= 10 && !badgeIds.includes(4)){
+            const { error } = await supabase
+            .from("user_badges")
+            .insert({ user_id: userId, badge_id: 4 });
+
+            if (error) {
+                console.error("Error inserting badge for user:", error.message);
+                return;
+            } else {
+                gotBadge = "You have unlocked a badge for donating 10 devices! ";
+            }
+
+        }
+
+        return gotBadge;
+    }
+
     return (
         <>
             <div className='flex justify-center flex-col items-center text-center'>
@@ -120,12 +186,12 @@ function DeviceInfoSubmission() {
                     <h1 className="text-2xl">Details</h1>
                     <p>Enter device details below</p>
                 </div>
-                <div className="flex flex-col w-1/3 h-auto p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-gray-100 gap-[2vh]">
+                <div className="flex flex-col w-1/3 h-auto p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-white/50 backdrop-blur-md gap-[2vh]">
                     {/* using map so multiple devices can be added*/}
                     {devices.map((device, index) => (
-                        <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-gray-50 shadow-md">
+                        <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             <div className='flex flex-col gap-1'>
-                                <label className="flex">Device:</label>
+                                <label className="flex">Device Type:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Device</option>
                                     <option value="CPU">CPU</option>
@@ -143,6 +209,10 @@ function DeviceInfoSubmission() {
                                     <option value="Scanner">Scanner</option>
                                     <option value="Copier">Copier</option>
                                 </select>
+                            </div>
+                            <div className='flex flex-col gap-1'>
+                                <label className="flex">Device Model:</label>
+                                <input type="text" placeholder="Model" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex">Manufacturer:</label>

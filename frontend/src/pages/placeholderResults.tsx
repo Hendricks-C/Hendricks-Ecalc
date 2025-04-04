@@ -1,13 +1,16 @@
 import { calculateCO2Emissions, calculateMaterialComposition } from '../utils/ewasteCalculations'
 import {DeviceInfo} from './deviceInfoSubmission'
 import { useLocation } from 'react-router-dom';
-
+import Alert from '../components/alert';
 
 function PlaceholderResults() {
     const location = useLocation();
     const devices = location.state.devices as DeviceInfo[];
+    const showBadgeAlert = location.state?.alertText;
+
     return (
         <>
+            {showBadgeAlert && <Alert text={showBadgeAlert} show={true} />}
             <h1 className='m-[1vw]'>Results</h1>
             <div className='flex flex-row justify-start'>
                 {devices.map((device, index) => (
