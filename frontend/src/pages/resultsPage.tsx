@@ -180,8 +180,8 @@ function ResultsPage() {
 
 
             {/* Next Button */}
-            <button className="mt-5 border p-2 w-1/4 rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600">
-                <Link to="/profile" className="no-underline">Next -Profile</Link>
+            <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-1/4 transition duration-200 cursor-pointer hover:brightness-105 mt-5">
+                <Link to="/thank-you" className="no-underline">Next</Link>
             </button>
         </div>
     );
