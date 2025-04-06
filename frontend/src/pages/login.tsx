@@ -69,7 +69,7 @@ function Login() {
     }
 
     console.log(alertText);
-    navigate('/welcome', { state: { alertText } })
+    navigate('/', { state: { alertText } })
   }
 
   const checkHowLongMember = async (id: string, whenCreated: string) => {
