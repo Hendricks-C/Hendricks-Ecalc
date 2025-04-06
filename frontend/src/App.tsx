@@ -13,6 +13,7 @@ import PlaceholderResults from './pages/placeholderResults.tsx'
 import ResultsPage from './pages/resultsPage.tsx'
 import Contact from './pages/contact.tsx'
 import Home from './pages/home.tsx'
+import ThankYou from './pages/thankYou.tsx'
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminPage/>} />
         <Route path="/results" element={<ResultsPage/>} />
+        <Route path="/thank-you" element={<ThankYou/>} />
       </Routes>
     </BrowserRouter>
   );
