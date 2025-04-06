@@ -22,7 +22,7 @@ function Login() {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
       if (session) {
-        navigate("/welcome");
+        navigate("/");
       }
     });
 

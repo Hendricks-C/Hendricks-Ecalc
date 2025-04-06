@@ -21,7 +21,7 @@ function Register() {
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
       if (session) {
-        navigate("/welcome"); //redirect to welcome page if user is already logged in
+        navigate("/"); //redirect to home page if user is already logged in
       }
     });
 
