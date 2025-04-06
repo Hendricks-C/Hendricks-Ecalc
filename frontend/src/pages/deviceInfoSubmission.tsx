@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 
 import currentBadges from '../utils/api'
 
@@ -12,9 +13,10 @@ export interface DeviceInfo {
     manufacturer: string;
     deviceCondition: string;
     weight: string;
+    serial_number?: File | string | undefined;
 }
 
-const manufacturers = [
+const manufacturers: string[] = [
     "Acer", "Alienware", "Apple", "Asus", "Averatec", "Clevo", "Compaq", "Dell", "Digital Storm",
     "eMachines", "Everex", "EVGA Corporation", "Falcon Northwest", "Founder", "Fujitsu", "Gateway",
     "Gigabyte Technology", "Google", "Gradiente", "Haier", "Hasee", "HP", "Huawei", "Hyundai",
@@ -23,6 +25,9 @@ const manufacturers = [
     "Sharp", "Sony", "System76", "Toshiba", "Tongfang", "VIA", "Vizio", "Walton", "Xiaomi"
   ];
 
+const hendricks_manufacturers: string[] = [
+    "Apple", "Dell", "HP", "Lenovo", "Samsung", "Microsoft", "Acer", "Asus",
+];
 function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
     const [devices, setDevices] = useState<DeviceInfo[]>([{
@@ -30,7 +35,8 @@ function DeviceInfoSubmission() {
         model: '',
         manufacturer: '',
         deviceCondition: '',
-        weight: ''
+        weight: '',
+        serial_number: undefined
     }]);
     const navigate = useNavigate(); // hook to navigate to different pages
 
@@ -46,7 +52,8 @@ function DeviceInfoSubmission() {
     }, [navigate]);
 
     // handles submission of device(s) info to supabase database
-    const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+    const handleNext = async (event: React.FormEvent): Promise<void> => {
+        event.preventDefault();
         //making sure all fields are filled
         for (let i = 0; i < devices.length; i++) {
             if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
@@ -113,12 +120,18 @@ function DeviceInfoSubmission() {
     }
 
     // function that updates device info values in devices array according to user input
-    const handleFormValueChange = (index: number, field: keyof DeviceInfo, value: string) => {
+    const handleFormValueChange = (index: number, field: keyof DeviceInfo, value: string | File | undefined) => {
         const newDevices = [...devices];
-        if (field === 'weight') {
-            newDevices[index][field] = String(value);
+        if (field === 'serial_number') {
+            if (value instanceof File) {
+                newDevices[index][field] = value;
+            } else if (typeof value === 'string') {
+                newDevices[index][field] = value;
+            } else {
+                newDevices[index][field] = undefined;
+            }
         } else {
-            newDevices[index][field] = value;
+            newDevices[index][field] = String(value);
         }
         setDevices(newDevices);
     };
@@ -181,7 +194,7 @@ function DeviceInfoSubmission() {
 
     return (
         <>
-            <div className='flex justify-center flex-col items-center text-center'>
+            <form onSubmit={handleNext} className='flex justify-center flex-col items-center text-center' encType='multipart/form-data'>
                 <div className="flex flex-col gap-2 mb-4">
                     <h1 className="text-2xl">Details</h1>
                     <p>Enter device details below</p>
@@ -191,7 +204,7 @@ function DeviceInfoSubmission() {
                     {devices.map((device, index) => (
                         <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             <div className='flex flex-col gap-1'>
-                                <label className="flex">Device Type:</label>
+                                <label className="flex mt-[0.5vh]">Device Type:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Device</option>
                                     <option value="CPU">CPU</option>
@@ -211,11 +224,7 @@ function DeviceInfoSubmission() {
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>
-                                <label className="flex">Device Model:</label>
-                                <input type="text" placeholder="Model" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
-                            </div>
-                            <div className='flex flex-col gap-1'>
-                                <label className="flex">Manufacturer:</label>
+                                <label className="flex mt-[0.5vh]">Manufacturer:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Manufacturer</option>
                                     {manufacturers.map((manufacturer) => (
@@ -224,7 +233,11 @@ function DeviceInfoSubmission() {
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>
-                                <label className="flex">Device Condition:</label>
+                                <label className="flex mt-[0.5vh]">Model:</label>
+                                <input type="text" placeholder="Model" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                            </div>
+                            <div className='flex flex-col gap-1'>
+                                <label className="flex mt-[0.5vh]">Device Condition:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'deviceCondition', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Device Condition</option>
                                     <option value="Excellent">Excellent</option>
@@ -233,8 +246,46 @@ function DeviceInfoSubmission() {
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>
-                                <label className="flex">Weight(lbs):</label>
+                                <label className="flex mt-[0.5vh]">Weight(lbs):</label>
                                 <input type="number" placeholder="Value" onChange={e => handleFormValueChange(index, 'weight', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="flex mt-[0.5vh]">Serial Number:</label>
+                                {/* if the device of a manufacturer Hendricks has serial_number data for, allow image upload. Else, use manual input. */}
+                                {hendricks_manufacturers.includes(devices[index].manufacturer) ? (
+                                    <>
+                                        <input
+                                            id={`serial_number_${index}`}
+                                            type="file"
+                                            accept="image/*"
+                                            onClick={e => {(e.target as HTMLInputElement).value = ''}} // Clear the input value to allow re-uploading the same file
+                                            onChange={e => handleFormValueChange(index, 'serial_number', e.target.files?.[0] || undefined)}
+                                            className="hidden"
+                                        />
+                                        <label htmlFor={`serial_number_${index}`} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white hover:cursor-pointer ">Upload Image</label>
+                                        {/* preview the uploaded image if it exists */}
+                                        { devices[index].serial_number && typeof devices[index].serial_number !== 'string' ? (
+                                            <div>
+                                                <img
+                                                    src={URL.createObjectURL(devices[index].serial_number as File)}
+                                                    alt="Preview"
+                                                    className="max-h-40 object-contain border border-gray-300 rounded justify-self-center mt-2 mb-2"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleFormValueChange(index, 'serial_number', undefined)}
+                                                    className="text-right text-red-500 underline hover:text-red-700 hover:text-text-sm"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                            ) : null
+                                        }
+                                    </>
+                                ) : (
+                                    <input type="text" placeholder="Model" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                                )}
+                                
                             </div>
                         </div>
                     ))}
@@ -243,8 +294,8 @@ function DeviceInfoSubmission() {
                         {devices.length > 1 ? <a onClick={removeDevice} className="self-end bg-none hover:underline cursor-pointer">- Remove device</a> : null}
                     </div> 
                 </div>
-                <button onClick={handleNext} className="mt-5 border p-2 w-1/4 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Next</button>
-            </div>
+                <button className="mt-5 border p-2 w-1/4 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Next</button>
+            </form>
         </>
     );
 }
