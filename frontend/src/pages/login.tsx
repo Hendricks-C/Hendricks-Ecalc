@@ -9,7 +9,6 @@ import currentBadges from '../utils/api.ts'
 
 function Login() {
   const [email, setEmail] = useState<string>('')
-  const [company, setCompany] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
@@ -48,7 +47,7 @@ function Login() {
 
     //Reset the token after submission
     setCaptchaToken(null);
-    
+
     // error handling
     if (error) {
       alert(error.message)
@@ -63,7 +62,7 @@ function Login() {
     let createdAt;
     let alertText;
 
-    if(data.user){
+    if (data.user) {
       userId = data.user.id;
       createdAt = data.user.created_at;
       alertText = await checkHowLongMember(userId, createdAt);
@@ -73,7 +72,7 @@ function Login() {
     navigate('/welcome', { state: { alertText } })
   }
 
-  const checkHowLongMember = async (id:string, whenCreated:string) => {
+  const checkHowLongMember = async (id: string, whenCreated: string) => {
 
     // Extract badge IDs
     const badgeIds = await currentBadges(id);
@@ -87,28 +86,28 @@ function Login() {
     let gotBadge = "";
 
 
-    if (differenceInMonths >= 1 && differenceInYear == 0 && !badgeIds.includes(5)){
+    if (differenceInMonths >= 1 && differenceInYear == 0 && !badgeIds.includes(5)) {
       const { error } = await supabase
-      .from("user_badges")
-      .insert({ user_id: id, badge_id: 5 });
-  
+        .from("user_badges")
+        .insert({ user_id: id, badge_id: 5 });
+
       if (error) {
-          console.error("Error inserting badge for user:", error.message);
-          return;
+        console.error("Error inserting badge for user:", error.message);
+        return;
       } else {
-          gotBadge = "Happy 1 month on the site! You just unlocked the 1 month badge";
+        gotBadge = "Happy 1 month on the site! You just unlocked the 1 month badge";
       }
-  
-    } else if (differenceInMonths >= 2 && differenceInYear == 0 && !badgeIds.includes(6)){
+
+    } else if (differenceInMonths >= 2 && differenceInYear == 0 && !badgeIds.includes(6)) {
       const { error } = await supabase
-      .from("user_badges")
-      .insert({ user_id: id, badge_id: 6 });
-  
+        .from("user_badges")
+        .insert({ user_id: id, badge_id: 6 });
+
       if (error) {
-          console.error("Error inserting badge for user:", error.message);
-          return;
+        console.error("Error inserting badge for user:", error.message);
+        return;
       } else {
-          gotBadge = "Happy 2 months on the site! You just unlocked the 2 months badge";
+        gotBadge = "Happy 2 months on the site! You just unlocked the 2 months badge";
       }
     }
 
@@ -166,19 +165,6 @@ function Login() {
                   className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
                 />
               </div>
-
-              {/* COMPANY */}
-              <div className="flex flex-col">
-                <label className="text-black font-bitter font-medium text-lg mb-1">Company:</label>
-                <input
-                  type="text"
-                  placeholder="Optional"
-                  value={company}
-                  onChange={e => setCompany(e.target.value)}
-                  className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
-                />
-              </div>
-
 
               <div className='flex justify-center items-center'>
                 <Turnstile
