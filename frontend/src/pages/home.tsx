@@ -51,7 +51,7 @@ function Home() {
 
             {/* Get Started Section */}
             <section className="flex w-full h-[80vh] px-8 py-12 justify-between items-center gap-4 z-0">
-                
+
                 {/* Left: Title + description + button */}
                 <div className="w-full md:w-1/2 flex-col items-center text-center justify-center text-white gap-7 ">
                     <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold drop-shadow-md mb-5 md:mb-10">
@@ -61,7 +61,7 @@ function Home() {
                         Add tagline here or descriptions!
                     </p>
                     <Link to={isLoggedIn ? "/device-info-submission" : "/login"}>
-                        <button className="bg-[#FFE017] text-white font-bold text-xl md:text-2xl px-10 md:px-20 py-3 rounded-full shadow-md hover:brightness-105 transition mb-5 md:mb-10">
+                        <button className="bg-[#FFE017] cursor-pointer text-white font-bold text-xl md:text-2xl px-10 md:px-20 py-3 rounded-full shadow-md hover:brightness-105 transition mb-5 md:mb-10">
                             GET STARTED
                         </button>
                     </Link>
