@@ -12,6 +12,7 @@ import Profile from './pages/profile.tsx'
 import PlaceholderResults from './pages/placeholderResults.tsx'
 import ResultsPage from './pages/resultsPage.tsx'
 import Contact from './pages/contact.tsx'
+import Home from './pages/home.tsx'
 
 function App() {
   return (
@@ -19,7 +20,7 @@ function App() {
       <Navbar />
 
       <Routes>
-        {/* <Route exact path="/" element={Home} /> */}
+        <Route path="/" element={<Home/>} />
         <Route path="/about" element={<h1>Work in Progress</h1>} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
