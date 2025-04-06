@@ -184,9 +184,9 @@ function ResultsPage() {
 
 
                 {/* Next Button */}
-                <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-1/4 transition duration-200 cursor-pointer hover:brightness-105 mt-5">
-                    <Link to="/thank-you" className="no-underline">Next</Link>
-                </button>
+                <Link to="/thank-you" className="bg-[#FFE017] block w-1/4 text-center shadow-md text-white font-bold text-lg py-2 px-10 rounded-full transition duration-200 cursor-pointer hover:brightness-105 mt-5">
+                    NEXT
+                </Link>
             </div>
         </div>
     );
