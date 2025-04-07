@@ -45,12 +45,14 @@ function Navbar() {
         navigate('/login')
     }
     return (
-        <nav className="flex justify-between items-center px-10 py-4 m-4 bg-white rounded-full shadow-md">
+        // z-50 is to ensure navbar stays above all other content
+        <nav className="z-50 relative flex justify-between items-center px-10 py-4 m-4 bg-white rounded-full shadow-md">
             <div className="flex items-center">
-                <img src={HendricksLogo} alt="Hendricks Foundation Logo" className="w-10 h-10 rounded-full mr-4"/>
+                <img src={HendricksLogo} alt="Hendricks Foundation Logo" className="w-10 h-10 rounded-full mr-4" />
                 <Link to="/" className='text-sm sm:text-lg no-underline'>HENDRICKS FOUNDATION</Link>
             </div>
             <div className="flex gap-2 sm:gap-10 text-black font-bitter text-sm sm:text-lg">
+                <Link to="/" className='no-underline hover:underline'>Home</Link>
                 <Link to="/about" className='no-underline hover:underline'>About Us</Link>
                 <Link to="/contact" className='no-underline hover:underline'>Contact</Link>
                 {!user ? (

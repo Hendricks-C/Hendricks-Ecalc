@@ -13,6 +13,8 @@ import PlaceholderResults from './pages/placeholderResults.tsx'
 import AboutUs from './pages/aboutUs.tsx'
 import ResultsPage from './pages/resultsPage.tsx'
 import Contact from './pages/contact.tsx'
+import Home from './pages/home.tsx'
+import ThankYou from './pages/thankYou.tsx'
 
 function App() {
   return (
@@ -20,7 +22,7 @@ function App() {
       <Navbar />
 
       <Routes>
-        {/* <Route exact path="/" element={Home} /> */}
+        <Route path="/" element={<Home/>} />
         <Route path="/about" element={<AboutUs/>} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
@@ -36,6 +38,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminPage/>} />
         <Route path="/results" element={<ResultsPage/>} />
+        <Route path="/thank-you" element={<ThankYou/>} />
       </Routes>
     </BrowserRouter>
   );

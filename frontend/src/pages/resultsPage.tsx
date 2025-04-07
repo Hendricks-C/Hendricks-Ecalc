@@ -43,7 +43,7 @@ function ResultsPage() {
         };
         fetchUserDevices();
     }, []);
-    
+
 
     useEffect(() => {
         if (userDevices.length === 0) return;
@@ -102,87 +102,92 @@ function ResultsPage() {
     return (
         <div className="flex flex-col items-center justify-center p-10">
 
-            <div className="flex w-full gap-6 justify-center mb-6">
+            <div className='bg-white/40 backdrop-blur-md w-[80%] rounded-2xl p-6 flex flex-col items-center justify-center'>
+                <div className="flex flex-col w-full md:flex-row justify-between w-full mb-8 px-10">
 
-                {/* Left side - Title & Description */}
-                <div className="w-1/2 p-5 border rounded-lg">
-                    <h1 className="text-2xl font-bold text-center">Results</h1>
-                    <p>Here is where a description of the results is displayed!</p>
+                    {/* Left side - Title & Description */}
+                    <div className="bg-white/50 backdrop-blur-md rounded-2xl p-10 w-full md:w-1/2 max-w-md shadow-md">
+                        <h1 className="text-4xl font-bold font-bitter text-white drop-shadow mb-2 text-center">Results</h1>
+                        <hr className="border-white/80 mb-4" />
+                        <p className="text-md text-black">
+                            Here is where a description of the results is displayed!
+                        </p>
+                    </div>
+
+                    {/* Right side - Material Composition List */}
+                    <div className="bg-white/50 backdrop-blur-md rounded-2xl p-10 w-full md:w-1/2 max-w-md shadow-md text-md text-black space-y-2">
+                        {/* <h2 className="text-xl font-bold">Material Breakdown</h2> */}
+                        <p>Ferrous Metals: {totalMaterials.ferrousMetal} lbs</p>
+                        <p>Aluminum: {totalMaterials.aluminum} lbs</p>
+                        <p>Copper: {totalMaterials.copper} lbs</p>
+                        <p>Other Metals: {totalMaterials.otherMetals} lbs</p>
+                        <p>Plastic: {totalMaterials.plastic} lbs</p>
+                        <p>Batteries: {totalMaterials.battery} lbs</p>
+                        <p>CO2 Emissions: {totalMaterials.co2Emissions} lbs</p>
+                        <p>PCB: {totalMaterials.pcb} lbs</p>
+                        <p>Flat Panel Display Module: {totalMaterials.flatPanelDisplayModule} lbs</p>
+                        <p>CRT Glass and Lead: {totalMaterials.crtGlassAndLead} lbs</p>
+
+                    </div>
                 </div>
 
-                {/* Right side - Material Composition List */}
-                <div className="w-1/3 p-5 border rounded-lg">
-                    <h2 className="text-xl font-bold">Material Breakdown</h2>
-                    <p>Ferrous Metals: {totalMaterials.ferrousMetal} lbs</p>
-                    <p>Aluminum: {totalMaterials.aluminum} lbs</p>
-                    <p>Copper: {totalMaterials.copper} lbs</p>
-                    <p>Other Metals: {totalMaterials.otherMetals} lbs</p>
-                    <p>Plastic: {totalMaterials.plastic} lbs</p>
-                    <p>Batteries: {totalMaterials.battery} lbs</p>
-                    <p>CO2 Emissions: {totalMaterials.co2Emissions} lbs</p>
-                    <p>PCB: {totalMaterials.pcb} lbs</p>
-                    <p>Flat Panel Display Module: {totalMaterials.flatPanelDisplayModule} lbs</p>
-                    <p>CRT Glass and Lead: {totalMaterials.crtGlassAndLead} lbs</p>
-
-                </div>
-            </div>
-
-            <div className="w-full p-5 mt-5 border rounded-lg">
-                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                    <PieChart
-                        height={300}
-                        series={[
-                            {
-                                data: pieChartData,
-                                innerRadius: 100,
-                                arcLabel: (params) => `${((params.value / totalSum) * 100).toFixed(0)}%`, // Show percentage
-                                arcLabelMinAngle: 20,
-                            },
-                        ]}
-                        skipAnimation={true} // Disables animation
-                    />
-                </Box>
-            </div>
-
-
-            <div className="w-full p-5 mt-5 border rounded-lg relative">
-
-                {/* Dropdown top-right */}
-                <div className="absolute top-4 right-4 z-10">
-                    <select
-                        value={selectedRange}
-                        onChange={(e) => setSelectedRange(e.target.value)}
-                        className="border border-[#2E7D32] text-[#2E7D32] font-medium px-4 py-2 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] bg-white"
-                    >
-                        <option value="Quarter">Quarter</option>
-                        <option value="1 Year">1 Year</option>
-                        <option value="5 Years">5 Years</option>
-                        <option value="All Time">All Time</option>
-                    </select>
+                <div className="w-full max-w-5xl bg-white/50 backdrop-blur-md rounded-2xl p-6 shadow-md mb-8">
+                    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <PieChart
+                            height={300}
+                            series={[
+                                {
+                                    data: pieChartData,
+                                    innerRadius: 100,
+                                    arcLabel: (params) => `${((params.value / totalSum) * 100).toFixed(0)}%`, // Show percentage
+                                    arcLabelMinAngle: 20,
+                                },
+                            ]}
+                            skipAnimation={true} // Disables animation
+                        />
+                    </Box>
                 </div>
 
-                {/* Line Chart */}
-                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                    <LineChart
-                        width={600}
-                        height={300}
-                        series={[
-                            { data: lineChartData.map((d) => d.metals), label: 'Metals', color: "#6b7280" },
-                            { data: lineChartData.map((d) => d.plastics), label: 'Plastics', color: "#10b981" },
-                            { data: lineChartData.map((d) => d.co2), label: 'CO2 Emissions', color: "#facc15" },
-                        ]}
-                        xAxis={[{ data: lineChartData.map((d) => d.label), scaleType: 'point' }]}
-                        yAxis={[{ scaleType: 'linear' }]}
-                        grid={{ vertical: true, horizontal: true }}
-                    />
-                </Box>
+
+                <div className="w-full max-w-5xl bg-white/50 backdrop-blur-md rounded-2xl p-6 shadow-md mb-8 p-5 mt-5 relative">
+
+                    {/* Dropdown top-right */}
+                    <div className="absolute top-4 right-4 z-10">
+                        <select
+                            value={selectedRange}
+                            onChange={(e) => setSelectedRange(e.target.value)}
+                            className="border border-[#2E7D32] text-[#2E7D32] font-medium px-4 py-2 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] bg-white"
+                        >
+                            <option value="Quarter">Quarter</option>
+                            <option value="1 Year">1 Year</option>
+                            <option value="5 Years">5 Years</option>
+                            <option value="All Time">All Time</option>
+                        </select>
+                    </div>
+
+                    {/* Line Chart */}
+                    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <LineChart
+                            width={600}
+                            height={300}
+                            series={[
+                                { data: lineChartData.map((d) => d.metals), label: 'Metals', color: "#6b7280" },
+                                { data: lineChartData.map((d) => d.plastics), label: 'Plastics', color: "#10b981" },
+                                { data: lineChartData.map((d) => d.co2), label: 'CO2 Emissions', color: "#facc15" },
+                            ]}
+                            xAxis={[{ data: lineChartData.map((d) => d.label), scaleType: 'point' }]}
+                            yAxis={[{ scaleType: 'linear' }]}
+                            grid={{ vertical: true, horizontal: true }}
+                        />
+                    </Box>
+                </div>
+
+
+                {/* Next Button */}
+                <Link to="/thank-you" className="bg-[#FFE017] block w-1/4 text-center shadow-md text-white font-bold text-lg py-2 px-10 rounded-full transition duration-200 cursor-pointer hover:brightness-105 mt-5">
+                    NEXT
+                </Link>
             </div>
-
-
-            {/* Next Button */}
-            <button className="mt-5 border p-2 w-1/4 rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600">
-                <Link to="/profile" className="no-underline">Next -Profile</Link>
-            </button>
         </div>
     );
 }
