@@ -1,6 +1,13 @@
+import { useState } from "react";
 import { Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
 
 const Contact = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+
+
   return(
 
     <div className="flex flex-row flex-wrap justify-start items-center px-[24px] py-[40px]">
@@ -63,7 +70,8 @@ const Contact = () => {
           <input
             type="text"
             placeholder="Enter your name"
-            value=""
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
             className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
           />
@@ -75,7 +83,8 @@ const Contact = () => {
           <input
             type="email"
             placeholder="Enter your email"
-            value=""
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}            
             required
             className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
           />
@@ -87,7 +96,8 @@ const Contact = () => {
           <input
             type="text"
             placeholder="Email subject"
-            value=""
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}            
             required
             className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
           />
@@ -96,12 +106,12 @@ const Contact = () => {
         {/* Message */}
         <div className="flex flex-col">
           <label className="text-black font-bitter font-medium text-lg mb-1">Message:</label>
-          <input
-            type="text"
+          <textarea
             placeholder="Write your message..."
-            value=""
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}            
             required
-            className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
+            className="h-24 rounded-xl border-2 border-[#2E7D32] pt-2 px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
           />
         </div>
 
