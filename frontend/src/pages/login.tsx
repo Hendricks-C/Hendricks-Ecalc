@@ -81,10 +81,10 @@ function Login() {
 
   return (
     <>
-      <div className='flex items-center justify-evenly px-8'>
+      <div className='flex items-center justify-evenly px-8 mb-5 sm:mb-10'>
 
         {/* Left - Laptop Image */}
-        <div className='w-1/2 flex justify-center'>
+        <div className='w-1/2 hidden lg:flex justify-center'>
           <img src={Laptop} alt="laptop" className="w-full h-auto" />
         </div>
 

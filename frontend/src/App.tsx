@@ -9,8 +9,11 @@ import DeviceInfoSubmission from './pages/deviceInfoSubmission.tsx'
 import SerialNumInput from './pages/serialNumInput.tsx'
 import AdminPage from './pages/adminPage.tsx'
 import Profile from './pages/profile.tsx'
+import AboutUs from './pages/aboutUs.tsx'
 import ResultsPage from './pages/resultsPage.tsx'
 import Contact from './pages/contact.tsx'
+import Home from './pages/home.tsx'
+import ThankYou from './pages/thankYou.tsx'
 
 function App() {
   return (
@@ -18,8 +21,8 @@ function App() {
       <Navbar />
 
       <Routes>
-        {/* <Route exact path="/" element={Home} /> */}
-        <Route path="/about" element={<h1>Work in Progress</h1>} />
+        <Route path="/" element={<Home/>} />
+        <Route path="/about" element={<AboutUs/>} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -34,6 +37,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin" element={<AdminPage/>} />
         <Route path="/results" element={<ResultsPage/>} />
+        <Route path="/thank-you" element={<ThankYou/>} />
       </Routes>
     </BrowserRouter>
   );

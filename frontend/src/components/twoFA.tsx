@@ -76,7 +76,7 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
         let alertText = await checkHowLongMember(userId, createdAt);
         
         onClose();
-        navigate('/welcome', { state: { alertText } });
+        navigate('/', { state: { alertText } });
       } else {
         setInvalidError(true);
       }
