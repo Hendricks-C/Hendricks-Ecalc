@@ -16,6 +16,16 @@ function Navbar() {
     // Check for existing user session
     useEffect(() => {
 
+        function handleResize() {
+            if (window.innerWidth >= 1020){
+                setOpen(false);
+            }
+        }
+
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+
         async function checkUser() {
             const { data, error } = await supabase.auth.getUser();
             if (!error) {
@@ -35,7 +45,10 @@ function Navbar() {
         });
 
         //Cleans up the listener when the component unmounts.
-        return () => authListener.subscription.unsubscribe();
+        return () => {
+            authListener.subscription.unsubscribe();
+            window.removeEventListener('resize', handleResize);
+        }
     }, []);
 
     // handle signout button
@@ -100,7 +113,7 @@ function Navbar() {
                             <Link to="/device-info-submission" className="no-underline hover:underline">Devices</Link>
                             <Link to="/profile" className="no-underline hover:underline">Profile</Link>
                             {isAdmin ? <Link to="/admin" className="no-underline hover:underline">Admin</Link> : null}
-                            <button onClick={handleClick} className='text-sm bg-[#FFE017] px-4 py-1 rounded-md text-white transition duration-200 cursor-pointer hover:brightness-105'>Sign Out</button>
+                            <button onClick={handleClick} className='bg-[#FFE017] px-4 py-2 rounded-md text-white transition duration-200 cursor-pointer hover:brightness-105'>Sign Out</button>
                         </>
                     )}
                 </div>
