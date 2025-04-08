@@ -3,7 +3,13 @@ import Laptop from '../assets/laptop.png'
 import { useEffect, useState } from 'react'
 import supabase from '../utils/supabase.ts'
 
+import Alert from "../components/alert";
+import { useLocation } from 'react-router-dom'
+
 function Home() {
+    const location = useLocation();
+    const showBadgeAlert = location.state?.alertText;
+
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 
@@ -48,7 +54,7 @@ function Home() {
 
     return (
         <div className="flex flex-col items-center justify-center">
-
+            {showBadgeAlert && <Alert text={showBadgeAlert} show={true} />}
             {/* Get Started Section */}
             <section className="flex w-full h-[80vh] px-8 py-12 justify-between items-center gap-4 z-0">
 
