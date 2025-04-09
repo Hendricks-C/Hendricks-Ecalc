@@ -181,7 +181,7 @@ function DeviceInfoSubmission() {
 
     return (
         <>
-            <div className='flex justify-center flex-col items-center text-center px-10 py-10'>
+            <div className='flex justify-center flex-col items-center text-center px-4 py-8 md:px-10 md:py-10'>
                 <div className="flex flex-col gap-2 mb-4">
                     <h1 className="text-white text-2xl sm:text-5xl font-bold font-bitter leading-tight tracking-widest capitalize drop-shadow-md">
                         Details

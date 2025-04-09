@@ -237,14 +237,14 @@ function AdminPage() {
     
     return (
         <>
-            <div className='flex flex-col justify-center rounded-4xl bg-white border border-gray-300 m-4 h-[85vh] p-0'>
-                <div className="ml-[4vh] mr-[4vh] mb-[2vh] flex flex-row gap-2 mt-0">
+            <div className='flex flex-col justify-center rounded-4xl bg-white border border-gray-300 m-4 h-[85vh] p-8'>
+                <div className="w-full mx-auto flex flex-col md:flex-row gap-2 mt-0">
                     <table className="table-auto border-collapse">
-                        <tr className='[&>td>button]:w-full [&>td>button]:py-2 [&>td>button]:px-4 [&>td]:border-gray-100 [&>td>button]:cursor-pointer'>
-                            <td><button onClick={() => handleViewChange("All")} className={`border border-neutral-200 rounded-l-md ${view === "All" ? "bg-blue-200 text-blue-500" : "bg-gray-100 text-black"}`}>All</button></td>
-                            <td><button onClick={() => handleViewChange("Donors")} className={`border border-l-0 border-neutral-200 ${view === "Donors" ? "bg-blue-200 text-blue-500":"bg-gray-100 text-black"}`}>Donors</button></td>
-                            <td><button onClick={() => handleViewChange("Devices")} className={`border border-l-0 border-neutral-200 ${view === "Devices" ? "bg-blue-200 text-blue-500":"bg-gray-100 text-black"}`}>Devices</button></td>
-                            <td><button onClick={() => handleViewChange("Ewaste")} className={`border border-l-0 border-neutral-200 rounded-r-md ${view === "Ewaste" ? "bg-blue-200 text-blue-500":"bg-gray-100 text-black"}`}>Ewaste</button></td>
+                        <tr className='[&>td>button]:w-full [&>td>button]:py-2 [&>td>button]:px-4 [&>td]:border-gray-100 [&>td>button]:cursor-pointer flex flex-col sm:flex-row gap-2 sm:gap-0'>
+                            <td><button onClick={() => handleViewChange("All")} className={`border border-neutral-200 rounded-md sm:rounded-none sm:rounded-l-md ${view === "All" ? "bg-blue-200 text-blue-500" : "bg-gray-100 text-black"}`}>All</button></td>
+                            <td><button onClick={() => handleViewChange("Donors")} className={`border border-l-0 border-neutral-200 rounded-md sm:rounded-none ${view === "Donors" ? "bg-blue-200 text-blue-500":"bg-gray-100 text-black"}`}>Donors</button></td>
+                            <td><button onClick={() => handleViewChange("Devices")} className={`border border-l-0 border-neutral-200 rounded-md sm:rounded-none ${view === "Devices" ? "bg-blue-200 text-blue-500":"bg-gray-100 text-black"}`}>Devices</button></td>
+                            <td><button onClick={() => handleViewChange("Ewaste")} className={`border border-l-0 border-neutral-200 rounded-md sm:rounded-none sm:rounded-r-md ${view === "Ewaste" ? "bg-blue-200 text-blue-500":"bg-gray-100 text-black"}`}>Ewaste</button></td>
                         </tr>
                     </table>
                     <input
@@ -255,7 +255,7 @@ function AdminPage() {
                     />
                 </div>
 
-                <div className='flex overflow-auto ml-[4vh] mr-[4vh] border border-gray-300 rounded-xl h-[60vh] mb-[2vh]'>
+                <div className='flex overflow-auto w-full mx-auto border border-gray-300 rounded-xl h-[60vh] mb-[2vh] mt-8'>
                     <table className="table-auto border-collapse rounded-xl border-neutral-200 bg-white w-full">
                         <thead>
                             {adminTable.getHeaderGroups().map(headerGroup => 
