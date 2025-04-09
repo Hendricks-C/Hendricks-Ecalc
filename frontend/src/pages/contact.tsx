@@ -10,7 +10,7 @@ const Contact = () => {
 
   return(
 
-    <div className="flex flex-row flex-wrap justify-start items-center px-[24px] py-[40px]">
+    <div className="flex flex-row flex-wrap justify-start items-center px-4 py-8 md:px-10 md:py-10">
       
       {/* Left side – Contact Info box */}
       <div className="flex flex-col flex-wrap justify-start items-stretch z-1 lg:mr-[-280px] bg-black text-white px-8 py-16 rounded-2xl shadow-lg w-full mx-auto lg:w-[30%]">

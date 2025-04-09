@@ -70,14 +70,14 @@ function Register() {
 
   return (
     <>
-      <div className='flex items-center justify-evenly px-8 mb-5 sm:mb-10'>
+      <div className='flex items-center justify-evenly px-4 py-8 md:px-10 md:py-10'>
 
         {/* Left - Laptop Image */}
         <div className='w-1/2 hidden lg:flex justify-center'>
           <img src={Laptop} alt="laptop" className="w-full h-auto" />
         </div>
 
-        <div className="w-full max-w-xl flex flex-col items-center  mt-5 px-4 sm:px-5 md:px-6">
+        <div className="w-full max-w-xl flex flex-col items-center  mt-5 sm:px-5 md:px-6">
 
           {/* Title Section */}
           <div className="mb-4 text-center">
@@ -135,9 +135,11 @@ function Register() {
 
               <div className='flex justify-center items-center'>
                 <Turnstile
-                  key={captchaKey} // Change this key to reset
+                  key={captchaKey}
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => { setCaptchaToken(token) }} />
+                  onSuccess={(token) => { setCaptchaToken(token) }} 
+                  className='scale-[80%]  sm:scale-100'
+                />
 
                 {captchaError && <p style={{ color: 'red', fontSize: '0.75rem' }}>{captchaError}</p>}
               </div>
