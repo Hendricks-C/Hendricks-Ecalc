@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { SyntheticEvent, useState } from "react";
 import { Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
+import axios from "axios";
 
 const Contact = () => {
   const [name, setName] = useState("");
@@ -7,6 +8,29 @@ const Contact = () => {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
+  const [loading, setLoading] = useState(false);
+
+  const sendEmail = async (e:SyntheticEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const response = await axios.post("http://localhost:3000/api/users/send-contact", {
+        name: name,
+        email: email,
+        subject: subject,
+        message: message
+      })
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+      setLoading(false);
+      alert("Email has been sent!")
+    } catch (error) {
+      alert("An error occurred sending the email. Please try again.");
+      setLoading(false);
+    }
+  }
 
   return(
 
@@ -62,7 +86,7 @@ const Contact = () => {
         </div>
         
         {/* Start of form */}
-        <form className="flex flex-col gap-5 ">
+        <form className="flex flex-col gap-5" onSubmit={sendEmail}>
 
         {/* Name */}
         <div className="flex flex-col">
@@ -119,7 +143,10 @@ const Contact = () => {
         <div className="flex flex-col justify-center items-center mt-3">
           <button
             className="w-full bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full transition duration-200 cursor-pointer hover:brightness-105"
-            type="submit">Send</button>
+            type="submit"
+          >
+            {loading ? "Sending..." : "Send"}  
+          </button>
         </div>
       </form>
     </div>
