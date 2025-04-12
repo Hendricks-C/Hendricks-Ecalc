@@ -124,3 +124,20 @@ export const manufacturers: ManufacturerModels = {
         "Xiaomi 12T Pro"
     ]
 };
+
+export const deviceTypes: string[] = [
+    "CPU",
+    "Smartphone",
+    "Tablet",
+    "Laptop",
+    "Modern Monitor",
+    "Laptop Screen",
+    "CRT Monitor (Older, Not In Laptop)",
+    "Mouse",
+    "Keyboard",
+    "External Hard Drive",
+    "Charger",
+    "Printer",
+    "Scanner",
+    "Copier"
+];

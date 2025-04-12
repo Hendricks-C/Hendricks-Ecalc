@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
-import { manufacturers } from '../utils/manufacturerData'
+import { manufacturers, deviceTypes } from '../utils/deviceFormSelections'
 
 import currentBadges from '../utils/api'
 
@@ -111,7 +111,7 @@ function DeviceInfoSubmission() {
             const deviceId: string = data?.[i]?.device_id; // get the device ID from the inserted data
             console.log('deviceId:', deviceId);
             if (sn_image instanceof File) {
-                const {data, error:uploadError} = await supabase.storage
+                const {data, error:uploadError} = await supabase.storage // upload the image to supabase storage
                     .from('device-serial-numbers')
                     .upload(`${user.user.id}/serial_number_${deviceId}`, sn_image)
                 if (uploadError) {
@@ -121,16 +121,19 @@ function DeviceInfoSubmission() {
                     console.log('Serial number image uploaded successfully');
                 }
                 
-                if (data) { // update the device record with the image path if the upload was successful
-                    const { error:updateError } = await supabase
+                if (data) {
+                    // console.log('Attempting to update image path for device:', deviceId);
+                    // console.log('Image path:', data.path);
+                    const { data: updateResult, error: updateError } = await supabase
                         .from('devices')
                         .update({ serial_number_image_path: data.path })
-                        .eq('device_id', deviceId);
+                        .eq('device_id', deviceId)
+                        .select();
                     if (updateError) {
                         console.error('Error updating device with serial number image path:', updateError.message);
                         alert('Error updating device with serial number image path, please enter manually under your profile page');
                     } else {
-                        console.log('Device updated with serial number image path successfully');
+                        console.log('Successfully updated:', updateResult);
                     }
                 }
             }
@@ -236,48 +239,70 @@ function DeviceInfoSubmission() {
                     {devices.map((device, index) => (
                         <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             <div className='flex flex-col gap-1'>
-                                <label className="flex mt-[0.5vh]">Device Type:</label>
-                                <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
+                                <label htmlFor={`device-input-${index}`} className="flex mt-[0.5vh]">Device Type:</label>
+                                {/* <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Device</option>
-                                    <option value="CPU">CPU</option>
-                                    <option value="Smartphone">Smartphone</option>
-                                    <option value="Tablet">Tablet</option>
-                                    <option value="Laptop">Laptop</option>
-                                    <option value="Modern Monitor">Modern Monitor</option>
-                                    <option value="Laptop Screen">Laptop Screen</option>
-                                    <option value="CRT Monitor (Older, Not In Laptop)">CRT monitor (older, not in laptop)</option>
-                                    <option value="Mouse">Mouse</option>
-                                    <option value="Keyboard">Keyboard</option>
-                                    <option value="External Hard Drive">External hard drive</option>
-                                    <option value="Charger">Charger</option>
-                                    <option value="Printer">Printer</option>
-                                    <option value="Scanner">Scanner</option>
-                                    <option value="Copier">Copier</option>
-                                </select>
+                                    {deviceTypes.map((deviceType) => (
+                                        <option value={deviceType}>{deviceType}</option>
+                                    ))}
+                                </select> */}
+                                <input
+                                    id={`device-input-${index}`}
+                                    list={`device-options-${index}`}
+                                    placeholder="Device Type"
+                                    value={device.device || ''}
+                                    onChange={e => handleFormValueChange(index, 'device', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                />
+                                <datalist id={`device-options-${index}`}>
+                                    {deviceTypes.map((deviceType) => (
+                                        <option key={deviceType} value={deviceType} />
+                                    ))}
+                                </datalist>
                             </div>
                             <div className='flex flex-col gap-1'>
-                                <label className="flex mt-[0.5vh]">Manufacturer:</label>
-                                <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
+                                <label htmlFor={`manufacturer-input-${index}`} className="flex mt-[0.5vh]">Manufacturer:</label>
+                                {/* <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Manufacturer</option>
                                     {Object.keys(manufacturers).map((manufacturer) => (
                                         <option value={manufacturer}>{manufacturer}</option>
                                     ))}
-                                </select>
+                                </select> */}
+                                <input
+                                    id={`manufacturer-input-${index}`}
+                                    list={`manufacturer-options-${index}`}
+                                    placeholder="Manufacturer"
+                                    value={device.manufacturer || ''}
+                                    onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                />
+                                <datalist id={`manufacturer-options-${index}`}>
+                                    {Object.keys(manufacturers).map((manufacturer) => (
+                                        <option key={manufacturer} value={manufacturer} />
+                                    ))}
+                                </datalist>
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Model:</label>
-                                {/* <input 
-                                    type="text" 
-                                    placeholder="Model" 
-                                    onChange={e => handleFormValueChange(index, 'model', e.target.value)} 
-                                    className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" 
-                                /> */}
-                                <select id="device-options" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
+                                <input
+                                    id={`model-input-${index}`}
+                                    list={`model-options-${index}`}
+                                    placeholder="Model"
+                                    value={device.model || ''}
+                                    onChange={e => handleFormValueChange(index, 'model', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                />
+                                <datalist id={`model-options-${index}`}>
+                                    {device.manufacturer && manufacturers[device.manufacturer].map((model) => (
+                                        <option key={model} value={model} />
+                                    ))}
+                                </datalist>
+                                {/* <select id="device-options" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Model</option>
                                     {device.manufacturer ? manufacturers[device.manufacturer].map((model) => (
                                         <option value={model}>{model}</option>
                                     )) : null}
-                                </select>
+                                </select> */}
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Device Condition:</label>
