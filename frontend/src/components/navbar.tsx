@@ -3,9 +3,13 @@ import supabase from '../utils/supabase'
 import { useEffect, useState } from 'react';
 import HendricksLogo from '../assets/hendricksLogo.png'
 
+import { Profile } from '../utils/types';
+import { useLocation } from 'react-router-dom';
+
 import { Menu, X } from 'lucide-react';
 
 function Navbar() {
+    const location = useLocation();
 
     const [user, setUser] = useState<any>(null)
     const [isAdmin, setIsAdmin] = useState(false)
@@ -15,7 +19,58 @@ function Navbar() {
 
     // Check for existing user session
     useEffect(() => {
+        async function checkUser() {
+            const { data, error } = await supabase.auth.getUser();
+            
+            const sessionUser = data?.user;
 
+            if (error || !sessionUser) {
+                setUser(null);
+                setIsAdmin(false);
+                return;
+            }
+
+            const { data: rawData, error: userError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', sessionUser.id)
+            .single();
+
+            if (userError || !rawData) {
+                setUser(null);
+                setIsAdmin(false);
+                return;
+            }
+
+            const userData = rawData as Profile;
+
+            if (!userData.two_fa_verified) {
+                setUser(null);
+                setIsAdmin(false);
+                return;
+            }
+
+            setUser(sessionUser);
+            setIsAdmin(sessionUser.email?.endsWith('@gmail.com') || false);
+        }
+
+        const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+            if (session?.user) {
+                checkUser();
+            } else {
+                setUser(null);
+                setIsAdmin(false);
+            }
+        });
+
+        //Cleans up the listener when the component unmounts.
+        return () => {
+            authListener.subscription.unsubscribe();
+        }
+    }, [location.pathname]);
+
+    // Resizing 
+    useEffect( () => {
         function handleResize() {
             if (window.innerWidth >= 1020){
                 setOpen(false);
@@ -25,39 +80,32 @@ function Navbar() {
         handleResize();
 
         window.addEventListener('resize', handleResize);
-
-        async function checkUser() {
-            const { data, error } = await supabase.auth.getUser();
-            if (!error) {
-                setUser(data?.user || null);
-            }
-
-            // Check if the user is an admin based on their email domain
-            setIsAdmin(data?.user?.email?.endsWith('@gmail.com') || false);
-        }
-
-        checkUser();
-
-        // Listen for auth state changes
-        const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
-            setUser(session?.user || null);
-            setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);
-        });
-
+        
         //Cleans up the listener when the component unmounts.
         return () => {
-            authListener.subscription.unsubscribe();
             window.removeEventListener('resize', handleResize);
         }
-    }, []);
+    }, [])
 
     // handle signout button
     const handleClick = async () => {
+        const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ two_fa_verified: false })
+        .eq("id", user.id);
+    
+        if (updateError) {
+            console.error("Error updating profile for 2FA:", updateError);
+            return;
+        }
+        
         const { error } = await supabase.auth.signOut()
+        
         if (error) { // Error handling
             console.error('Error logging out:', error.message)
             return
         }
+
         setUser(null);
         navigate('/login')
     }

@@ -22,7 +22,6 @@ function Home() {
         checkSession();
     }, []);
 
-
     const [stats, setStats] = useState({
         devices: 0,
         clients: 0,
@@ -68,7 +67,7 @@ function Home() {
                     </p>
                     <Link to={isLoggedIn ? "/device-info-submission" : "/login"}>
                         <button className="bg-[#FFE017] cursor-pointer text-white font-bold text-xl md:text-2xl px-10 md:px-20 py-3 rounded-full shadow-md hover:brightness-105 transition mb-5 md:mb-10">
-                            GET STARTED
+                            {isLoggedIn ? "GET STARTED" : "LOGIN"}
                         </button>
                     </Link>
                 </div>
