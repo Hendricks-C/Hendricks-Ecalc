@@ -325,6 +325,7 @@ function DeviceInfoSubmission() {
                                             className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
                                         />
                                     )}
+                                    
                                 />
                             </div>
                             <div className='flex flex-col gap-1'>
@@ -336,7 +337,12 @@ function DeviceInfoSubmission() {
                                     variant="outlined"
                                     value={device.weight || ''} 
                                     onChange={(e) => handleFormValueChange(index, 'weight', e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                    className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                    sx={{
+                                        '& .MuiOutlinedInput-input': {
+                                          padding: '1vw', 
+                                        },
+                                    }}
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
@@ -380,7 +386,12 @@ function DeviceInfoSubmission() {
                                         variant="outlined"
                                         value={device.serial_number || ''}
                                         onChange={(e) => handleFormValueChange(index, 'serial_number', e.target.value)}
-                                        className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                        className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                        sx={{
+                                            '& .MuiOutlinedInput-input': {
+                                              padding: '1vw', 
+                                            },
+                                        }}
                                     />
                                 )}
                                 
