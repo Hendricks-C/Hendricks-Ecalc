@@ -3,6 +3,8 @@ import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
 import { manufacturers, deviceTypes } from '../utils/deviceFormSelections'
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 import currentBadges from '../utils/api'
 
@@ -240,82 +242,102 @@ function DeviceInfoSubmission() {
                         <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`device-input-${index}`} className="flex mt-[0.5vh]">Device Type:</label>
-                                {/* <select id="device-options" onChange={e => handleFormValueChange(index, 'device', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
-                                    <option value="none">Device</option>
-                                    {deviceTypes.map((deviceType) => (
-                                        <option value={deviceType}>{deviceType}</option>
-                                    ))}
-                                </select> */}
-                                <input
-                                    id={`device-input-${index}`}
-                                    list={`device-options-${index}`}
-                                    placeholder="Device Type"
+                                <Autocomplete
+                                    id={`device-input-${index}`} 
+                                    options={deviceTypes}
                                     value={device.device || ''}
-                                    onChange={e => handleFormValueChange(index, 'device', e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                    disableClearable
+                                    onChange={(_event, newInputValue) => {
+                                       handleFormValueChange(index, 'device', newInputValue);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            placeholder="Device Type"
+                                            variant="outlined"
+                                            className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                        />
+                                    )}
                                 />
-                                <datalist id={`device-options-${index}`}>
-                                    {deviceTypes.map((deviceType) => (
-                                        <option key={deviceType} value={deviceType} />
-                                    ))}
-                                </datalist>
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`manufacturer-input-${index}`} className="flex mt-[0.5vh]">Manufacturer:</label>
-                                {/* <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
-                                    <option value="none">Manufacturer</option>
-                                    {Object.keys(manufacturers).map((manufacturer) => (
-                                        <option value={manufacturer}>{manufacturer}</option>
-                                    ))}
-                                </select> */}
-                                <input
+                                <Autocomplete
                                     id={`manufacturer-input-${index}`}
-                                    list={`manufacturer-options-${index}`}
-                                    placeholder="Manufacturer"
+                                    freeSolo 
+                                    options={Object.keys(manufacturers)}
                                     value={device.manufacturer || ''}
-                                    onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                    onInputChange={(_event, newInputValue) => {
+                                       handleFormValueChange(index, 'manufacturer', newInputValue);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            placeholder="Manufacturer"
+                                            variant="outlined"
+                                            className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                        />
+                                    )}
                                 />
-                                <datalist id={`manufacturer-options-${index}`}>
-                                    {Object.keys(manufacturers).map((manufacturer) => (
-                                        <option key={manufacturer} value={manufacturer} />
-                                    ))}
-                                </datalist>
                             </div>
                             <div className='flex flex-col gap-1'>
-                                <label className="flex mt-[0.5vh]">Model:</label>
-                                <input
+                                <label htmlFor={`model-input-${index}`} className="flex mt-[0.5vh]">Model:</label>
+                                <Autocomplete
                                     id={`model-input-${index}`}
-                                    list={`model-options-${index}`}
-                                    placeholder="Model"
+                                    freeSolo 
+                                    options={manufacturers[device.manufacturer] || []}
                                     value={device.model || ''}
-                                    onChange={e => handleFormValueChange(index, 'model', e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                    onInputChange={(_event, newInputValue) => {
+                                       handleFormValueChange(index, 'model', newInputValue);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            placeholder="Model"
+                                            variant="outlined"
+                                            className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                        />
+                                    )}
                                 />
-                                <datalist id={`model-options-${index}`}>
-                                    {device.manufacturer && manufacturers[device.manufacturer].map((model) => (
-                                        <option key={model} value={model} />
-                                    ))}
-                                </datalist>
-                                {/* <select id="device-options" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
-                                    <option value="none">Model</option>
-                                    {device.manufacturer ? manufacturers[device.manufacturer].map((model) => (
-                                        <option value={model}>{model}</option>
-                                    )) : null}
-                                </select> */}
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Device Condition:</label>
-                                <select id="device-options" onChange={e => handleFormValueChange(index, 'deviceCondition', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
+                                {/* <select id="device-options" onChange={e => handleFormValueChange(index, 'deviceCondition', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Device Condition</option>
                                     <option value="Excellent">Excellent</option>
                                     <option value="Lightly Used">Lightly Used</option>
                                     <option value="Worn/Damaged">Worn/Damaged</option>
-                                </select>
+                                </select> */}
+
+                                <Autocomplete
+                                    id={`device-condition-input-${index}`}
+                                    options={['Excellent', 'Lightly Used', 'Worn/Damaged']}
+                                    value={device.deviceCondition || ''}
+                                    disableClearable
+                                    onChange={(_event, newInputValue) => {
+                                       handleFormValueChange(index, 'deviceCondition', newInputValue);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            placeholder="Device Condition"
+                                            variant="outlined"
+                                            className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                        />
+                                    )}
+                                />
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Weight(lbs):</label>
-                                <input type="number" placeholder="Value" onChange={e => handleFormValueChange(index, 'weight', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                                {/* <input type="number" placeholder="Value" onChange={e => handleFormValueChange(index, 'weight', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" /> */}
+                                <TextField
+                                    type="number"
+                                    placeholder="Value"
+                                    variant="outlined"
+                                    value={device.weight || ''} 
+                                    onChange={(e) => handleFormValueChange(index, 'weight', e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                />
                             </div>
                             <div className="flex flex-col gap-1">
                                 <label className="flex mt-[0.5vh]">Serial Number:</label>
@@ -351,7 +373,15 @@ function DeviceInfoSubmission() {
                                         }
                                     </>
                                 ) : (
-                                    <input type="text" placeholder="Serial Number" onChange={e => handleFormValueChange(index, 'serial_number', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                                    // <input type="text" placeholder="Serial Number" onChange={e => handleFormValueChange(index, 'serial_number', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                                    <TextField
+                                        type="text"
+                                        placeholder="Serial Number"
+                                        variant="outlined"
+                                        value={device.serial_number || ''}
+                                        onChange={(e) => handleFormValueChange(index, 'serial_number', e.target.value)}
+                                        className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                    />
                                 )}
                                 
                             </div>
@@ -362,7 +392,7 @@ function DeviceInfoSubmission() {
                         {devices.length > 1 ? <a onClick={removeDevice} className="self-end bg-none hover:underline cursor-pointer">- Remove device</a> : null}
                     </div> 
                 </div>
-                <button className="mt-5 border p-2 w-1/4 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Next</button>
+                <button className="my-5 border p-2 w-1/4 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Next</button>
             </form>
         </>
     );
