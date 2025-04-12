@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import { manufacturers } from '../utils/manufacturerData'
 
 import currentBadges from '../utils/api'
 
@@ -16,14 +16,7 @@ export interface DeviceInfo {
     serial_number?: File | string | undefined;
 }
 
-const manufacturers: string[] = [
-    "Acer", "Alienware", "Apple", "Asus", "Averatec", "Clevo", "Compaq", "Dell", "Digital Storm",
-    "eMachines", "Everex", "EVGA Corporation", "Falcon Northwest", "Founder", "Fujitsu", "Gateway",
-    "Gigabyte Technology", "Google", "Gradiente", "Haier", "Hasee", "HP", "Huawei", "Hyundai",
-    "iBall", "IBM", "Lanix", "Lemote", "Lenovo", "LG", "Maingear", "Medion", "Micro-Star International (MSI)",
-    "Microsoft", "NEC", "Origin PC", "Panasonic", "Positivo", "Razer", "Samsung Electronics",
-    "Sharp", "Sony", "System76", "Toshiba", "Tongfang", "VIA", "Vizio", "Walton", "Xiaomi"
-  ];
+
 
 const hendricks_manufacturers: string[] = [
     "Apple", "Dell", "HP", "Lenovo", "Samsung", "Microsoft", "Acer", "Asus",
@@ -56,7 +49,8 @@ function DeviceInfoSubmission() {
         event.preventDefault();
         //making sure all fields are filled
         for (let i = 0; i < devices.length; i++) {
-            if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
+            if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '' || devices[i].serial_number === undefined) {
+                console.log(devices[i]);
                 alert('Please fill in all fields');
                 return;
             }
@@ -73,6 +67,10 @@ function DeviceInfoSubmission() {
         const mapToInsert = devices.map((device) => {
             const materialCompositionSaved: MaterialComposition = calculateMaterialComposition(device);
             const co2Emissions: number = calculateCO2Emissions(device);
+            if (device.serial_number instanceof File) {
+                // Upload the image to Supabase Storage
+            
+            }
             return {
                 user_id: user.user.id,
                 device_type: device.device,
@@ -80,6 +78,8 @@ function DeviceInfoSubmission() {
                 manufacturer: device.manufacturer,
                 device_condition: device.deviceCondition,
                 weight: parseFloat(device.weight),
+                serial_number: typeof device.serial_number === 'string' ? device.serial_number : null, //only save the serial number if it is a string
+                serial_number_image_path: null, // this will be updated after the image is uploaded
                 ferrous_metals: materialCompositionSaved.ferrousMetal,
                 aluminum: materialCompositionSaved.aluminum,
                 copper: materialCompositionSaved.copper,
@@ -92,7 +92,7 @@ function DeviceInfoSubmission() {
                 co2_emissions: co2Emissions,
             }
         });
-        const { error } = await supabase.from('devices').insert(mapToInsert); //actual insertion of devices into supabase database
+        const { data, error } = await supabase.from('devices').insert(mapToInsert).select(); //actual insertion of devices into supabase database
 
         const alertText = await checkForBadge(user.user.id);
 
@@ -102,9 +102,41 @@ function DeviceInfoSubmission() {
             return;
         } else {
             console.log('devices successfully added')
-            navigate('/results', { state: { devices, alertText} });
         }
 
+        //need to submit serial number images to supabase storage if they exist
+        for (let i = 0; i < devices.length; i++) {
+            const sn_image: File | string | undefined = devices[i].serial_number;
+            console.log(data);
+            const deviceId: string = data?.[i]?.device_id; // get the device ID from the inserted data
+            console.log('deviceId:', deviceId);
+            if (sn_image instanceof File) {
+                const {data, error:uploadError} = await supabase.storage
+                    .from('device-serial-numbers')
+                    .upload(`${user.user.id}/serial_number_${deviceId}`, sn_image)
+                if (uploadError) {
+                    console.error('Error uploading serial number image:', uploadError.message);
+                    alert('Error uploading serial number image, please enter manually under your profile page');
+                } else {
+                    console.log('Serial number image uploaded successfully');
+                }
+                
+                if (data) { // update the device record with the image path if the upload was successful
+                    const { error:updateError } = await supabase
+                        .from('devices')
+                        .update({ serial_number_image_path: data.path })
+                        .eq('device_id', deviceId);
+                    if (updateError) {
+                        console.error('Error updating device with serial number image path:', updateError.message);
+                        alert('Error updating device with serial number image path, please enter manually under your profile page');
+                    } else {
+                        console.log('Device updated with serial number image path successfully');
+                    }
+                }
+            }
+
+        }
+        navigate('/results', { state: { devices, alertText} }); //redirect to results page on successful submission
     }
 
     // adds more devices when "+ Add more devices" is clicked
@@ -227,14 +259,25 @@ function DeviceInfoSubmission() {
                                 <label className="flex mt-[0.5vh]">Manufacturer:</label>
                                 <select id="device-options" onChange={e => handleFormValueChange(index, 'manufacturer', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
                                     <option value="none">Manufacturer</option>
-                                    {manufacturers.map((manufacturer) => (
+                                    {Object.keys(manufacturers).map((manufacturer) => (
                                         <option value={manufacturer}>{manufacturer}</option>
                                     ))}
                                 </select>
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Model:</label>
-                                <input type="text" placeholder="Model" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                                {/* <input 
+                                    type="text" 
+                                    placeholder="Model" 
+                                    onChange={e => handleFormValueChange(index, 'model', e.target.value)} 
+                                    className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" 
+                                /> */}
+                                <select id="device-options" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
+                                    <option value="none">Model</option>
+                                    {device.manufacturer ? manufacturers[device.manufacturer].map((model) => (
+                                        <option value={model}>{model}</option>
+                                    )) : null}
+                                </select>
                             </div>
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Device Condition:</label>
@@ -283,7 +326,7 @@ function DeviceInfoSubmission() {
                                         }
                                     </>
                                 ) : (
-                                    <input type="text" placeholder="Model" onChange={e => handleFormValueChange(index, 'model', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                                    <input type="text" placeholder="Serial Number" onChange={e => handleFormValueChange(index, 'serial_number', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
                                 )}
                                 
                             </div>
