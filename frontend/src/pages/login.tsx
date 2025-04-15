@@ -11,7 +11,6 @@ import { Profile } from '../utils/types';
 
 function Login() {
   const [email, setEmail] = useState<string>('');
-  const [company, setCompany] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaKey, setCaptchaKey] = useState<number>(0);
@@ -192,18 +191,6 @@ function Login() {
                 />
               </div>
 
-              {/* COMPANY */}
-              <div className="flex flex-col">
-                <label className="text-black font-bitter font-medium text-lg mb-1">Company:</label>
-                <input
-                  type="text"
-                  placeholder="Optional"
-                  value={company}
-                  onChange={e => setCompany(e.target.value)}
-                  className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
-                />
-              </div>
-
               <div className='flex justify-center items-center'>
                 <Turnstile
                   key={captchaKey}
@@ -225,12 +212,6 @@ function Login() {
                   disabled={isLoading}
                 >
                   {isLoading ? 'Logging in...' : 'Login'}
-                </button>
-                <button
-                  className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 cursor-pointer hover:brightness-105"
-                  type="button"
-                >
-                  Skip
                 </button>
               </div>
 
