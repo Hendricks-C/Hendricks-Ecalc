@@ -1,4 +1,6 @@
 import supabase from "../utils/supabase";
+import axios from "axios"
+
 
 const currentBadges = async (userId: string): Promise<number[]> => {
   // First fetch the badges IDs from user_badges for this user
@@ -61,4 +63,25 @@ const checkHowLongMember = async (id:string, whenCreated:string) => {
   return gotBadge;
 }
 
-export {currentBadges, checkHowLongMember};
+/**
+ * Call api from the backend to extract the text from the object
+ * 
+ * @param imageBase64 takes the base64 of the image the user has uploaded
+ * @returns the text from that image
+ */
+
+const ExtractTextFromImage = async (imageBase64: string, manufacture:string ) => {
+  try {
+    const response = await axios.post("http://localhost:3000/api/image-processing/ocr", {
+      imageBase64,
+      manufacture
+    });
+
+    return response.data.text;
+  } catch (error) {
+    console.error("Error fetching OCR results:", error);
+    return "OCR failed";
+  }
+};
+
+export {currentBadges, checkHowLongMember, ExtractTextFromImage};

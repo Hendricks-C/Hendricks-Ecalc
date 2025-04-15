@@ -14,6 +14,7 @@ import ResultsPage from './pages/resultsPage.tsx'
 import Contact from './pages/contact.tsx'
 import Home from './pages/home.tsx'
 import ThankYou from './pages/thankYou.tsx'
+import OcrUpload from './pages/ocrTest.tsx'
 
 function App() {
   return (
@@ -38,6 +39,8 @@ function App() {
         <Route path="/admin" element={<AdminPage/>} />
         <Route path="/results" element={<ResultsPage/>} />
         <Route path="/thank-you" element={<ThankYou/>} />
+
+        <Route path="/ocr" element={<OcrUpload/>} />
       </Routes>
     </BrowserRouter>
   );
