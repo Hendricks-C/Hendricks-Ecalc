@@ -1,11 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import supabase from '../utils/supabase';
 import { AuthResponse, User } from '@supabase/supabase-js';
 import Laptop from '../assets/laptop.png';
 import { Turnstile } from '@marsidev/react-turnstile';
 import TwoFAModal from '../components/twoFA'; // Import the new modal component
 import axios from 'axios';
+
+import { Profile } from '../utils/types';
 
 function Login() {
   const [email, setEmail] = useState<string>('');
@@ -20,6 +22,60 @@ function Login() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   
   const navigate = useNavigate();
+
+  // Check for existing user session
+  useEffect(() => {
+    async function checkUser(user: User) {
+      setCurrentUser(user); // now this is always synced
+  
+      const { data: rawData, error: userError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+  
+      if (!userError && rawData) {
+        const userData = rawData as Profile;
+  
+        if (userData.two_fa_verified === false) {
+          try {
+            const response = await axios.post("http://localhost:3000/api/users/2FA", {
+              userEmail: user.email,
+              userId: user.id,
+            });
+      
+            if (response.data.expires_at) {
+              localStorage.setItem('2fa_expires_at', response.data.expires_at);
+            }
+      
+            setShowTwoFAModal(true);
+          } catch (error) {
+            alert("Failed to send 2FA code: " + error);
+          }
+        }
+      }
+    }
+  
+    // Check once on mount
+    supabase.auth.getUser().then(({ data, error }) => {
+      if (data?.user && !error) {
+        checkUser(data.user);
+      }
+    });
+  
+    // Subscribe to future auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        checkUser(session.user);
+      } else {
+        setCurrentUser(null);
+      }
+    });
+  
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);  
 
   //login user
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -61,10 +117,15 @@ function Login() {
       }
 
       // Send 2FA code but don't navigate away - instead show the modal
-      await axios.post("http://localhost:3000/api/users/2FA", {
+      const response = await axios.post("http://localhost:3000/api/users/2FA", {
         userEmail: data.user.email,
         userId: data.user.id
       });
+
+      // Save the expiration timestamp globally
+      if (response.data.expires_at) {
+        localStorage.setItem('2fa_expires_at', response.data.expires_at);
+      }
 
       // Set the current user and show the 2FA modal
       setCurrentUser(data.user);

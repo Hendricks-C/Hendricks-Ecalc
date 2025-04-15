@@ -20,42 +20,70 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
 
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes in seconds
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  
+    return () => {
+      document.body.style.overflow = 'auto'; // reset on unmount
+    };
+  }, [isOpen]);
+
   // Start the timer when the modal opens
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    
-    if (isOpen && timeRemaining > 0) {
-      timer = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setExpiredError(true);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
+    if (!isOpen) return;
 
-    // Clean up timer on unmount or when modal closes
-    return () => {
-      if (timer) clearInterval(timer);
-    };
+    const expiresAtString = localStorage.getItem('2fa_expires_at');
+    if (!expiresAtString) return;
+  
+    const expiresAt = new Date(expiresAtString);
+    const initialDiff = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+  
+    if (initialDiff <= 0) {
+      setTimeRemaining(0);
+      setExpiredError(true);
+      return;
+    }
+  
+    setTimeRemaining(initialDiff);
+
+    const timer = setInterval(() => {
+      const remaining = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+      if (remaining <= 0) {
+        clearInterval(timer);
+        setExpiredError(true);
+        setTimeRemaining(0);
+      } else {
+        setTimeRemaining(remaining);
+      }
+    }, 1000);
+  
+    return () => clearInterval(timer);
   }, [isOpen, timeRemaining]);
 
   const sendNewCode = async () => {
     if (!userData) return;
-    
+  
     setExpiredError(false);
-    setTimeRemaining(600);
-
-    // Send 2FA code but don't navigate away - instead show the modal
-    await axios.post("http://localhost:3000/api/users/2FA", {
+  
+    const response = await axios.post("http://localhost:3000/api/users/2FA", {
       userEmail: userData.email,
       userId: userData.id
     });
-
-  }
+  
+    if (response.data.expires_at) {
+      localStorage.setItem('2fa_expires_at', response.data.expires_at);
+      const newTime = Math.floor((new Date(response.data.expires_at).getTime() - Date.now()) / 1000);
+      setTimeRemaining(newTime);
+    } else {
+      // fallback in case backend hasn't been updated yet
+      setTimeRemaining(600);
+    }
+  };
+  
 
   const handleSubmit = async () => {
     if (!userData) return;
@@ -71,10 +99,12 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
       });
     
       if (response.data.success === true) {
+        localStorage.removeItem('2fa_expires_at');
+
         let userId = userData.id;
         let createdAt = userData.created_at;
         let alertText = await checkHowLongMember(userId, createdAt);
-        
+      
         onClose();
         navigate('/', { state: { alertText } });
       } else {

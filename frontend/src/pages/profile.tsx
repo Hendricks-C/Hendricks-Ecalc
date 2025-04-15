@@ -10,6 +10,8 @@ import { currentBadges } from "../utils/api";
 import ProfileImageUploadModal from '../components/profileImageUploadModal';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import SearchIcon from '@mui/icons-material/Search';
+import { User } from "@supabase/supabase-js";
+import { Profile } from "../utils/types";
 
 interface Badge {
     id: number;
@@ -114,6 +116,25 @@ const UserProfile = () => {
 
     // checking for existing user session
     useEffect(() => {
+        async function checkUser(user: User) {
+            const { data: rawData, error: userError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (userError || !rawData) {
+                console.error("Profile lookup failed", userError);
+                navigate("/login");
+                return;
+            }
+            
+            const userData = rawData as Profile;
+            if (userData.two_fa_verified === false) {
+                navigate("/login");
+            }
+        }
+
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             if (!session) {
                 navigate("/login");
@@ -153,7 +174,7 @@ const UserProfile = () => {
                     fetchProfileImage(userId);
                 }
 
-
+                checkUser(session.user);
                 fetchUserAndProfile();
             }
         });

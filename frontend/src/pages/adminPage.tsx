@@ -3,6 +3,9 @@ import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import {useReactTable, ColumnDef, getCoreRowModel, flexRender, getFilteredRowModel, VisibilityState, getPaginationRowModel} from '@tanstack/react-table'
 
+import { User } from '@supabase/supabase-js'
+import { Profile } from '../utils/types'
+
 interface DevicesQuery{
     name: string;
     device_id: number;
@@ -122,10 +125,32 @@ function AdminPage() {
 
     // checking for existing user session
     useEffect(() => {
+        async function checkUser(user: User) {
+            const { data: rawData, error: userError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (userError || !rawData) {
+                console.error("Profile lookup failed", userError);
+                navigate("/login");
+                return;
+            }
+            
+            const userData = rawData as Profile;
+            if (userData.two_fa_verified === false) {
+                navigate("/login");
+            }
+        }
+
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             if (!session) {
                 navigate("/welcome");
+            } else {
+                checkUser(session.user)
             }
+
             setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);
             if (!isAdmin) {
                 navigate("/welcome");
