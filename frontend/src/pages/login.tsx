@@ -23,6 +23,8 @@ function Login() {
   
   const navigate = useNavigate();
 
+  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
   // Check for existing user session
   useEffect(() => {
     async function checkUser(user: User) {
@@ -39,7 +41,7 @@ function Login() {
   
         if (userData.two_fa_verified === false) {
           try {
-            const response = await axios.post("http://localhost:3000/api/users/2FA", {
+            const response = await axios.post(`${apiBase}/api/users/2FA`, {
               userEmail: user.email,
               userId: user.id,
             });
@@ -117,7 +119,7 @@ function Login() {
       }
 
       // Send 2FA code but don't navigate away - instead show the modal
-      const response = await axios.post("http://localhost:3000/api/users/2FA", {
+      const response = await axios.post(`${apiBase}/api/users/2FA`, {
         userEmail: data.user.email,
         userId: data.user.id
       });

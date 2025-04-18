@@ -1,6 +1,7 @@
 import supabase from "../utils/supabase";
 import axios from "axios"
 
+const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const currentBadges = async (userId: string): Promise<number[]> => {
   // First fetch the badges IDs from user_badges for this user
@@ -72,7 +73,7 @@ const checkHowLongMember = async (id:string, whenCreated:string) => {
 
 const ExtractTextFromImage = async (imageBase64: string, manufacture:string ) => {
   try {
-    const response = await axios.post("http://localhost:3000/api/image-processing/ocr", {
+    const response = await axios.post(`${apiBase}/api/image-processing/ocr`, {
       imageBase64,
       manufacture
     });

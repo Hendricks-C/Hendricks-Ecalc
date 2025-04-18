@@ -10,11 +10,13 @@ const Contact = () => {
 
   const [loading, setLoading] = useState(false);
 
+  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
   const sendEmail = async (e:SyntheticEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:3000/api/users/send-contact", {
+      const response = await axios.post(`${apiBase}/api/users/send-contact`, {
         name: name,
         email: email,
         subject: subject,
