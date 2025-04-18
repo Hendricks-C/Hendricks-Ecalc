@@ -146,14 +146,14 @@ function AdminPage() {
 
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             if (!session) {
-                navigate("/welcome");
+                navigate("/");
             } else {
                 checkUser(session.user)
             }
 
             setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);
             if (!isAdmin) {
-                navigate("/welcome");
+                navigate("/");
             }
         });
 

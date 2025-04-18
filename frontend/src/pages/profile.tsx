@@ -61,6 +61,7 @@ const UserProfile = () => {
     //Badges
     const [badges, setBadges] = useState<Badge[]>([]);
 
+    const frontendURL = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
 
     /**
      * @returns Uses the signInWithPassword to check if the current password the user inputs is the one tied to the 
@@ -264,7 +265,7 @@ const UserProfile = () => {
                 email: newEmail.trim(), // New email
             },
             {
-                emailRedirectTo: "http://localhost:5173/login", // Redirect to login after confirmation
+                emailRedirectTo: `${frontendURL}/login`, // Redirect to login after confirmation
             }
         );
 

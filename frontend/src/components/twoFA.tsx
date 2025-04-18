@@ -20,6 +20,8 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
 
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes in seconds
 
+  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -69,7 +71,7 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
   
     setExpiredError(false);
   
-    const response = await axios.post("http://localhost:3000/api/users/2FA", {
+    const response = await axios.post(`${apiBase}/api/users/2FA`, {
       userEmail: userData.email,
       userId: userData.id
     });
@@ -93,7 +95,7 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
     setExpiredError(false);
 
     try {
-      const response = await axios.post("http://localhost:3000/api/users/verify-2fa", {
+      const response = await axios.post(`${apiBase}/api/users/verify-2fa`, {
         userId: userData.id,
         code: enteredCode
       });
