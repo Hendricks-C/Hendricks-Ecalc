@@ -66,7 +66,7 @@ function Login() {
     });
   
     // Subscribe to future auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         checkUser(session.user);
       } else {
@@ -240,12 +240,14 @@ function Login() {
       </div>
 
       {/* 2FA Modal */}
-      <TwoFAModal 
-        isOpen={showTwoFAModal} 
-        onClose={() => setShowTwoFAModal(false)} 
-        userData={currentUser}
-        navigate={navigate}
-      />
+      {currentUser && (
+        <TwoFAModal 
+          isOpen={showTwoFAModal} 
+          onClose={() => setShowTwoFAModal(false)} 
+          userData={currentUser}
+          navigate={navigate}
+        />
+      )}
     </>
   );
 }

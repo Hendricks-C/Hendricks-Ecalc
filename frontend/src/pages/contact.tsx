@@ -16,12 +16,12 @@ const Contact = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post(`${apiBase}/api/users/send-contact`, {
-        name: name,
-        email: email,
-        subject: subject,
-        message: message
-      })
+      await axios.post(`${apiBase}/api/users/send-contact`, {
+        name,
+        email,
+        subject,
+        message
+      });
       setName("");
       setEmail("");
       setSubject("");

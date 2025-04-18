@@ -173,6 +173,7 @@ function AdminPage() {
 
                 //flattening the data and formatting it to be displayed in the table
                 const formattedData = data.map((device) => {
+                    const profile = device.profiles as unknown as { first_name: string; last_name: string };
                     const date = new Date(String(device.date_donated));
                     const formattedDate = date.toLocaleDateString('en-US', {
                         year: 'numeric',
@@ -185,7 +186,7 @@ function AdminPage() {
                     });
                     return (
                         {
-                            name: `${device.profiles.first_name} ${device.profiles.last_name}`,
+                            name: `${profile.first_name} ${profile.last_name}`,
                             device_id: device.device_id,
                             device_type: device.device_type,
                             device_model: device.model,
