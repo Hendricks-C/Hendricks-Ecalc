@@ -70,7 +70,7 @@ function DeviceInfoSubmission() {
     }, [navigate]);
 
     // handles submission of device(s) info to supabase database
-    const handleNext = async (event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+    const handleNext = async (_event: React.MouseEvent<HTMLButtonElement>): Promise<void> => {
         //making sure all fields are filled
         for (let i = 0; i < devices.length; i++) {
             if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
@@ -125,12 +125,12 @@ function DeviceInfoSubmission() {
     }
 
     // adds more devices when "+ Add more devices" is clicked
-    const addDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
+    const addDevice = async (_event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
         setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' }]);
     }
 
     // removes a device when "- Remove device" is clicked if there is more than one device
-    const removeDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
+    const removeDevice = async (_event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
         const newDevices = [...devices];
         newDevices.pop();
         setDevices(newDevices);
@@ -216,7 +216,7 @@ function DeviceInfoSubmission() {
                 </div>
                 <div className="flex flex-col w-full max-w-lg h-auto text-left p-4 sm:p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-white/50 backdrop-blur-md gap-[2vh]">
                     {/* using map so multiple devices can be added*/}
-                    {devices.map((device, index) => (
+                    {devices.map((_device, index) => (
                         <div className="p-4 sm:p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-white/50 shadow-md">
                             <div className='flex flex-col gap-1'>
                                 <label className="flex">Device Type:</label>

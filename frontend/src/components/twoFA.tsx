@@ -113,16 +113,18 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
         setInvalidError(true);
       }
     } catch (error) {
-      console.error("2FA verification error:", error.response.data.error);
-
-      const currentError = error.response.data.error;
-
-      if (currentError === "expired") {
-        setExpiredError(true);
-      } else if (currentError === "invalid"){
-        setInvalidError(true);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("2FA verification error:", error.response.data.error);
+        const currentError = error.response.data.error;
+    
+        if (currentError === "expired") {
+          setExpiredError(true);
+        } else if (currentError === "invalid") {
+          setInvalidError(true);
+        }
+      } else {
+        console.error("Unexpected error during 2FA verification:", error);
       }
-      
     } finally {
       setIsLoading(false);
     }

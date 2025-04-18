@@ -42,7 +42,7 @@ const UserProfile = () => {
     const [showModal, setShowModal] = useState(false);
 
     //password change
-    const [currentPassword, setPassword] = useState<string>();
+    const [currentPassword, setPassword] = useState<string>("");
     const [newPassword, setNewPassword] = useState<string>();
     const [confirmPassword, setConfirmPassword] = useState<string>();
     const [passLenErrorCurr, setPassLenErrorCurr] = useState(false);
@@ -88,7 +88,7 @@ const UserProfile = () => {
             setPasswordConfirmError(true);
         }
 
-        const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({
+        const { data:_passwordData, error }: AuthResponse = await supabase.auth.signInWithPassword({
             email: email,
             password: currentPassword,
         })
@@ -100,7 +100,7 @@ const UserProfile = () => {
         }
 
         // Update password in Supabase
-        const { user, error: updateError } = await supabase.auth.updateUser({
+        const { data:_user, error: updateError } = await supabase.auth.updateUser({
             password: newPassword,
         });
 
@@ -355,7 +355,7 @@ const UserProfile = () => {
         setDevices(data || []);
     };
 
-    const [uploadSuccess, setUploadSuccess] = useState(false);
+    const [_uploadSuccess, setUploadSuccess] = useState(false);
 
     const handleUpload = async (file: File) => {
         if (!file || !user) return;
@@ -694,7 +694,7 @@ const UserProfile = () => {
                                                     String(val).toLowerCase().includes(searchQuery.toLowerCase().trim())
                                                 );
                                             })
-                                            .map((device, idx) => (
+                                            .map((device, _idx) => (
                                                 <tr
                                                     key={device.id}
                                                     className={`border-b border-[#989292] hover:bg-gray-50 transition ${!device.verified ? 'text-[#B44848] font-semibold' : 'text-[#656565] font-semibold'}`}
