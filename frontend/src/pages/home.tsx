@@ -63,7 +63,7 @@ function Home() {
                         E-WASTE CALCULATOR
                     </h1>
                     <p className="text-lg sm:text-xl font-semibold mb-10 md:mb-25">
-                        Add tagline here or descriptions!
+                        Bridging the Digital Divide Worldwide
                     </p>
                     <Link to={isLoggedIn ? "/device-info-submission" : "/login"}>
                         <button className="bg-[#FFE017] cursor-pointer text-white font-bold text-xl md:text-2xl px-10 md:px-20 py-3 rounded-full shadow-md hover:brightness-105 transition mb-5 md:mb-10">
