@@ -19,6 +19,8 @@ function Register() {
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const navigate = useNavigate() //used to redirect to different page
 
+  const frontendURL = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
+
   //checking for existing user session
   useEffect(() => {
     async function checkUser(user: User) {
@@ -62,7 +64,7 @@ function Register() {
       email,
       password,
       options: {
-        emailRedirectTo: 'http://localhost:5173/welcome', //temporary welcome link
+        emailRedirectTo: `${frontendURL}/welcome`, //temporary welcome link
         data: { company: company.trim() }, // Send company info in metadata
         captchaToken
       },
