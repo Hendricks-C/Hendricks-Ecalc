@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
 import { calculateCO2Emissions, calculateMaterialComposition, MaterialComposition } from '../utils/ewasteCalculations'
-import { manufacturers, deviceTypes } from '../utils/deviceFormSelections'
+import { deviceFormOptions, deviceTypes } from '../utils/deviceFormSelections'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
@@ -17,10 +17,7 @@ export interface DeviceInfo {
     weight: string;
     serial_number?: File | string | undefined;
 }
-
-
-
-const hendricks_manufacturers: string[] = [
+const ocr_manufacturers: string[] = [
     "Apple", "Dell", "HP", "Lenovo", "Samsung", "Microsoft", "Acer", "Asus",
 ];
 function DeviceInfoSubmission() {
@@ -231,15 +228,17 @@ function DeviceInfoSubmission() {
 
     return (
         <>
+            {/* Device Submission Form Wrapper */}
             <form onSubmit={handleNext} className='flex justify-center flex-col items-center text-center' encType='multipart/form-data'>
-                <div className="flex flex-col gap-2 mb-4">
-                    <h1 className="text-2xl">Details</h1>
-                    <p>Enter device details below</p>
+                <div className="flex flex-col gap-2 mt-[4vh] mb-[2vh] text-white">
+                    <h1 className="font-semibold text-5xl drop-shadow-md tracking-widest leading-tight capitalize">Details</h1>
+                    <p className="drop-shadow-md text-2xl">Enter device details below</p>
                 </div>
-                <div className="flex flex-col w-1/3 h-auto p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-white/50 backdrop-blur-md gap-[2vh]">
-                    {/* using map so multiple devices can be added*/}
+                {/*Device Submission Input Box(s)*/}
+                <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 md:p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-white/50 backdrop-blur-md gap-[2vh]">
                     {devices.map((device, index) => (
                         <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
+                            {/* Device Type Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`device-input-${index}`} className="flex mt-[0.5vh]">Device Type:</label>
                                 <Autocomplete
@@ -260,12 +259,13 @@ function DeviceInfoSubmission() {
                                     )}
                                 />
                             </div>
+                            {/* Device Manufacturer Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`manufacturer-input-${index}`} className="flex mt-[0.5vh]">Manufacturer:</label>
                                 <Autocomplete
                                     id={`manufacturer-input-${index}`}
                                     freeSolo 
-                                    options={Object.keys(manufacturers)}
+                                    options={Object.keys(deviceFormOptions[device.device] || {})}
                                     value={device.manufacturer || ''}
                                     onInputChange={(_event, newInputValue) => {
                                        handleFormValueChange(index, 'manufacturer', newInputValue);
@@ -280,12 +280,13 @@ function DeviceInfoSubmission() {
                                     )}
                                 />
                             </div>
+                            {/* Device Model Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`model-input-${index}`} className="flex mt-[0.5vh]">Model:</label>
                                 <Autocomplete
                                     id={`model-input-${index}`}
                                     freeSolo 
-                                    options={manufacturers[device.manufacturer] || []}
+                                    options={deviceFormOptions[device.device]?.[device.manufacturer] || []}
                                     value={device.model || ''}
                                     onInputChange={(_event, newInputValue) => {
                                        handleFormValueChange(index, 'model', newInputValue);
@@ -300,15 +301,9 @@ function DeviceInfoSubmission() {
                                     )}
                                 />
                             </div>
+                            {/* Device Condition Field */}
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Device Condition:</label>
-                                {/* <select id="device-options" onChange={e => handleFormValueChange(index, 'deviceCondition', e.target.value)} className="w-full border border-gray-300 text-gray-500 rounded-md p-2 focus:outline-none focus:ring-2 bg-white">
-                                    <option value="none">Device Condition</option>
-                                    <option value="Excellent">Excellent</option>
-                                    <option value="Lightly Used">Lightly Used</option>
-                                    <option value="Worn/Damaged">Worn/Damaged</option>
-                                </select> */}
-
                                 <Autocomplete
                                     id={`device-condition-input-${index}`}
                                     options={['Excellent', 'Lightly Used', 'Worn/Damaged']}
@@ -328,9 +323,9 @@ function DeviceInfoSubmission() {
                                     
                                 />
                             </div>
+                            {/* Device Weight Field */}
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Weight(lbs):</label>
-                                {/* <input type="number" placeholder="Value" onChange={e => handleFormValueChange(index, 'weight', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" /> */}
                                 <TextField
                                     type="number"
                                     placeholder="Value"
@@ -338,17 +333,13 @@ function DeviceInfoSubmission() {
                                     value={device.weight || ''} 
                                     onChange={(e) => handleFormValueChange(index, 'weight', e.target.value)}
                                     className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
-                                    sx={{
-                                        '& .MuiOutlinedInput-input': {
-                                          padding: '1vw', 
-                                        },
-                                    }}
                                 />
                             </div>
+                            {/* Serial Number Input Field or Upload Box */}
                             <div className="flex flex-col gap-1">
                                 <label className="flex mt-[0.5vh]">Serial Number:</label>
                                 {/* if the device of a manufacturer Hendricks has serial_number data for, allow image upload. Else, use manual input. */}
-                                {hendricks_manufacturers.includes(devices[index].manufacturer) ? (
+                                {ocr_manufacturers.includes(devices[index].manufacturer) ? (
                                     <>
                                         <input
                                             id={`serial_number_${index}`}
@@ -387,11 +378,6 @@ function DeviceInfoSubmission() {
                                         value={device.serial_number || ''}
                                         onChange={(e) => handleFormValueChange(index, 'serial_number', e.target.value)}
                                         className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
-                                        sx={{
-                                            '& .MuiOutlinedInput-input': {
-                                              padding: '1vw', 
-                                            },
-                                        }}
                                     />
                                 )}
                                 
