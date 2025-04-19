@@ -257,7 +257,7 @@ function DeviceInfoSubmission() {
             {/* Device Submission Form Wrapper */}
             <form onSubmit={handleNext} className='flex justify-center flex-col items-center text-center' encType='multipart/form-data'>
                 <div className="flex flex-col gap-2 mt-[4vh] mb-[2vh] text-white">
-                    <h1 className="font-semibold text-2xl sm:text-5xl drop-shadow-md tracking-widest leading-tight capitalize">
+                    <h1 className="font-semibold text-2xl md:text-5xl drop-shadow-md tracking-widest leading-tight capitalize">
                         Details
                     </h1>
                     <p className="drop-shadow-md text-sm font-medium">
@@ -265,9 +265,9 @@ function DeviceInfoSubmission() {
                     </p>
                 </div>
                 {/*Device Submission Input Box(s)*/}
-                <div className="flex flex-col w-[90vw] sm:w-[50vw] h-auto p-0 sm:p-[4vw] sm:pb-0 sm:border sm:border-gray-300 rounded-2xl bg-opacity-10 bg-auto sm:bg-white/50 backdrop-blur-md gap-[2vh]">
+                <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 md:p-[4vw] md:pb-0 md:border md:border-gray-300 rounded-2xl bg-opacity-10 bg-auto md:bg-white/50 backdrop-blur-md gap-[2vh]">
                     {devices.map((device, index) => (
-                        <div className="p-4 sm:p-10 mb-4 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
+                        <div className="p-4 md:p-10 mb-4 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             {/* Device Type Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`device-input-${index}`} className="flex mt-[0.5vh]">Device Type:</label>
@@ -415,12 +415,12 @@ function DeviceInfoSubmission() {
                         </div>
                     ))}
                     {/* Remove/Add Devices */}
-                    <div className="flex-col my-[2vh] sm:my-[2vh] hidden sm:flex">
-                        <a onClick={addDevice} className="hidden sm:flex self-end bg-none hover:underline cursor-pointer">
+                    <div className="flex-col my-[2vh] md:my-[2vh] hidden md:flex">
+                        <a onClick={addDevice} className="hidden md:flex self-end bg-none hover:underline cursor-pointer">
                             + Add a device
                         </a>
                         {devices.length > 1 ? 
-                            <a onClick={removeDevice} className="hidden sm:flex self-end bg-none hover:underline cursor-pointer">
+                            <a onClick={removeDevice} className="hidden md:flex self-end bg-none hover:underline cursor-pointer">
                                 - Remove device
                             </a> 
                             : 
@@ -429,7 +429,7 @@ function DeviceInfoSubmission() {
                     </div> 
                 </div>
                 {/* On Mobile, Remove/Add are Buttons */}
-                <div className="flex justify-center items-center gap-6 sm:hidden mt-[1vh]">
+                <div className="flex justify-center items-center gap-6 md:hidden mt-[1vh]">
                         <button
                             onClick={addDevice}
                             className="bg-white text-green-600 border border-green-300 rounded-full w-12 h-12 shadow-md hover:bg-green-50 active:scale-95 transition"
@@ -451,7 +451,7 @@ function DeviceInfoSubmission() {
                             null
                         }
                 </div>
-                <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 sm:mt-10 rounded-full w-[90vw] sm:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">
+                <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 md:mt-10 rounded-full w-[90vw] md:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">
                     Next
                 </button>
             </form>
