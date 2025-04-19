@@ -235,7 +235,7 @@ function DeviceInfoSubmission() {
                     <p className="drop-shadow-md text-2xl">Enter device details below</p>
                 </div>
                 {/*Device Submission Input Box(s)*/}
-                <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 md:p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-white/50 backdrop-blur-md gap-[2vh]">
+                <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 md:p-[4vw] md:pb-0 border border-gray-300 rounded-2xl bg-opacity-10 bg-auto md:bg-white/50 backdrop-blur-md">
                     {devices.map((device, index) => (
                         <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             {/* Device Type Field */}
@@ -385,11 +385,11 @@ function DeviceInfoSubmission() {
                         </div>
                     ))}
                     <div className="flex flex-col">
-                        <a onClick={addDevice} className="self-end bg-none hover:underline cursor-pointer">+ Add a device</a>
+                        <a onClick={addDevice} className="self-center my-[2vh] md:my-[2vh] md:self-end bg-none hover:underline cursor-pointer">+ Add a device</a>
                         {devices.length > 1 ? <a onClick={removeDevice} className="self-end bg-none hover:underline cursor-pointer">- Remove device</a> : null}
                     </div> 
                 </div>
-                <button className="my-5 border p-2 w-1/4 items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Next</button>
+                <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 md:mt-10 rounded-full w-[90vw] md:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">Next</button>
             </form>
         </>
     );
