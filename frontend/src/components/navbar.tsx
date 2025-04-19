@@ -117,7 +117,7 @@ function Navbar() {
                     <img src={HendricksLogo} alt="Hendricks Foundation Logo" className="w-10 h-10 rounded-full mr-4" />
                     <Link to="/" className='text-sm sm:text-lg no-underline'>HENDRICKS FOUNDATION</Link>
                 </div>
-                <div className="flex gap-2 sm:gap-10 text-black font-bitter text-sm sm:text-lg">
+                <div className="flex gap-2 sm:gap-10 text-black font-bitter text-sm sm:text-lg z-50">
                     <Link to="/" className='no-underline hover:underline'>Home</Link>
                     <Link to="/about" className='no-underline hover:underline'>About Us</Link>
                     <Link to="/contact" className='no-underline hover:underline'>Contact</Link>
