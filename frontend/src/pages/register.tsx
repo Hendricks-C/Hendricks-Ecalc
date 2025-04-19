@@ -23,6 +23,7 @@ function Register() {
 
   //checking for existing user session
   useEffect(() => {
+    console.log(import.meta.env.VITE_FRONTEND_URL)
     async function checkUser(user: User) {
       const { data: rawData, error: userError } = await supabase
           .from('profiles')
@@ -64,7 +65,7 @@ function Register() {
       email,
       password,
       options: {
-        emailRedirectTo: `${frontendURL}/welcome`, //temporary welcome link
+        emailRedirectTo: `${frontendURL}`, //temporary welcome link
         data: { company: company.trim() }, // Send company info in metadata
         captchaToken
       },
