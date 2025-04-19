@@ -257,7 +257,7 @@ function DeviceInfoSubmission() {
             {/* Device Submission Form Wrapper */}
             <form onSubmit={handleNext} className='flex justify-center flex-col items-center text-center' encType='multipart/form-data'>
                 <div className="flex flex-col gap-2 mt-[4vh] mb-[2vh] text-white">
-                    <h1 className="font-semibold text-2xl md:text-5xl drop-shadow-md tracking-widest leading-tight capitalize">
+                    <h1 className="font-semibold text-3xl md:text-5xl drop-shadow-md tracking-widest leading-tight capitalize">
                         Details
                     </h1>
                     <p className="drop-shadow-md text-sm font-medium">
