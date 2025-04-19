@@ -20,7 +20,7 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
 
   const [timeRemaining, setTimeRemaining] = useState(600); // 10 minutes in seconds
 
-  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
+  const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5173";
 
   useEffect(() => {
     if (isOpen) {

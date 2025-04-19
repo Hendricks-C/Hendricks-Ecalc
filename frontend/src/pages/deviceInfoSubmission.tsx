@@ -5,11 +5,13 @@ import { calculateCO2Emissions, calculateMaterialComposition, MaterialCompositio
 import { deviceFormOptions, deviceTypes } from '../utils/deviceFormSelections'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-
 import {currentBadges} from '../utils/api'
 
 import { User } from '@supabase/supabase-js'
 import { Profile } from '../utils/types'
+import { IconButton } from '@mui/material'
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 // interface for DeviceInfo values
 export interface DeviceInfo {
@@ -166,12 +168,12 @@ function DeviceInfoSubmission() {
     }
 
     // adds more devices when "+ Add more devices" is clicked
-    const addDevice = async (_event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
+    const addDevice = async (_event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLButtonElement>): Promise<void> => {
         setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' }]);
     }
 
     // removes a device when "- Remove device" is clicked if there is more than one device
-    const removeDevice = async (_event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
+    const removeDevice = async (_event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLButtonElement>): Promise<void> => {
         const newDevices = [...devices];
         newDevices.pop();
         setDevices(newDevices);
@@ -263,9 +265,9 @@ function DeviceInfoSubmission() {
                     </p>
                 </div>
                 {/*Device Submission Input Box(s)*/}
-                <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 sm:p-[4vw] sm:pb-0 border border-gray-300 rounded-2xl bg-opacity-10 bg-auto md:bg-white/50 backdrop-blur-md">
+                <div className="flex flex-col w-[90vw] sm:w-[50vw] h-auto p-0 sm:p-[4vw] sm:pb-0 sm:border sm:border-gray-300 rounded-2xl bg-opacity-10 bg-auto sm:bg-white/50 backdrop-blur-md gap-[2vh]">
                     {devices.map((device, index) => (
-                        <div className="p-4 sm:p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
+                        <div className="p-4 sm:p-10 mb-4 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             {/* Device Type Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`device-input-${index}`} className="flex mt-[0.5vh]">Device Type:</label>
@@ -412,12 +414,44 @@ function DeviceInfoSubmission() {
                             </div>
                         </div>
                     ))}
-                    <div className="flex flex-col">
-                        <a onClick={addDevice} className="self-center my-[2vh] md:my-[2vh] md:self-end bg-none hover:underline cursor-pointer">+ Add a device</a>
-                        {devices.length > 1 ? <a onClick={removeDevice} className="self-end bg-none hover:underline cursor-pointer">- Remove device</a> : null}
+                    {/* Remove/Add Devices */}
+                    <div className="flex-col my-[2vh] sm:my-[2vh] hidden sm:flex">
+                        <a onClick={addDevice} className="hidden sm:flex self-end bg-none hover:underline cursor-pointer">
+                            + Add a device
+                        </a>
+                        {devices.length > 1 ? 
+                            <a onClick={removeDevice} className="hidden sm:flex self-end bg-none hover:underline cursor-pointer">
+                                - Remove device
+                            </a> 
+                            : 
+                            null
+                        }
                     </div> 
                 </div>
-                <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 md:mt-10 rounded-full w-[90vw] md:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">
+                {/* On Mobile, Remove/Add are Buttons */}
+                <div className="flex justify-center items-center gap-6 sm:hidden mt-[1vh]">
+                        <button
+                            onClick={addDevice}
+                            className="bg-white text-green-600 border border-green-300 rounded-full w-12 h-12 shadow-md hover:bg-green-50 active:scale-95 transition"
+                            aria-label="Add Device"
+                            type="button"
+                        >
+                            <AddCircleIcon fontSize="large" />
+                        </button>
+                        { devices.length > 1 ? 
+                            <button
+                                onClick={removeDevice}
+                                className="bg-white text-red-600 border border-red-300 rounded-full w-12 h-12 shadow-md hover:bg-red-50 active:scale-95 transition"
+                                aria-label="Remove Device"
+                                type='button'
+                            >
+                                <RemoveCircleIcon fontSize="large" />
+                            </button> 
+                            : 
+                            null
+                        }
+                </div>
+                <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 sm:mt-10 rounded-full w-[90vw] sm:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">
                     Next
                 </button>
             </form>
