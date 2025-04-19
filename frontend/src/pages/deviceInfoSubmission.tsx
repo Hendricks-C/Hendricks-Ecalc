@@ -6,7 +6,10 @@ import { deviceFormOptions, deviceTypes } from '../utils/deviceFormSelections'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
-import currentBadges from '../utils/api'
+import {currentBadges} from '../utils/api'
+
+import { User } from '@supabase/supabase-js'
+import { Profile } from '../utils/types'
 
 // interface for DeviceInfo values
 export interface DeviceInfo {
@@ -34,9 +37,30 @@ function DeviceInfoSubmission() {
 
     // checking for existing user session
     useEffect(() => {
+        async function checkUser(user: User) {
+            const { data: rawData, error: userError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (userError || !rawData) {
+                console.error("Profile lookup failed", userError);
+                navigate("/login");
+                return;
+            }
+            
+            const userData = rawData as Profile;
+            if (userData.two_fa_verified === false) {
+                navigate("/login");
+            }
+        }
+
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             if (!session) {
-                navigate("/welcome");
+                navigate("/");
+            } else {
+                checkUser(session.user)
             }
         });
 
@@ -142,12 +166,12 @@ function DeviceInfoSubmission() {
     }
 
     // adds more devices when "+ Add more devices" is clicked
-    const addDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
+    const addDevice = async (_event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
         setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' }]);
     }
 
     // removes a device when "- Remove device" is clicked if there is more than one device
-    const removeDevice = async (event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
+    const removeDevice = async (_event: React.MouseEvent<HTMLAnchorElement>): Promise<void> => {
         const newDevices = [...devices];
         newDevices.pop();
         setDevices(newDevices);
@@ -231,13 +255,17 @@ function DeviceInfoSubmission() {
             {/* Device Submission Form Wrapper */}
             <form onSubmit={handleNext} className='flex justify-center flex-col items-center text-center' encType='multipart/form-data'>
                 <div className="flex flex-col gap-2 mt-[4vh] mb-[2vh] text-white">
-                    <h1 className="font-semibold text-5xl drop-shadow-md tracking-widest leading-tight capitalize">Details</h1>
-                    <p className="drop-shadow-md text-2xl">Enter device details below</p>
+                    <h1 className="font-semibold text-2xl sm:text-5xl drop-shadow-md tracking-widest leading-tight capitalize">
+                        Details
+                    </h1>
+                    <p className="drop-shadow-md text-sm font-medium">
+                        Enter device details below
+                    </p>
                 </div>
                 {/*Device Submission Input Box(s)*/}
-                <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 md:p-[4vw] md:pb-0 border border-gray-300 rounded-2xl bg-opacity-10 bg-auto md:bg-white/50 backdrop-blur-md">
+                <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 sm:p-[4vw] sm:pb-0 border border-gray-300 rounded-2xl bg-opacity-10 bg-auto md:bg-white/50 backdrop-blur-md">
                     {devices.map((device, index) => (
-                        <div className="p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
+                        <div className="p-4 sm:p-10 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             {/* Device Type Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`device-input-${index}`} className="flex mt-[0.5vh]">Device Type:</label>
@@ -389,7 +417,9 @@ function DeviceInfoSubmission() {
                         {devices.length > 1 ? <a onClick={removeDevice} className="self-end bg-none hover:underline cursor-pointer">- Remove device</a> : null}
                     </div> 
                 </div>
-                <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 md:mt-10 rounded-full w-[90vw] md:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">Next</button>
+                <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 md:mt-10 rounded-full w-[90vw] md:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">
+                    Next
+                </button>
             </form>
         </>
     );
