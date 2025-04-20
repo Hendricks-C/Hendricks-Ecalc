@@ -6,7 +6,7 @@ import { deviceFormOptions, deviceTypes } from '../utils/deviceFormSelections'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import {currentBadges} from '../utils/api'
-
+import { useMemo } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Profile } from '../utils/types'
 import { IconButton } from '@mui/material'
@@ -266,7 +266,23 @@ function DeviceInfoSubmission() {
                 </div>
                 {/*Device Submission Input Box(s)*/}
                 <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 md:p-[4vw] md:pb-0 md:border md:border-gray-300 rounded-2xl bg-opacity-10 bg-auto md:bg-white/50 backdrop-blur-md gap-[2vh]">
-                    {devices.map((device, index) => (
+                    {devices.map((device, index) => {
+                        // adding manual input to dropdown options
+                        const manufacturerOptions = Object.keys(deviceFormOptions[device.device] || {});
+                        const manuInput = device.manufacturer?.trim();
+                        const dynamicManufacturerOptions = manuInput && manuInput !== '' && !manufacturerOptions.includes(manuInput) ? 
+                            [manuInput, ...manufacturerOptions]
+                            : 
+                            manufacturerOptions;
+                        const modelOptions = deviceFormOptions[device.device]?.[device.manufacturer] || [];
+                        const modelInput = device.model?.trim();
+                        const dynamicModelOptions = modelInput && modelInput !== '' && !modelOptions.includes(modelInput) ? 
+                            [modelInput, ...modelOptions]
+                            : 
+                            modelOptions;
+
+
+                        return (
                         <div className="p-4 md:p-10 mb-4 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
                             {/* Device Type Field */}
                             <div className='flex flex-col gap-1'>
@@ -292,7 +308,7 @@ function DeviceInfoSubmission() {
                             {/* Device Manufacturer Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`manufacturer-input-${index}`} className="flex mt-[0.5vh]">Manufacturer:</label>
-                                <Autocomplete
+                                {/* <Autocomplete
                                     id={`manufacturer-input-${index}`}
                                     freeSolo 
                                     options={Object.keys(deviceFormOptions[device.device] || {})}
@@ -308,12 +324,30 @@ function DeviceInfoSubmission() {
                                             className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
                                         />
                                     )}
+                                /> */}
+
+                                <Autocomplete
+                                    id={`manufacturer-input-${index}`}
+                                    freeSolo
+                                    options={dynamicManufacturerOptions}
+                                    value={device.manufacturer || ''}
+                                    onInputChange={(_event, newInputValue) => {
+                                        handleFormValueChange(index, 'manufacturer', newInputValue);
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            placeholder="Manufacturer"
+                                            variant="outlined"
+                                            className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                        />
+                                    )}
                                 />
                             </div>
                             {/* Device Model Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`model-input-${index}`} className="flex mt-[0.5vh]">Model:</label>
-                                <Autocomplete
+                                {/* <Autocomplete
                                     id={`model-input-${index}`}
                                     freeSolo 
                                     options={deviceFormOptions[device.device]?.[device.manufacturer] || []}
@@ -329,7 +363,24 @@ function DeviceInfoSubmission() {
                                             className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
                                         />
                                     )}
-                                />
+                                /> */}
+                                      <Autocomplete
+                                        id={`model-input-${index}`}
+                                        freeSolo
+                                        options={dynamicModelOptions}
+                                        value={device.model || ''}
+                                        onInputChange={(_event, newInputValue) => {
+                                            handleFormValueChange(index, 'model', newInputValue);
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                placeholder="Model"
+                                                variant="outlined"
+                                                className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
+                                            />
+                                        )}
+                                    />
                             </div>
                             {/* Device Condition Field */}
                             <div className='flex flex-col gap-1'>
@@ -413,7 +464,7 @@ function DeviceInfoSubmission() {
                                 
                             </div>
                         </div>
-                    ))}
+                    )})}
                     {/* Remove/Add Devices */}
                     <div className="flex-col my-[2vh] md:my-[2vh] hidden md:flex">
                         <a onClick={addDevice} className="hidden md:flex self-end bg-none hover:underline cursor-pointer">
