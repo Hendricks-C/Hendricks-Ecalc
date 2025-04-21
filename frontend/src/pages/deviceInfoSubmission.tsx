@@ -6,13 +6,11 @@ import { deviceFormOptions, deviceTypes } from '../utils/deviceFormSelections'
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import {currentBadges} from '../utils/api'
-import { useMemo } from 'react'
 import { User } from '@supabase/supabase-js'
 import { Profile } from '../utils/types'
-import { IconButton } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
-
+import AddIcon from '@mui/icons-material/Add';
 // interface for DeviceInfo values
 export interface DeviceInfo {
     device: string;
@@ -22,8 +20,9 @@ export interface DeviceInfo {
     weight: string;
     serial_number?: File | string | undefined;
 }
+// list of manufacturers that support OCR for verifying serial numbers
 const ocr_manufacturers: string[] = [
-    "Apple", "Dell", "HP", "Lenovo", "Samsung", "Microsoft", "Acer", "Asus",
+    "Apple"
 ];
 function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
@@ -173,9 +172,9 @@ function DeviceInfoSubmission() {
     }
 
     // removes a device when "- Remove device" is clicked if there is more than one device
-    const removeDevice = async (_event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLButtonElement>): Promise<void> => {
+    const removeDevice = async (_event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLButtonElement>, device_index: number): Promise<void> => {
         const newDevices = [...devices];
-        newDevices.pop();
+        newDevices.splice(device_index, 1);
         setDevices(newDevices);
     }
 
@@ -283,7 +282,19 @@ function DeviceInfoSubmission() {
 
 
                         return (
-                        <div className="p-4 md:p-10 mb-4 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
+                        <div className="relative p-4 md:p-10 mb-4 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
+                            { devices.length > 1 ? 
+                                <button
+                                    onClick={e=> removeDevice(e,index)}
+                                    className="absolute top-1 right-1 sm:top-3 sm:right-3 p-1 rounded-full hover:bg-gray-300 hover:cursor-pointer active:scale-95 transition"
+                                    aria-label="Remove Device"
+                                    type='button'
+                                >
+                                    <CloseIcon className="text-border-gray-600"/>
+                                </button> 
+                                : 
+                                null
+                            }
                             {/* Device Type Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`device-input-${index}`} className="flex mt-[0.5vh]">Device Type:</label>
@@ -308,24 +319,6 @@ function DeviceInfoSubmission() {
                             {/* Device Manufacturer Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`manufacturer-input-${index}`} className="flex mt-[0.5vh]">Manufacturer:</label>
-                                {/* <Autocomplete
-                                    id={`manufacturer-input-${index}`}
-                                    freeSolo 
-                                    options={Object.keys(deviceFormOptions[device.device] || {})}
-                                    value={device.manufacturer || ''}
-                                    onInputChange={(_event, newInputValue) => {
-                                       handleFormValueChange(index, 'manufacturer', newInputValue);
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            placeholder="Manufacturer"
-                                            variant="outlined"
-                                            className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
-                                        />
-                                    )}
-                                /> */}
-
                                 <Autocomplete
                                     id={`manufacturer-input-${index}`}
                                     freeSolo
@@ -347,23 +340,6 @@ function DeviceInfoSubmission() {
                             {/* Device Model Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`model-input-${index}`} className="flex mt-[0.5vh]">Model:</label>
-                                {/* <Autocomplete
-                                    id={`model-input-${index}`}
-                                    freeSolo 
-                                    options={deviceFormOptions[device.device]?.[device.manufacturer] || []}
-                                    value={device.model || ''}
-                                    onInputChange={(_event, newInputValue) => {
-                                       handleFormValueChange(index, 'model', newInputValue);
-                                    }}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            placeholder="Model"
-                                            variant="outlined"
-                                            className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
-                                        />
-                                    )}
-                                /> */}
                                       <Autocomplete
                                         id={`model-input-${index}`}
                                         freeSolo
@@ -466,41 +442,22 @@ function DeviceInfoSubmission() {
                         </div>
                     )})}
                     {/* Remove/Add Devices */}
-                    <div className="flex-col my-[2vh] md:my-[2vh] hidden md:flex">
+                    <div className="flex-col mb-[2vh] md:mb-[2vh] hidden md:flex">
                         <a onClick={addDevice} className="hidden md:flex self-end bg-none hover:underline cursor-pointer">
                             + Add a device
                         </a>
-                        {devices.length > 1 ? 
-                            <a onClick={removeDevice} className="hidden md:flex self-end bg-none hover:underline cursor-pointer">
-                                - Remove device
-                            </a> 
-                            : 
-                            null
-                        }
                     </div> 
                 </div>
                 {/* On Mobile, Remove/Add are Buttons */}
                 <div className="flex justify-center items-center gap-6 md:hidden mt-[1vh]">
                         <button
                             onClick={addDevice}
-                            className="bg-white text-green-600 border border-green-300 rounded-full w-12 h-12 shadow-md hover:bg-green-50 active:scale-95 transition"
+                            className="bg-white p-0 text-[#FFE017] border border-green-300 rounded-full w-12 h-12 shadow-md hover:bg-green-50 active:scale-95 transition"
                             aria-label="Add Device"
                             type="button"
                         >
-                            <AddCircleIcon fontSize="large" />
+                            <AddIcon fontSize='large' />
                         </button>
-                        { devices.length > 1 ? 
-                            <button
-                                onClick={removeDevice}
-                                className="bg-white text-red-600 border border-red-300 rounded-full w-12 h-12 shadow-md hover:bg-red-50 active:scale-95 transition"
-                                aria-label="Remove Device"
-                                type='button'
-                            >
-                                <RemoveCircleIcon fontSize="large" />
-                            </button> 
-                            : 
-                            null
-                        }
                 </div>
                 <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 md:mt-10 rounded-full w-[90vw] md:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">
                     Next
