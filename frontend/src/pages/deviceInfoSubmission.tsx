@@ -9,7 +9,7 @@ import {currentBadges} from '../utils/api'
 import { User } from '@supabase/supabase-js'
 import { Profile } from '../utils/types'
 import CloseIcon from '@mui/icons-material/Close';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+// import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AddIcon from '@mui/icons-material/Add';
 
 import { ExtractTextFromImage } from '../utils/api';
@@ -34,7 +34,7 @@ const ocr_manufacturers: string[] = [
 ];
 function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
-    const [processedText, setText] = useState<string>('');
+    // const [processedText, setText] = useState<string>('');
     const [devices, setDevices] = useState<DeviceInfo[]>([{
         device: '',
         model: '',
@@ -82,7 +82,7 @@ function DeviceInfoSubmission() {
     }, [navigate]);
 
     //handles serial number ocr verification
-    const handleSNVerification = async (event: React.MouseEvent, image: File, manufacturer: string, device_index: number): Promise<void> => {
+    const handleSNVerification = async (_event: React.MouseEvent, image: File, manufacturer: string, device_index: number): Promise<void> => {
         handleFormValueChange(device_index, 'isProcessing', true);
         try {
             const base64String = await Base64Convert(image);
