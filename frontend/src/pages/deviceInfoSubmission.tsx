@@ -11,6 +11,10 @@ import { Profile } from '../utils/types'
 import CloseIcon from '@mui/icons-material/Close';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AddIcon from '@mui/icons-material/Add';
+
+import { ExtractTextFromImage } from '../utils/api';
+import { Base64Convert } from '../utils/base64Img';
+
 // interface for DeviceInfo values
 export interface DeviceInfo {
     device: string;
@@ -19,6 +23,10 @@ export interface DeviceInfo {
     deviceCondition: string;
     weight: string;
     serial_number?: File | string | undefined;
+    serial_number_image?: File | undefined;
+    verified: boolean;
+    isProcessing: boolean;
+    failedVerify: boolean;
 }
 // list of manufacturers that support OCR for verifying serial numbers
 const ocr_manufacturers: string[] = [
@@ -26,13 +34,18 @@ const ocr_manufacturers: string[] = [
 ];
 function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
+    const [processedText, setText] = useState<string>('');
     const [devices, setDevices] = useState<DeviceInfo[]>([{
         device: '',
         model: '',
         manufacturer: '',
         deviceCondition: '',
         weight: '',
-        serial_number: undefined
+        serial_number: undefined,
+        serial_number_image: undefined,
+        verified: false,
+        isProcessing: false,
+        failedVerify: false
     }]);
     const navigate = useNavigate(); // hook to navigate to different pages
 
@@ -68,12 +81,37 @@ function DeviceInfoSubmission() {
         return () => authListener.subscription.unsubscribe(); //clean up
     }, [navigate]);
 
+    //handles serial number ocr verification
+    const handleSNVerification = async (event: React.MouseEvent, image: File, manufacturer: string, device_index: number): Promise<void> => {
+        handleFormValueChange(device_index, 'isProcessing', true);
+        try {
+            const base64String = await Base64Convert(image);
+            const extractedText = await ExtractTextFromImage(base64String, manufacturer);
+            if (extractedText === "No text found") {
+                alert("No serial number detected in image, please enter serial number manually.");
+                handleFormValueChange(device_index, 'serial_number_image', undefined);
+                handleFormValueChange(device_index, 'isProcessing', false);
+                handleFormValueChange(device_index, 'failedVerify', true);
+                return;
+            }
+            handleFormValueChange(device_index, 'serial_number', extractedText);
+        } catch (error) {
+            console.error("Error processing image:", error);
+            alert("Error processing image, unable to verify serial number. Please enter serial number manually");
+            handleFormValueChange(device_index, 'serial_number_image', undefined);
+            handleFormValueChange(device_index, 'isProcessing', false);
+            handleFormValueChange(device_index, 'failedVerify', true);
+        }
+        handleFormValueChange(device_index, 'isProcessing', false);
+        handleFormValueChange(device_index, 'verified', true);
+    }
+
     // handles submission of device(s) info to supabase database
     const handleNext = async (event: React.FormEvent): Promise<void> => {
         event.preventDefault();
         //making sure all fields are filled
         for (let i = 0; i < devices.length; i++) {
-            if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '' || devices[i].serial_number === undefined) {
+            if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
                 console.log(devices[i]);
                 alert('Please fill in all fields');
                 return;
@@ -91,10 +129,6 @@ function DeviceInfoSubmission() {
         const mapToInsert = devices.map((device) => {
             const materialCompositionSaved: MaterialComposition = calculateMaterialComposition(device);
             const co2Emissions: number = calculateCO2Emissions(device);
-            if (device.serial_number instanceof File) {
-                // Upload the image to Supabase Storage
-            
-            }
             return {
                 user_id: user.user.id,
                 device_type: device.device,
@@ -104,6 +138,7 @@ function DeviceInfoSubmission() {
                 weight: parseFloat(device.weight),
                 serial_number: typeof device.serial_number === 'string' ? device.serial_number : null, //only save the serial number if it is a string
                 serial_number_image_path: null, // this will be updated after the image is uploaded
+                verified: device.verified,
                 ferrous_metals: materialCompositionSaved.ferrousMetal,
                 aluminum: materialCompositionSaved.aluminum,
                 copper: materialCompositionSaved.copper,
@@ -130,7 +165,7 @@ function DeviceInfoSubmission() {
 
         //need to submit serial number images to supabase storage if they exist
         for (let i = 0; i < devices.length; i++) {
-            const sn_image: File | string | undefined = devices[i].serial_number;
+            const sn_image: File | string | undefined = devices[i].serial_number_image;
             console.log(data);
             const deviceId: string = data?.[i]?.device_id; // get the device ID from the inserted data
             console.log('deviceId:', deviceId);
@@ -168,7 +203,7 @@ function DeviceInfoSubmission() {
 
     // adds more devices when "+ Add more devices" is clicked
     const addDevice = async (_event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLButtonElement>): Promise<void> => {
-        setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' }]);
+        setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' , serial_number: undefined, serial_number_image: undefined,verified: false, isProcessing: false, failedVerify: false }]);
     }
 
     // removes a device when "- Remove device" is clicked if there is more than one device
@@ -179,18 +214,18 @@ function DeviceInfoSubmission() {
     }
 
     // function that updates device info values in devices array according to user input
-    const handleFormValueChange = (index: number, field: keyof DeviceInfo, value: string | File | undefined) => {
+    const handleFormValueChange = (index: number, field: keyof DeviceInfo, value: string | File | undefined | boolean) => {
         const newDevices = [...devices];
-        if (field === 'serial_number') {
+        if (field === 'serial_number_image') {
             if (value instanceof File) {
-                newDevices[index][field] = value;
-            } else if (typeof value === 'string') {
                 newDevices[index][field] = value;
             } else {
                 newDevices[index][field] = undefined;
             }
+        } else if (field === 'verified'|| field === 'isProcessing' || field === 'failedVerify') {
+            newDevices[index][field] = value as boolean;
         } else {
-            newDevices[index][field] = String(value);
+            newDevices[index][field] = value as string;
         }
         setDevices(newDevices);
     };
@@ -305,10 +340,12 @@ function DeviceInfoSubmission() {
                                     disableClearable
                                     onChange={(_event, newInputValue) => {
                                        handleFormValueChange(index, 'device', newInputValue);
+                                       handleFormValueChange(index, 'serial_number_image', undefined); // clear serial number if device type changes
                                     }}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
+                                            required
                                             placeholder="Device Type"
                                             variant="outlined"
                                             className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
@@ -326,12 +363,14 @@ function DeviceInfoSubmission() {
                                     value={device.manufacturer || ''}
                                     onInputChange={(_event, newInputValue) => {
                                         handleFormValueChange(index, 'manufacturer', newInputValue);
+                                        handleFormValueChange(index, 'serial_number_image', undefined); // clear serial number if manufacturer changes
                                     }}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
                                             placeholder="Manufacturer"
                                             variant="outlined"
+                                            required
                                             className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
                                         />
                                     )}
@@ -347,10 +386,12 @@ function DeviceInfoSubmission() {
                                         value={device.model || ''}
                                         onInputChange={(_event, newInputValue) => {
                                             handleFormValueChange(index, 'model', newInputValue);
+                                            handleFormValueChange(index, 'serial_number_image', undefined); // clear serial number if model changes
                                         }}
                                         renderInput={(params) => (
                                             <TextField
                                                 {...params}
+                                                required
                                                 placeholder="Model"
                                                 variant="outlined"
                                                 className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
@@ -372,6 +413,7 @@ function DeviceInfoSubmission() {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
+                                            required
                                             placeholder="Device Condition"
                                             variant="outlined"
                                             className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
@@ -384,6 +426,7 @@ function DeviceInfoSubmission() {
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Weight(lbs):</label>
                                 <TextField
+                                    required
                                     type="number"
                                     placeholder="Value"
                                     variant="outlined"
@@ -395,33 +438,56 @@ function DeviceInfoSubmission() {
                             {/* Serial Number Input Field or Upload Box */}
                             <div className="flex flex-col gap-1">
                                 <label className="flex mt-[0.5vh]">Serial Number:</label>
-                                {/* if the device of a manufacturer Hendricks has serial_number data for, allow image upload. Else, use manual input. */}
-                                {ocr_manufacturers.includes(devices[index].manufacturer) ? (
+                                {/* if manufacture in ocr_manufacturers, allow image upload. Else, use manual input. */}
+                                {ocr_manufacturers.includes(devices[index].manufacturer) && !device.failedVerify ? (
                                     <>
                                         <input
                                             id={`serial_number_${index}`}
                                             type="file"
                                             accept="image/*"
                                             onClick={e => {(e.target as HTMLInputElement).value = ''}} // Clear the input value to allow re-uploading the same file
-                                            onChange={e => handleFormValueChange(index, 'serial_number', e.target.files?.[0] || undefined)}
+                                            onChange={e => handleFormValueChange(index, 'serial_number_image', e.target.files?.[0] || undefined)}
                                             className="hidden"
+                                            disabled={device.isProcessing || device.failedVerify}
                                         />
-                                        <label htmlFor={`serial_number_${index}`} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white hover:cursor-pointer ">Upload Image</label>
-                                        {/* preview the uploaded image if it exists */}
-                                        { devices[index].serial_number && typeof devices[index].serial_number !== 'string' ? (
-                                            <div>
-                                                <img
-                                                    src={URL.createObjectURL(devices[index].serial_number as File)}
-                                                    alt="Preview"
-                                                    className="max-h-40 object-contain border border-gray-300 rounded justify-self-center mt-2 mb-2"
-                                                />
-                                                <button
+                                        <label htmlFor={`serial_number_${index}`} className={`w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white
+                                                ${device.isProcessing || device.failedVerify || device.verified ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-100"}
+                                            `}>
+                                            Upload Image
+                                        </label>
+                                        {/* verify serial number of uploaded image */}
+                                        { device.serial_number_image && typeof device.serial_number_image !== 'string' ? (
+                                            <div className='flex flex-col justify-center items-center'>
+                                                <div className={`self-center relative inline-block mt-2 mb-2 p-4`}>
+                                                    <img
+                                                        src={URL.createObjectURL(devices[index].serial_number_image as File)}
+                                                        alt="Preview"
+                                                        className="max-h-40 object-contain border-1 rounded justify-self-center"
+                                                    />
+                                                    {(!device.failedVerify || !device.verified || !device.isProcessing) && <button
+                                                        type="button"
+                                                        onClick={() => handleFormValueChange(index, 'serial_number_image', undefined)}
+                                                        className="flex items-center justify-center absolute top-1.5 right-1.5 border-1 text-black bg-white rounded-full underline hover:bg-gray-200 hover:text-text-sm active:scale-95 transition"
+                                                    >
+                                                        {/* <CloseIcon fontSize='small'/> */}
+                                                    </button>}
+                                                    <p>{String(device.failedVerify)}</p>
+                                                    <p>{String(device.isProcessing)}</p>
+                                                    <p>{String(device.verified)}</p>
+
+                                                </div>
+                                                {(device.failedVerify == false && device.verified == false) && <button
                                                     type="button"
-                                                    onClick={() => handleFormValueChange(index, 'serial_number', undefined)}
-                                                    className="text-right text-red-500 underline hover:text-red-700 hover:text-text-sm"
+                                                    onClick={e => {
+                                                        if (device.serial_number_image instanceof File){
+                                                            handleSNVerification(e, device.serial_number_image, device.manufacturer, index);
+                                                        }
+                                                    }}
+                                                    className="bg-white text-black border border-gray-300 w-[30%] my-[2vh] py-2 px-4 rounded-sm duration-200 cursor-pointer hover:bg-gray-100 active:scale-95 transition"
                                                 >
-                                                    Remove
-                                                </button>
+                                                    {!device.isProcessing ? "Verify" : "Verifying..."}
+                                                </button>}
+                                                <p>{device.verified && `Verified: ${device.serial_number}`}</p>
                                             </div>
                                             ) : null
                                         }
@@ -429,6 +495,7 @@ function DeviceInfoSubmission() {
                                 ) : (
                                     // <input type="text" placeholder="Serial Number" onChange={e => handleFormValueChange(index, 'serial_number', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
                                     <TextField
+                                        required
                                         type="text"
                                         placeholder="Serial Number"
                                         variant="outlined"
