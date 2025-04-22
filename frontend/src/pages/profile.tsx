@@ -24,19 +24,25 @@ const UserProfile = () => {
 
     //account info
     const [user, setUser] = useState<any>(null);
+    const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
     const [profile, setProfile] = useState({
         first_name: "",
         last_name: "",
-        company: "",
     });
-
-    const [editingProfile, setEditingProfile] = useState(false); // Toggle profile edit mode
-    const [editingEmail, setEditingEmail] = useState(false); // Toggle email edit mode
+    const [company, setCompany] = useState("")
     const [email, setEmail] = useState("");
+
+    //temp states
+    const [newFirstName, setNewFirstName] = useState("");
+    const [newLastName, setNewLastName] = useState("");
+    const [newCompany, setNewCompany] = useState("");
     const [newEmail, setNewEmail] = useState("");
     const [confirmEmail, setConfirmEmail] = useState("");
     const [emailUpdateMessage, setEmailUpdateMessage] = useState("");
-    const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+
+    const [editingField, setEditingField] = useState<null | 'name' | 'email' | 'password' | 'company'>(null);
+
 
     //show/hide image upload modal
     const [showModal, setShowModal] = useState(false);
@@ -88,7 +94,7 @@ const UserProfile = () => {
             setPasswordConfirmError(true);
         }
 
-        const { data:_passwordData, error }: AuthResponse = await supabase.auth.signInWithPassword({
+        const { data: _passwordData, error }: AuthResponse = await supabase.auth.signInWithPassword({
             email: email,
             password: currentPassword,
         })
@@ -100,7 +106,7 @@ const UserProfile = () => {
         }
 
         // Update password in Supabase
-        const { data:_user, error: updateError } = await supabase.auth.updateUser({
+        const { data: _user, error: updateError } = await supabase.auth.updateUser({
             password: newPassword,
         });
 
@@ -110,6 +116,11 @@ const UserProfile = () => {
         }
 
         alert('Password updated successfully!');
+        setEditingField(null);
+        setWrongPasswordError(false);
+        setPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
 
     }
 
@@ -129,7 +140,7 @@ const UserProfile = () => {
                 navigate("/login");
                 return;
             }
-            
+
             const userData = rawData as Profile;
             if (userData.two_fa_verified === false) {
                 navigate("/login");
@@ -167,9 +178,8 @@ const UserProfile = () => {
                     setProfile({
                         first_name: profileData.first_name || "",
                         last_name: profileData.last_name || "",
-                        company: profileData.company || "",
                     });
-
+                    setCompany(profileData.company || "");
                     fetchUserBadges(userId);
                     fetchUserDevices(userId);
                     fetchProfileImage(userId);
@@ -227,28 +237,51 @@ const UserProfile = () => {
         }
     }, [devices, selectedRange]);
 
-    // Handle profile update (first name, last name, company)
+
+    // Handle profile update (first name, last name)
     const handleProfileUpdate = async () => {
         if (!user) return;
 
         const { error } = await supabase
             .from("profiles")
             .update({
-                first_name: profile.first_name.trim(),
-                last_name: profile.last_name.trim(),
-                company: profile.company.trim(),
+                first_name: newFirstName.trim(),
+                last_name: newLastName.trim(),
             })
             .eq("id", user.id);
-
 
         if (error) {
             console.error("Profile update error:", error.message);
             alert("Failed to update profile.");
         } else {
-            //alert("Profile updated successfully!");
-            setEditingProfile(false); // Exit edit mode
+            setProfile({
+                first_name: newFirstName.trim(),
+                last_name: newLastName.trim(),
+            });
+            setEditingField(null); // Close the edit section
         }
     };
+
+    //Handle company update
+    const handleCompanyUpdate = async () => {
+        if (!user) return;
+
+        const { error } = await supabase
+            .from("profiles")
+            .update({ company: newCompany.trim() })
+            .eq("id", user.id);
+
+        if (error) {
+            alert("Failed to update company: " + error.message);
+            return;
+        }
+        else {
+            setCompany(newCompany.trim());
+            setEditingField(null); // Close the edit section
+        }
+    };
+
+
 
     const handleEmailUpdate = async () => {
         if (!user || !newEmail.trim() || !confirmEmail.trim()) return;
@@ -276,7 +309,6 @@ const UserProfile = () => {
             setEmailUpdateMessage(
                 "A confirmation email has been sent to your new email. Please verify it."
             );
-            setEditingEmail(false);
         }
     };
 
@@ -409,241 +441,297 @@ const UserProfile = () => {
                         <div className="w-full flex flex-col md:p-5">
 
                             {/* User Profile Display */}
-                            {!editingProfile ? (
-                                <div className="md:p-5">
-                                    <div className="flex items-center gap-4 mb-6">
-                                        <div className="relative w-16 h-16 sm:w-24 sm:h-24 rounded-full border border-gray-400 bg-gray-200 overflow-visible">
-                                            <img
-                                                src={profileImageUrl || profilePlaceholder}
-                                                alt="Profile Placeholder"
-                                                className="w-full h-full object-cover rounded-full"
-                                            />
-                                            <button
-                                                onClick={() => setShowModal(true)}
-                                                className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center bg-white border border-gray-300 rounded-full shadow-md"
-                                            >
-                                                <EditRoundedIcon className="text-gray-700 cursor-pointer" fontSize="small" />
-                                            </button>
-
-                                            <ProfileImageUploadModal
-                                                isOpen={showModal}
-                                                onClose={() => setShowModal(false)}
-                                                onUpload={handleUpload}
-                                            />
-                                        </div>
-
-
-                                        <div>
-                                            <h2 className="text-2xl font-bold text-black">
-                                                {profile.first_name} {profile.last_name}
-                                            </h2>
-                                            <p className="text-lg text-gray-500">{email}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="border-t pt-4 space-y-4 text-lg">
-                                        <div className="flex justify-between border-b pb-4">
-                                            <span className="font-semibold text-black">Name</span>
-                                            <span>{profile.first_name} {profile.last_name}</span>
-                                        </div>
-                                        <div className="flex justify-between border-b pb-4">
-                                            <span className="font-semibold text-black">Email</span>
-                                            <span>{email}</span>
-                                        </div>
-                                        <div className="flex justify-between border-b pb-4">
-                                            <span className="font-semibold text-black">Password</span>
-                                            <span>********</span>
-                                        </div>
-                                        <div className="flex justify-between border-b pb-4">
-                                            <span className="font-semibold text-black">Company</span>
-                                            <span>{profile.company}</span>
-                                        </div>
-                                        <div className="flex justify-between border-b pb-4">
-                                            <span className="font-semibold text-black">Account Created</span>
-                                            <span className="text-gray-400 text-sm">
-                                                {user?.created_at ? new Date(user.created_at).toLocaleString() : ''}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-center mt-6">
+                            <div className="md:p-5">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="relative w-16 h-16 sm:w-24 sm:h-24 rounded-full border border-gray-400 bg-gray-200 overflow-visible">
+                                        <img
+                                            src={profileImageUrl || profilePlaceholder}
+                                            alt="Profile Placeholder"
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
                                         <button
-                                            className="bg-[#2E7D32] cursor-pointer text-white text-lg font-semibold py-3 px-12 rounded-full shadow hover:brightness-105 transition"
-                                            onClick={() => setEditingProfile(true)}
+                                            onClick={() => setShowModal(true)}
+                                            className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center bg-white border border-gray-300 rounded-full shadow-md"
                                         >
-                                            Edit
+                                            <EditRoundedIcon className="text-gray-700 cursor-pointer" fontSize="small" />
                                         </button>
+
+                                        <ProfileImageUploadModal
+                                            isOpen={showModal}
+                                            onClose={() => setShowModal(false)}
+                                            onUpload={handleUpload}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-black">
+                                            {profile.first_name} {profile.last_name}
+                                        </h2>
+                                        <p className="text-lg text-gray-500">{email}</p>
                                     </div>
                                 </div>
 
 
+                                <div className="border-t pt-4 space-y-4 text-lg">
 
+                                    {/* Name - Surname field */}
+                                    <div className="flex flex-col border-b pb-4">
+                                        <div className="flex justify-between">
+                                            <span className="font-semibold text-black">Name</span>
+                                            <div className="flex gap-2 items-center">
+                                                <span>{profile.first_name} {profile.last_name}</span>
+                                                <EditRoundedIcon
+                                                    className="text-gray-500 cursor-pointer"
+                                                    fontSize="small"
+                                                    onClick={() => {
+                                                        if (editingField !== 'name') {
+                                                            setNewFirstName(profile.first_name);
+                                                            setNewLastName(profile.last_name);
+                                                            setEditingField('name');
+                                                        } else {
+                                                            setEditingField(null);
+                                                        }
+                                                    }}
 
-
-
-                            ) : (
-                                <div className="flex flex-col gap-8">
-
-                                    {/* Profile Form */}
-                                    <form onSubmit={(e) => { e.preventDefault(); handleProfileUpdate(); }} className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="font-semibold">First Name</label>
-                                            <input
-                                                type="text"
-                                                value={profile.first_name}
-                                                onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
-                                                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 bg-white"
-                                            />
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="font-semibold">Last Name</label>
-                                            <input
-                                                type="text"
-                                                value={profile.last_name}
-                                                onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
-                                                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 bg-white"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="font-semibold">Company</label>
-                                            <input
-                                                type="text"
-                                                value={profile.company}
-                                                onChange={(e) => setProfile({ ...profile, company: e.target.value })}
-                                                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 bg-white"
-                                            />
-                                        </div>
-                                        <div className="flex gap-4 pt-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => setEditingProfile(false)}
-                                                className="w-full rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-2 cursor-pointer"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                className="w-full cursor-pointer rounded-full bg-[#2E7D32] text-white hover:brightness-105 text-sm font-semibold py-2"
-                                            >
-                                                Save Changes
-                                            </button>
-                                        </div>
-                                    </form>
 
-                                    {/* Email Update */}
-                                    <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                                        <h2 className="font-bold text-lg">Update Email</h2>
-                                        {!editingEmail ? (
-                                            <>
-                                                <p className="text-sm text-gray-700"><strong>Current Email:</strong> {email}</p>
-                                                <button
-                                                    onClick={() => setEditingEmail(true)}
-                                                    className="mt-2 w-full rounded-full bg-[#2E7D32] text-white hover:brightness-105 py-2 text-sm font-semibold cursor-pointer"
-                                                >
-                                                    Change Email
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <label className="font-semibold">Current Email</label>
-                                                    <input
-                                                        type="text"
-                                                        value={email}
-                                                        disabled
-                                                        className="w-full border border-gray-300 rounded-md p-2 bg-gray-100 text-gray-500"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="font-semibold">New Email</label>
-                                                    <input
-                                                        type="text"
-                                                        value={newEmail}
-                                                        onChange={(e) => setNewEmail(e.target.value)}
-                                                        className="w-full border border-gray-300 rounded-md p-2 bg-white"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="font-semibold">Confirm New Email</label>
-                                                    <input
-                                                        type="text"
-                                                        value={confirmEmail}
-                                                        onChange={(e) => setConfirmEmail(e.target.value)}
-                                                        className="w-full border border-gray-300 rounded-md p-2 bg-white"
-                                                    />
-                                                </div>
-                                                <div className="flex gap-4 pt-2">
+                                        {/* Edit name - last name */}
+                                        {editingField === 'name' && (
+                                            <div className="mt-2 flex flex-col sm:flex-row gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={newFirstName}
+                                                    onChange={(e) => setNewFirstName(e.target.value)}
+                                                    placeholder="First Name"
+                                                    className="border border-gray-300 rounded-md p-2 w-full sm:w-1/2"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={newLastName}
+                                                    onChange={(e) => setNewLastName(e.target.value)}
+                                                    placeholder="Last Name"
+                                                    className="border border-gray-300 rounded-md p-2 w-full sm:w-1/2"
+                                                />
+                                                <div className="flex gap-2 p-1 justify-end">
                                                     <button
-                                                        onClick={() => setEditingEmail(false)}
-                                                        className="w-full rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-2 cursor-pointer"
+                                                        onClick={() => setEditingField(null)}
+                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-1 px-4 cursor-pointer"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        onClick={handleProfileUpdate}
+                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 text-sm font-semibold py-1 px-4 cursor-pointer"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Email field */}
+                                    <div className="flex flex-col border-b pb-4">
+                                        <div className="flex justify-between">
+                                            <span className="font-semibold text-black">Email</span>
+                                            <div className="flex gap-2 items-center">
+                                                <span>{email}</span>
+                                                <EditRoundedIcon
+                                                    className="text-gray-500 cursor-pointer"
+                                                    fontSize="small"
+                                                    onClick={() => setEditingField(editingField === 'email' ? null : 'email')}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Edit email */}
+                                        {editingField === 'email' && (
+                                            <div className="flex flex-col gap-3 mt-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="New Email"
+                                                    value={newEmail}
+                                                    onChange={(e) => setNewEmail(e.target.value)}
+                                                    className="border border-gray-300 rounded-md p-2"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Confirm New Email"
+                                                    value={confirmEmail}
+                                                    onChange={(e) => setConfirmEmail(e.target.value)}
+                                                    className="border border-gray-300 rounded-md p-2"
+                                                />
+                                                <div className="flex gap-3 pt-1">
+                                                    <button
+                                                        onClick={() => {
+                                                            setEditingField(null);
+                                                            setNewEmail('');
+                                                            setConfirmEmail('');
+                                                            setEmailUpdateMessage('');
+                                                        }}
+                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-1 px-4"
                                                     >
                                                         Cancel
                                                     </button>
                                                     <button
                                                         onClick={handleEmailUpdate}
-                                                        className="w-full rounded-full bg-[#2E7D32] text-white hover:brightness-105 text-sm font-semibold py-2 cursor-pointer"
+                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 text-sm font-semibold py-1 px-4"
                                                     >
                                                         Submit
                                                     </button>
                                                 </div>
                                                 {emailUpdateMessage && (
-                                                    <p className="text-green-600 text-sm text-center pt-2">{emailUpdateMessage}</p>
+                                                    <p className="text-green-600 text-sm text-center">{emailUpdateMessage}</p>
                                                 )}
                                             </div>
                                         )}
                                     </div>
 
-                                    {/* Password Change */}
-                                    <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
-                                        <h2 className="font-bold text-lg text-center">Change Password</h2>
-                                        <form onSubmit={changePassword} className="space-y-4">
-                                            <div>
-                                                <label className="font-semibold">Current Password</label>
+                                    {/* Password Field */}
+                                    <div className="flex flex-col border-b pb-4">
+                                        <div className="flex justify-between">
+                                            <span className="font-semibold text-black">Password</span>
+                                            <div className="flex gap-2 items-center">
+                                                <span>********</span>
+                                                <EditRoundedIcon
+                                                    className="text-gray-500 cursor-pointer"
+                                                    fontSize="small"
+                                                    onClick={() => setEditingField(editingField === 'password' ? null : 'password')}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Update password */}
+                                        {editingField === 'password' && (
+                                            <form onSubmit={changePassword} className="flex flex-col gap-3 mt-2">
                                                 <input
                                                     type="password"
+                                                    value={currentPassword}
                                                     onChange={handleCurrentPasswordChange}
+                                                    placeholder="Current Password"
                                                     required
-                                                    placeholder="********"
-                                                    className="w-full border border-gray-300 rounded-md p-2 bg-white"
+                                                    className="border border-gray-300 rounded-md p-2"
                                                 />
-                                                {passLenErrorCurr && <p className="text-red-500 text-sm">Password must be at least 8 characters.</p>}
-                                                {wrongPassword && <p className="text-red-500 text-sm">Incorrect password.</p>}
-                                            </div>
-                                            <div>
-                                                <label className="font-semibold">New Password</label>
+                                                {passLenErrorCurr && (
+                                                    <p className="text-red-500 text-sm">Password must be at least 8 characters.</p>
+                                                )}
+                                                {wrongPassword && (
+                                                    <p className="text-red-500 text-sm">Incorrect password.</p>
+                                                )}
+
                                                 <input
                                                     type="password"
+                                                    value={newPassword}
                                                     onChange={handleNewPasswordChange}
+                                                    placeholder="New Password"
                                                     required
-                                                    placeholder="********"
-                                                    className="w-full border border-gray-300 rounded-md p-2 bg-white"
+                                                    className="border border-gray-300 rounded-md p-2"
                                                 />
-                                                {passLenErrorNew && <p className="text-red-500 text-sm">Password must be at least 8 characters.</p>}
-                                            </div>
-                                            <div>
-                                                <label className="font-semibold">Confirm Password</label>
+                                                {passLenErrorNew && (
+                                                    <p className="text-red-500 text-sm">Password must be at least 8 characters.</p>
+                                                )}
+
                                                 <input
                                                     type="password"
+                                                    value={confirmPassword}
                                                     onChange={handleConfirmPasswordChange}
+                                                    placeholder="Confirm New Password"
                                                     required
-                                                    placeholder="********"
-                                                    className="w-full border border-gray-300 rounded-md p-2 bg-white"
+                                                    className="border border-gray-300 rounded-md p-2"
                                                 />
-                                                {passwordConfirmError && <p className="text-red-500 text-sm">Passwords do not match.</p>}
+                                                {passwordConfirmError && (
+                                                    <p className="text-red-500 text-sm">Passwords do not match.</p>
+                                                )}
+
+                                                <div className="flex gap-3 pt-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setEditingField(null);
+                                                            setPassword("");
+                                                            setNewPassword("");
+                                                            setConfirmPassword("");
+                                                            setPassLenErrorCurr(false);
+                                                            setPassLenErrorNew(false);
+                                                            setWrongPasswordError(false);
+                                                            setPasswordConfirmError(false);
+                                                        }}
+                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-1 px-4"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 text-sm font-semibold py-1 px-4"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        )}
+
+                                    </div>
+
+
+                                    {/* Company Field */}
+                                    <div className="flex flex-col border-b pb-4">
+                                        <div className="flex justify-between">
+                                            <span className="font-semibold text-black">Company</span>
+                                            <div className="flex gap-2 items-center">
+                                                <span>{company}</span>
+                                                <EditRoundedIcon
+                                                    className="text-gray-500 cursor-pointer"
+                                                    fontSize="small"
+                                                    onClick={() => {
+                                                        if (editingField === 'company') {
+                                                            setEditingField(null);
+                                                        } else {
+                                                            setNewCompany(company);
+                                                            setEditingField('company');
+                                                        }
+                                                    }}
+                                                />
                                             </div>
-                                            <div className="flex justify-center pt-2">
-                                                <button
-                                                    type="submit"
-                                                    className="w-1/2 rounded-full bg-[#2E7D32] text-white hover:brightness-105 text-sm font-semibold py-2 cursor-pointer"
-                                                >
-                                                    Change Password
-                                                </button>
+                                        </div>
+
+                                        {/* Update company */}
+                                        {editingField === 'company' && (
+                                            <div className="mt-2 flex flex-col sm:flex-row gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={newCompany}
+                                                    onChange={(e) => setNewCompany(e.target.value)}
+                                                    className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 bg-white"
+                                                />
+                                                <div className="flex gap-2 p-1 justify-end">
+                                                    <button
+                                                        onClick={() => setEditingField(null)}
+                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-1 px-4"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        onClick={handleCompanyUpdate}
+                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 text-sm font-semibold py-1 px-4"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </form>
+                                        )}
+                                    </div>
+
+
+                                    <div className="flex justify-between border-b pb-4">
+                                        <span className="font-semibold text-black">Account Created</span>
+                                        <span className="text-gray-400 text-sm">
+                                            {user?.created_at ? new Date(user.created_at).toLocaleString() : ''}
+                                        </span>
                                     </div>
                                 </div>
-
-                            )}
+                            </div>
                         </div>
                     </div>
                 )}
