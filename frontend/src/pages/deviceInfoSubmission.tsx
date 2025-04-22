@@ -363,7 +363,11 @@ function DeviceInfoSubmission() {
                                     value={device.manufacturer || ''}
                                     onInputChange={(_event, newInputValue) => {
                                         handleFormValueChange(index, 'manufacturer', newInputValue);
-                                        handleFormValueChange(index, 'serial_number_image', undefined); // clear serial number if manufacturer changes
+                                        handleFormValueChange(index, 'serial_number_image', undefined);
+                                        handleFormValueChange(index, 'model', ''); 
+                                        handleFormValueChange(index, 'isProcessing', false); 
+                                        handleFormValueChange(index, 'verified', false); 
+                                        handleFormValueChange(index, 'failedVerify', false); 
                                     }}
                                     renderInput={(params) => (
                                         <TextField
@@ -387,6 +391,9 @@ function DeviceInfoSubmission() {
                                         onInputChange={(_event, newInputValue) => {
                                             handleFormValueChange(index, 'model', newInputValue);
                                             handleFormValueChange(index, 'serial_number_image', undefined); // clear serial number if model changes
+                                            handleFormValueChange(index, 'isProcessing', false); 
+                                            handleFormValueChange(index, 'verified', false); 
+                                            handleFormValueChange(index, 'failedVerify', false); 
                                         }}
                                         renderInput={(params) => (
                                             <TextField
@@ -464,16 +471,14 @@ function DeviceInfoSubmission() {
                                                         alt="Preview"
                                                         className="max-h-40 object-contain border-1 rounded justify-self-center"
                                                     />
-                                                    {(!device.failedVerify || !device.verified || !device.isProcessing) && <button
+                                                    {(!device.failedVerify && !device.verified && !device.isProcessing) && <button
+                                                        disabled={device.isProcessing}
                                                         type="button"
                                                         onClick={() => handleFormValueChange(index, 'serial_number_image', undefined)}
                                                         className="flex items-center justify-center absolute top-1.5 right-1.5 border-1 text-black bg-white rounded-full underline hover:bg-gray-200 hover:text-text-sm active:scale-95 transition"
                                                     >
-                                                        {/* <CloseIcon fontSize='small'/> */}
+                                                        <CloseIcon fontSize='small'/>
                                                     </button>}
-                                                    <p>{String(device.failedVerify)}</p>
-                                                    <p>{String(device.isProcessing)}</p>
-                                                    <p>{String(device.verified)}</p>
 
                                                 </div>
                                                 {(device.failedVerify == false && device.verified == false) && <button
