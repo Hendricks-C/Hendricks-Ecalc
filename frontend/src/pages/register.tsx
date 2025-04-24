@@ -19,6 +19,8 @@ function Register() {
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const navigate = useNavigate() //used to redirect to different page
 
+  const [loading, setLoading] = useState(false);
+
   const frontendURL = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
 
   //checking for existing user session
@@ -55,8 +57,10 @@ function Register() {
   //register user
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+    setLoading(true);
     if (!captchaToken) {
       setCaptchaError('Please complete the captcha');
+      setLoading(false);
       return;
     }
     setCaptchaError(null);
@@ -79,16 +83,19 @@ function Register() {
       console.error('Error signing up:', error.message)
       alert(error.message)
       setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component
+      setLoading(false);
       return
     } else if (data.user?.identities?.length === 0) {
       console.error('User already Exists')
       alert('User already Exists')
       setCaptchaKey((prev) => prev + 1);
+      setLoading(false);
       return
     }
 
     //success message
     console.log('Account Created: ', data.user)
+    setLoading(false);
     alert('Signup successful! Check your email for confirmation.');
   }
 
@@ -172,7 +179,7 @@ function Register() {
               <div className="flex flex-col justify-center gap-2 items-center mt-3">
                 <button
                   className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 cursor-pointer hover:brightness-105"
-                  type="submit">Sign Up</button>
+                  type="submit">{loading ? "Loading..." : "Sign Up"}</button>
               </div>
 
               {/* LOGIN LINK */}

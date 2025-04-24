@@ -8,12 +8,12 @@ import supabase from '../utils/supabase';
 import { useEffect, useState } from 'react';
 import { getQuarterlyData, getOneYearMonthlyData, getFiveYearData, getAllTimeData } from '../utils/lineChartUtils';
 import { useMediaQuery } from '@mui/material';
-
-
+import Alert from "../components/alert";
 
 function ResultsPage() {
     const location = useLocation();
     const devices_from_submission = location.state?.devices as DeviceInfo[] || [];
+    const showBadgeAlert = location.state?.alertText;
 
     const [userDevices, setUserDevices] = useState<any[]>([]);
 
@@ -107,7 +107,7 @@ function ResultsPage() {
 
     return (
         <div className="flex flex-col items-center justify-center p-5 sm:p-10">
-
+            {showBadgeAlert && <Alert text={showBadgeAlert} show={true} />}
             <div className='bg-white/40 backdrop-blur-md w-[100%] sm:w-[80%] max-w-[1200px] rounded-2xl p-6 flex flex-col items-center justify-center'>
                 <div className="flex flex-col w-full max-w-5xl md:flex-row md:justify-between md:gap-2 mb-8">
 
