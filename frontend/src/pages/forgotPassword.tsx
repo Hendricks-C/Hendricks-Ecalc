@@ -3,18 +3,22 @@ import supabase from '../utils/supabase';
 
 function ForgotPassword() {
     const [email, setEmail] = useState<string>('')
+    const [loading, setLoading] = useState(false);
     // const [visibility, setVisibility] = useState<boolean>(false)
 
     const frontendURL = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault()
+        setLoading(true);
+        
         const { data, error } = await supabase.auth.resetPasswordForEmail(email, { //call reset password function from supabase
-            redirectTo: `${frontendURL}/reset-password`, //temporary reset link
+            redirectTo: `${frontendURL}/reset-password`,
         })
 
         // Error handling
         if (error) {
+            setLoading(false);
             console.error(error.message)
             alert(error.message)
             return
@@ -22,39 +26,51 @@ function ForgotPassword() {
 
         // Success message
         if (data) {
-            console.log('Password reset email sent')
+            setLoading(false);
             alert('Password reset email sent. You may close this tab.')
         }
     }
 
     return (
-        <>
-            <div className='flex justify-center items-center'>
-                <div className="flex flex-col w-1/4 p-10 border border-gray-300 rounded-2xl bg-opacity-10 bg-gray-100 ">
-                    <div className="flex flex-col gap-2 mb-4">
-                        <h1 className="text-2xl">Forgot your password</h1>
-                        <p>Please enter the email associated with your account below.</p>
+        <div className="flex items-center justify-evenly px-4 py-8 md:px-10 md:py-10">
+            <div className="w-full max-w-xl flex flex-col items-center mt-5 sm:px-5 md:px-6">
+                {/* Title Section */}
+                <div className="mb-4 text-center">
+                    <h1 className="text-white text-2xl sm:text-5xl font-bold font-bitter leading-tight tracking-widest capitalize drop-shadow-md">
+                    Reset Password
+                    </h1>
+                    <h2 className="text-white text-sm sm:text-xl font-medium font-bitter mt-1">
+                    Enter your email to get a reset link
+                    </h2>
+                </div>
+
+                {/* Form Container */}
+                <div className="w-full bg-white/50 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-md">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                    <div className="flex flex-col">
+                        <label className="text-black font-bitter font-medium text-lg mb-1">Email:</label>
+                        <input
+                        type="text"
+                        placeholder="email@example.com"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        required
+                        className="h-12 rounded-xl border-2 border-[#2E7D32] px-4 placeholder-[#A8D5BA] bg-white focus:outline-none focus:ring-2 focus:ring-[#A8D5BA] focus:border-[#2E7D32] transition duration-200"
+                        />
                     </div>
-                    <div className="">
-                        <form onSubmit={handleSubmit} className="flex flex-col">
-                            <div className='flex flex-col gap-1'>   
-                                <label className="flex">Email:</label>
-                                <input
-                                type="text"
-                                placeholder="email@example.com"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                required
-                                className="w-full border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white"
-                                />
-                            </div>
-                            <button className="mt-5 border p-2 w-full items-center rounded-md bg-green-300 hover:bg-green-200 cursor-pointer active:bg-green-600" type="submit">Send Reset Instructions</button>
-                        </form>
+
+                    <div className="flex flex-col justify-center gap-2 items-center mt-3">
+                        <button
+                        type="submit"
+                        className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 hover:brightness-105"
+                        >
+                            {loading ? "Sending..." : "Send Reset Instructions"}
+                        </button>
                     </div>
+                    </form>
                 </div>
             </div>
-        </>
-        
+        </div>
     );
 }
 
