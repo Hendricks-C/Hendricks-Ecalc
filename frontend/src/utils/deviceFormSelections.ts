@@ -3,7 +3,9 @@ interface deviceFormOptionsType {
         [key: string]: string[];
     };
 }
-  
+
+
+//below model options will display on the device submission page depending on selected Device type and Manufacturer. Change the options here to add or remove models
 export const deviceFormOptions: deviceFormOptionsType = {
     "CPU": {
         "Intel": [

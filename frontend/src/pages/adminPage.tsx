@@ -1,3 +1,10 @@
+/*
+This page is only accessible to admin users. 
+It displays a table of all devices donated to the organization, 
+including the donor's name, device type, model, weight, condition, manufacturer, serial number, date donated, and various material breakdowns. 
+The table allows for filtering and pagination.
+Change the email domain in "setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);" on line 166 to whichever domain you want to be admin.
+*/
 import {useState, useEffect} from 'react';
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
@@ -156,7 +163,7 @@ function AdminPage() {
                 checkUser(session.user)
             }
 
-            setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);
+            setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false); // Change this to your admin email domain
             if (!isAdmin) {
                 navigate("/");
             }
