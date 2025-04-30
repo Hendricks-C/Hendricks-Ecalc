@@ -1,3 +1,10 @@
+/*
+    This page is only accessible to admin users. 
+    It displays a table of all devices donated to the organization, 
+    including the donor's name, device type, model, weight, condition, manufacturer, serial number, date donated, and various material breakdowns. 
+    The table allows for filtering and pagination.
+Change the email domain in "setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);" on line 166 to whichever domain you want to be admin.
+*/
 import {useState, useEffect} from 'react';
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
@@ -16,6 +23,7 @@ interface DevicesQuery{
     manufacturer: string;
     serial_number: string;
     serial_number_image_path: string;
+    verified: boolean;
     date_donated: string;
     ferrous_metals: number;
     aluminum: number;
@@ -28,8 +36,9 @@ interface DevicesQuery{
     batteries: number;
     co2_emissions: number;
 }
-type ViewKey = "All" | "Donors" | "Devices" | "Ewaste";
 
+// This is the column visibility configuration for different view filters
+type ViewKey = "All" | "Donors" | "Devices" | "Ewaste";
 const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
     All: {
         name: true,
@@ -41,6 +50,7 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         manufacturer: true,
         serial_number: true,
         serial_number_image_path: true,
+        verified: true,
         date_donated: true,
         ferrous_metals: true,
         aluminum: true,
@@ -63,6 +73,7 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         manufacturer: false,
         serial_number: false,
         serial_number_image_path: false,
+        verified: false,
         date_donated: false,
         ferrous_metals: false,
         aluminum: false,
@@ -85,6 +96,7 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         manufacturer: true,
         serial_number: true,
         serial_number_image_path: true,
+        verified: true,
         date_donated: true,
         ferrous_metals: false,
         aluminum: false,
@@ -107,6 +119,7 @@ const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
         manufacturer: false,
         serial_number: false,
         serial_number_image_path: false,
+        verified: false,
         date_donated: false,
         ferrous_metals: true,
         aluminum: true,
@@ -148,15 +161,15 @@ function AdminPage() {
                 navigate("/login");
             }
         }
-
+        // Check if the user is logged in
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             if (!session) {
                 navigate("/");
             } else {
                 checkUser(session.user)
             }
-
-            setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false);
+            // Check if the user is an admin
+            setIsAdmin(session?.user?.email?.endsWith('@hendricks-foundation.org') || false); // Change this to your admin email domain
             if (!isAdmin) {
                 navigate("/");
             }
@@ -170,7 +183,7 @@ function AdminPage() {
         async function fetchData() {
             const { data, error } = await supabase
                 .from('devices')
-                .select('device_type, model, device_id, weight, device_condition, manufacturer, serial_number, serial_number_image_path, date_donated, ferrous_metals, aluminum, copper, other_metals, plastics, pcb, flat_panel_display_module, crt_glass_and_lead, batteries, co2_emissions, profiles (first_name, last_name)')
+                .select('device_type, model, device_id, weight, device_condition, manufacturer, serial_number, serial_number_image_path, verified, date_donated, ferrous_metals, aluminum, copper, other_metals, plastics, pcb, flat_panel_display_module, crt_glass_and_lead, batteries, co2_emissions, profiles (first_name, last_name)')
             if (error) {
                 console.error("Error fetching devices:", error.message);
             } else {
@@ -200,6 +213,7 @@ function AdminPage() {
                             manufacturer: device.manufacturer,
                             serial_number: device.serial_number,
                             serial_number_image_path: device.serial_number_image_path,
+                            verified: device.verified,
                             date_donated: String(formattedDate),
                             ferrous_metals: device.ferrous_metals,
                             aluminum: device.aluminum,
@@ -222,6 +236,7 @@ function AdminPage() {
     },[]);
 
     //columns definition for tanstack table
+    // add more accesor keys here if you want to display more columns/data, just follow the template.
     const columns: ColumnDef<DevicesQuery>[] = [
         { accessorKey: "name", header: "Full Name", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_id", header: "Device ID", cell: (props) => <p>{String(props.getValue())}</p> },
@@ -232,6 +247,7 @@ function AdminPage() {
         { accessorKey: "manufacturer", header: "Manufacturer", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "serial_number", header: "Serial Number", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "serial_number_image_path", header: "Serial Number Path", cell: (props) => <p>{String(props.getValue())}</p> },
+        { accessorKey: "verified", header: "Verified", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "date_donated", header: "Date Donated", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "ferrous_metals", header: "Ferrous Metals", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "aluminum", header: "Aluminum", cell: (props) => <p>{String(props.getValue())}</p> },
@@ -270,8 +286,11 @@ function AdminPage() {
     
     return (
         <>
+            {/* This is the main container for the Admin Page */}
             <div className='flex flex-col justify-center rounded-4xl bg-white border border-gray-300 m-4 h-[85vh] p-8'>
+                {/* This container holds the filters */}
                 <div className="w-full mx-auto flex flex-col md:flex-row gap-2 mt-0">
+                    {/* This table holds the toggleable the view filters*/}
                     <table className="table-auto border-collapse">
                         <tr className='[&>td>button]:w-full [&>td>button]:py-2 [&>td>button]:px-4 [&>td]:border-gray-100 [&>td>button]:cursor-pointer flex flex-col sm:flex-row gap-2 sm:gap-0'>
                             <td><button onClick={() => handleViewChange("All")} className={`border border-neutral-200 rounded-md sm:rounded-none sm:rounded-l-md ${view === "All" ? "bg-blue-200 text-blue-500" : "bg-gray-100 text-black"}`}>All</button></td>
@@ -287,7 +306,7 @@ function AdminPage() {
                         className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white w-full"
                     />
                 </div>
-
+                {/* This container holds the actual admin table */}
                 <div className='flex overflow-auto w-full mx-auto border border-gray-300 rounded-xl h-[60vh] mb-[2vh] mt-8'>
                     <table className="table-auto border-collapse rounded-xl border-neutral-200 bg-white w-full">
                         <thead>
@@ -317,6 +336,7 @@ function AdminPage() {
                     </table>              
                 </div>
 
+                {/* Pagination Buttons for Admin Table*/}
                 <div className='flex justify-center gap-10'>
                     <button className='text-xl text-gray-500 hover:text-black cursor-pointer' onClick={() => adminTable.firstPage()} disabled={!adminTable.getCanPreviousPage()}>
                         {'<<'}

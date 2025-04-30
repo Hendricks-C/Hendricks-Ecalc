@@ -1,3 +1,10 @@
+/*
+    This file is responsible for the device submission form/page.
+    It allows users to enter device information, including type, manufacturer, model, condition, weight, and serial number.
+    The form also allows users to upload an image of the serial number for verification.
+    The form is connected to a Supabase backend for data storage and retrieval.
+    The form draws its options for device types, manufacturers, and models from a predefined set of selections located in utils/deviceFormSelections.ts. Modify that file to change the options displayed
+*/
 import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'
@@ -34,7 +41,6 @@ const ocr_manufacturers: string[] = [
 ];
 function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
-    // const [processedText, setText] = useState<string>('');
     const [devices, setDevices] = useState<DeviceInfo[]>([{
         device: '',
         model: '',
@@ -81,7 +87,7 @@ function DeviceInfoSubmission() {
         return () => authListener.subscription.unsubscribe(); //clean up
     }, [navigate]);
 
-    //handles serial number ocr verification
+    /* handles serial number ocr verification */
     const handleSNVerification = async (_event: React.MouseEvent, image: File, manufacturer: string, device_index: number): Promise<void> => {
         handleFormValueChange(device_index, 'isProcessing', true);
         try {
@@ -106,10 +112,11 @@ function DeviceInfoSubmission() {
         handleFormValueChange(device_index, 'verified', true);
     }
 
-    // handles submission of device(s) info to supabase database
+    /*  handles submission of device(s) info to supabase database */
     const handleNext = async (event: React.FormEvent): Promise<void> => {
         event.preventDefault();
-        //making sure all fields are filled
+        
+        /* making sure user has entered or chosen a value for all fields */
         for (let i = 0; i < devices.length; i++) {
             if (devices[i].device === '' || devices[i].model === '' || devices[i].manufacturer === '' || devices[i].deviceCondition === '' || devices[i].weight === '') {
                 console.log(devices[i]);
@@ -125,7 +132,7 @@ function DeviceInfoSubmission() {
             return;
         }
         
-        // function for mapping device info to the correct table column attributes for bulk insertion as an array
+        /*  this function reformats the device info entered by the user into an object inserted into the database */
         const mapToInsert = devices.map((device) => {
             const materialCompositionSaved: MaterialComposition = calculateMaterialComposition(device);
             const co2Emissions: number = calculateCO2Emissions(device);
@@ -163,7 +170,7 @@ function DeviceInfoSubmission() {
             console.log('devices successfully added')
         }
 
-        //need to submit serial number images to supabase storage if they exist
+        /* checking all devices for serial number images and uploading them to supabase storage if they exist */
         for (let i = 0; i < devices.length; i++) {
             const sn_image: File | string | undefined = devices[i].serial_number_image;
             console.log(data);
@@ -181,8 +188,6 @@ function DeviceInfoSubmission() {
                 }
                 
                 if (data) {
-                    // console.log('Attempting to update image path for device:', deviceId);
-                    // console.log('Image path:', data.path);
                     const { data: updateResult, error: updateError } = await supabase
                         .from('devices')
                         .update({ serial_number_image_path: data.path })
@@ -201,19 +206,19 @@ function DeviceInfoSubmission() {
         navigate('/results', { state: { devices, alertText} }); //redirect to results page on successful submission
     }
 
-    // adds more devices when "+ Add more devices" is clicked
+    /* adds more devices when "+ Add more devices" is clicked */
     const addDevice = async (_event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLButtonElement>): Promise<void> => {
         setDevices([...devices, { device: '', model: '', manufacturer: '', deviceCondition: '', weight: '' , serial_number: undefined, serial_number_image: undefined,verified: false, isProcessing: false, failedVerify: false }]);
     }
 
-    // removes a device when "- Remove device" is clicked if there is more than one device
+    /* removes a device when "- Remove device" is clicked if there is more than one device */
     const removeDevice = async (_event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLButtonElement>, device_index: number): Promise<void> => {
         const newDevices = [...devices];
         newDevices.splice(device_index, 1);
         setDevices(newDevices);
     }
 
-    // function that updates device info values in devices array according to user input
+    /* function that updates device info values in devices array according to user input type*/
     const handleFormValueChange = (index: number, field: keyof DeviceInfo, value: string | File | undefined | boolean) => {
         const newDevices = [...devices];
         if (field === 'serial_number_image') {
@@ -230,6 +235,7 @@ function DeviceInfoSubmission() {
         setDevices(newDevices);
     };
 
+    /* function that checks if user has unlocked a badge for donating devices */
     const checkForBadge = async (userId:string) => {
         let gotBadge = "";
 
@@ -298,10 +304,11 @@ function DeviceInfoSubmission() {
                         Enter device details below
                     </p>
                 </div>
+
                 {/*Device Submission Input Box(s)*/}
                 <div className="flex flex-col w-[90vw] md:w-[50vw] h-auto p-0 md:p-[4vw] md:pb-0 md:border md:border-gray-300 rounded-2xl bg-opacity-10 bg-auto md:bg-white/50 backdrop-blur-md gap-[2vh]">
                     {devices.map((device, index) => {
-                        // adding manual input to dropdown options
+                        // logic below is responsible for making any manual input visible as a dropdown option
                         const manufacturerOptions = Object.keys(deviceFormOptions[device.device] || {});
                         const manuInput = device.manufacturer?.trim();
                         const dynamicManufacturerOptions = manuInput && manuInput !== '' && !manufacturerOptions.includes(manuInput) ? 
@@ -314,7 +321,6 @@ function DeviceInfoSubmission() {
                             [modelInput, ...modelOptions]
                             : 
                             modelOptions;
-
 
                         return (
                         <div className="relative p-4 md:p-10 mb-4 border border-gray-300 rounded-md bg-opacity-10 bg-white/50 shadow-md">
@@ -330,6 +336,7 @@ function DeviceInfoSubmission() {
                                 : 
                                 null
                             }
+
                             {/* Device Type Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`device-input-${index}`} className="flex mt-[0.5vh]">Device Type:</label>
@@ -353,6 +360,7 @@ function DeviceInfoSubmission() {
                                     )}
                                 />
                             </div>
+                            
                             {/* Device Manufacturer Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`manufacturer-input-${index}`} className="flex mt-[0.5vh]">Manufacturer:</label>
@@ -380,6 +388,7 @@ function DeviceInfoSubmission() {
                                     )}
                                 />
                             </div>
+
                             {/* Device Model Field */}
                             <div className='flex flex-col gap-1'>
                                 <label htmlFor={`model-input-${index}`} className="flex mt-[0.5vh]">Model:</label>
@@ -406,6 +415,7 @@ function DeviceInfoSubmission() {
                                         )}
                                     />
                             </div>
+
                             {/* Device Condition Field */}
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Device Condition:</label>
@@ -429,6 +439,7 @@ function DeviceInfoSubmission() {
                                     
                                 />
                             </div>
+
                             {/* Device Weight Field */}
                             <div className='flex flex-col gap-1'>
                                 <label className="flex mt-[0.5vh]">Weight(lbs):</label>
@@ -442,9 +453,11 @@ function DeviceInfoSubmission() {
                                     className="w-full border border-gray-300 rounded-md placeholder-gray-500 focus:outline-none focus:ring-2 bg-white"
                                 />
                             </div>
+
                             {/* Serial Number Input Field or Upload Box */}
                             <div className="flex flex-col gap-1">
                                 <label className="flex mt-[0.5vh]">Serial Number:</label>
+
                                 {/* if manufacture in ocr_manufacturers, allow image upload. Else, use manual input. */}
                                 {ocr_manufacturers.includes(devices[index].manufacturer) && !device.failedVerify ? (
                                     <>
@@ -462,7 +475,7 @@ function DeviceInfoSubmission() {
                                             `}>
                                             Upload Image
                                         </label>
-                                        {/* verify serial number of uploaded image */}
+                                        {/* Serial Number Verification Area*/}
                                         { device.serial_number_image && typeof device.serial_number_image !== 'string' ? (
                                             <div className='flex flex-col justify-center items-center'>
                                                 <div className={`self-center relative inline-block mt-2 mb-2 p-4`}>
@@ -498,7 +511,7 @@ function DeviceInfoSubmission() {
                                         }
                                     </>
                                 ) : (
-                                    // <input type="text" placeholder="Serial Number" onChange={e => handleFormValueChange(index, 'serial_number', e.target.value)} className="w-full border border-gray-300 rounded-md pl-3 p-2 placeholder-gray-500 focus:outline-none focus:ring-2 bg-white" />
+                                    /* Manual Input for Serial Number if Verification Fails */
                                     <TextField
                                         required
                                         type="text"
@@ -513,14 +526,14 @@ function DeviceInfoSubmission() {
                             </div>
                         </div>
                     )})}
-                    {/* Remove/Add Devices */}
+                    {/* Remove or Add Devices */}
                     <div className="flex-col mb-[2vh] md:mb-[2vh] hidden md:flex">
                         <a onClick={addDevice} className="hidden md:flex self-end bg-none hover:underline cursor-pointer">
                             + Add a device
                         </a>
                     </div> 
                 </div>
-                {/* On Mobile, Remove/Add are Buttons */}
+                {/* On Mobile, Remove and Add are Buttons */}
                 <div className="flex justify-center items-center gap-6 md:hidden mt-[1vh]">
                         <button
                             onClick={addDevice}
@@ -531,6 +544,7 @@ function DeviceInfoSubmission() {
                             <AddIcon fontSize='large' />
                         </button>
                 </div>
+                {/* Submit Button */}
                 <button className="bg-[#FFE017] shadow-md text-white font-bold text-lg py-4 px-10 m-10 mt-5 md:mt-10 rounded-full w-[90vw] md:w-1/4 transition duration-200 cursor-pointer hover:brightness-105" type="submit">
                     Next
                 </button>
