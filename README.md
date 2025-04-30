@@ -25,9 +25,27 @@ Before running the app, you’ll need to set up accounts and configurations for 
 
 ### [Google Cloud](https://cloud.google.com)
 
-1. Create a new project in the Google Cloud Console.
-2. Enable APIs (e.g., Gmail API if you're using OAuth or Vision API if applicable).
-3. Create a service account and download the credentials JSON file.
+#### Create a Google Cloud Project
+1. Create a Google Cloud account (or use existing Gmail).
+2. In the top nav bar, click the project selector and choose "New Project".
+3. Name the project then click "Create"
+
+#### Enable the Vision API
+4. In the sidebar, go to APIs & Services then Library.
+5. Search for "Vision API".
+6. Click it, then click "Enable".
+
+#### Create a Service Account
+7. Go to IAM & Admin > Service Accounts.
+8. Click "Create Service Account".
+9. Give it a name (e.g., ocr-service), click "Create and Continue".
+10. On the “Grant this service account access” screen, you can skip permissions (optional) and click "Done".
+
+#### Generate JSON Key
+11. After creating the service account, click its three-dot menu → Manage keys.
+12. Under the “Keys” tab, click "Add Key" > "Create new key".
+13. Choose JSON, then click "Create".
+14. A .json file will be downloaded — this is your API key file.
 
 ## Frontend
 
