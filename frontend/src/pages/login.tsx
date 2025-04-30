@@ -1,3 +1,16 @@
+/*
+ * login.tsx
+ * 
+ * This component handles user authentication with email and password,
+ * including CAPTCHA validation and two-factor authentication (2FA) via modal.
+ * 
+ * Features:
+ * - Login form with styled inputs for email and password.
+ * - CAPTCHA protection using Cloudflare Turnstile.
+ * - Two-Factor Authentication support via modal.
+ * - Auto-redirects logged-in users to their profile page if user is already logged in
+ */
+
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, FormEvent, useEffect } from 'react';
 import supabase from '../utils/supabase';
@@ -10,46 +23,61 @@ import axios from 'axios';
 import { Profile } from '../utils/types';
 
 function Login() {
+
+  // Form input states
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+
+  // CAPTCHA related states
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaKey, setCaptchaKey] = useState<number>(0);
   const [captchaError, setCaptchaError] = useState<string | null>(null);
+
+  // Loading state during login
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  
-  // New state for 2FA modal
+
+  // 2FA modal states
   const [showTwoFAModal, setShowTwoFAModal] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  
+
   const navigate = useNavigate();
 
   const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+  // Redirect if already logged in BEFORE running profile/2FA checks
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        navigate("/profile");
+      }
+    });
+  }, []);
 
   // Check for existing user session
   useEffect(() => {
     async function checkUser(user: User) {
       setCurrentUser(user); // now this is always synced
-  
+
       const { data: rawData, error: userError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
-  
+
       if (!userError && rawData) {
         const userData = rawData as Profile;
-  
+
         if (userData.two_fa_verified === false) {
           try {
             const response = await axios.post(`${apiBase}/api/users/2FA`, {
               userEmail: user.email,
               userId: user.id,
             });
-      
+
             if (response.data.expires_at) {
               localStorage.setItem('2fa_expires_at', response.data.expires_at);
             }
-      
+
             setShowTwoFAModal(true);
           } catch (error) {
             alert("Failed to send 2FA code: " + error);
@@ -57,14 +85,14 @@ function Login() {
         }
       }
     }
-  
+
     // Check once on mount
     supabase.auth.getUser().then(({ data, error }) => {
       if (data?.user && !error) {
         checkUser(data.user);
       }
     });
-  
+
     // Subscribe to future auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
@@ -73,25 +101,28 @@ function Login() {
         setCurrentUser(null);
       }
     });
-  
+
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, []);  
+  }, []);
 
   //login user
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setIsLoading(true);
 
+    // Ensure CAPTCHA is completed
     if (!captchaToken) {
       setCaptchaError('Please complete the captcha');
       setIsLoading(false);
       return;
     }
 
+    //Set CAPTCHA error null after successful completion
     setCaptchaError(null);
 
+    // Log in the user with Supabase
     try {
       const { data, error }: AuthResponse = await supabase.auth.signInWithPassword({
         email,
@@ -101,11 +132,11 @@ function Login() {
 
       //Reset the token after submission
       setCaptchaToken(null);
-      
+
       // error handling
       if (error) {
         alert(error.message);
-        setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component
+        setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component after a failed registration attempt
         setIsLoading(false);
         return;
       }
@@ -113,7 +144,7 @@ function Login() {
       // success message
       console.log('logged in: ', data.user);
 
-      if(!data.user) {
+      if (!data.user) {
         setIsLoading(false);
         return;
       }
@@ -131,7 +162,7 @@ function Login() {
 
       // Set the current user and show the 2FA modal
       setCurrentUser(data.user);
-      
+
       setShowTwoFAModal(true);
     } catch (error) {
       console.error("Login error:", error);
@@ -146,6 +177,7 @@ function Login() {
       <div className='flex items-center justify-evenly px-4 py-8 md:px-10 md:py-10'>
 
         {/* Left - Laptop Image */}
+        {/* Hidden on small screens */}
         <div className='w-1/2 hidden lg:flex justify-center'>
           <img src={Laptop} alt="laptop" className="w-full h-auto" />
         </div>
@@ -193,11 +225,12 @@ function Login() {
                 />
               </div>
 
+              {/* CAPTCHA widget */}
               <div className='flex justify-center items-center'>
                 <Turnstile
                   key={captchaKey}
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => { setCaptchaToken(token) }} 
+                  onSuccess={(token) => { setCaptchaToken(token) }}
                   className='scale-[80%]  sm:scale-100'
                 />
 
@@ -206,10 +239,11 @@ function Login() {
 
               {/* Buttons */}
               <div className="flex flex-col justify-center gap-2 items-center mt-3">
+
+                {/* Login Button */}
                 <button
-                  className={`bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 ${
-                    isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:brightness-105'
-                  }`}
+                  className={`bg-[#FFE017] shadow-md text-white font-bold text-lg py-2 px-10 rounded-full w-3/4 transition duration-200 ${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:brightness-105'
+                    }`}
                   type="submit"
                   disabled={isLoading}
                 >
@@ -217,14 +251,18 @@ function Login() {
                 </button>
               </div>
 
-              {/* Link to register page */}
+
               <div className="mt-3 text-center text-sm text-gray-700">
+
+                {/* Link to register page */}
                 <p className="mb-1">
                   Don't have an account?{" "}
                   <Link to="/register" className="text-[#95C6A9] hover:underline">
                     Create one now.
                   </Link>
                 </p>
+
+                {/* Link to forgot password page */}
                 <p>
                   Forgot your password?{" "}
                   <Link to="/forgot-password" className="text-[#95C6A9] hover:underline">
@@ -241,9 +279,9 @@ function Login() {
 
       {/* 2FA Modal */}
       {currentUser && (
-        <TwoFAModal 
-          isOpen={showTwoFAModal} 
-          onClose={() => setShowTwoFAModal(false)} 
+        <TwoFAModal
+          isOpen={showTwoFAModal}
+          onClose={() => setShowTwoFAModal(false)}
           userData={currentUser}
           navigate={navigate}
         />
