@@ -1,3 +1,15 @@
+/**
+ * register.tsx
+ *
+ * This component handles user registration
+ *
+ * Features:
+ * - Form for email, password, and optional company field.
+ * - CAPTCHA validation using Cloudflare Turnstile.
+ * - Supabase integration to sign up users and store profile metadata.
+ * - Listens for authentication changes and redirects based on verification state.
+ */
+
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import supabase from '../utils/supabase.ts'
@@ -9,14 +21,17 @@ import { User } from '@supabase/supabase-js'
 import { Profile } from '../utils/types'
 
 function Register() {
+
+  // Form input states
   const [email, setEmail] = useState<string>('')
   const [company, setCompany] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+
+  // CAPTCHA related states
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-
   const [captchaKey, setCaptchaKey] = useState(0);
-
   const [captchaError, setCaptchaError] = useState<string | null>(null);
+
   const navigate = useNavigate() //used to redirect to different page
 
   const [loading, setLoading] = useState(false);
@@ -28,23 +43,23 @@ function Register() {
     console.log(import.meta.env.VITE_FRONTEND_URL)
     async function checkUser(user: User) {
       const { data: rawData, error: userError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
       if (userError || !rawData) {
-          console.error("Profile lookup failed", userError);
-          navigate("/login");
-          return;
+        console.error("Profile lookup failed", userError);
+        navigate("/login");
+        return;
       }
-      
+
       const userData = rawData as Profile;
       if (userData.two_fa_verified === false) {
-          navigate("/login");
+        navigate("/login");
       }
     }
-    
+
     const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
       if (session) {
         checkUser(session.user);
@@ -54,17 +69,23 @@ function Register() {
     return () => authListener.subscription.unsubscribe(); //clean up
   }, [navigate]);
 
-  //register user
+  // Register user
+  // Validates CAPTCHA, sends user info to Supabase, and shows success or error.
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setLoading(true);
+
+    // Ensure CAPTCHA is completed
     if (!captchaToken) {
       setCaptchaError('Please complete the captcha');
       setLoading(false);
       return;
     }
+
+    //Set CAPTCHA error null after successful completion
     setCaptchaError(null);
 
+    // Attempt to register user with Supabase
     const { data, error }: AuthResponse = await supabase.auth.signUp({ //call signup function from supabase
       email,
       password,
@@ -75,20 +96,20 @@ function Register() {
       },
     })
 
-    //Reset the token after submission
+    // Reset the token after submission
     setCaptchaToken(null);
 
-    //error handling
+    // Error handling
     if (error) {
       console.error('Error signing up:', error.message)
       alert(error.message)
-      setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component
+      setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component after a failed registration attempt
       setLoading(false);
       return
     } else if (data.user?.identities?.length === 0) {
       console.error('User already Exists')
       alert('User already Exists')
-      setCaptchaKey((prev) => prev + 1);
+      setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component after a failed registration attempt
       setLoading(false);
       return
     }
@@ -104,6 +125,7 @@ function Register() {
       <div className='flex items-center justify-evenly px-4 py-8 md:px-10 md:py-10'>
 
         {/* Left - Laptop Image */}
+        {/* Hidden on small screens */}
         <div className='w-1/2 hidden lg:flex justify-center'>
           <img src={Laptop} alt="laptop" className="w-full h-auto" />
         </div>
@@ -164,11 +186,12 @@ function Register() {
                 />
               </div>
 
+              {/* CAPTCHA widget */}
               <div className='flex justify-center items-center'>
                 <Turnstile
                   key={captchaKey}
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                  onSuccess={(token) => { setCaptchaToken(token) }} 
+                  onSuccess={(token) => { setCaptchaToken(token) }}
                   className='scale-[80%]  sm:scale-100'
                 />
 

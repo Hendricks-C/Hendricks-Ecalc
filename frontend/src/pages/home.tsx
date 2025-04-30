@@ -1,3 +1,19 @@
+/**
+ * home.tsx
+ * 
+ * This is the landing page of the E-Waste Calculator application.
+ * 
+ * Features:
+ * - Displays a welcome section with a title, description, and login/start button.
+ * - Shows statistics about devices collected, clients donated, and CO2 emissions saved.
+ * - Handles user session check to customize navigation based on login status.
+ * - Displays a badge alert if triggered by a redirect.
+ * 
+ * Responsive Design:
+ * - Hides the laptop image on small screens.
+ */
+
+
 import { Link } from 'react-router-dom'
 import Laptop from '../assets/laptop.png'
 import { useEffect, useState } from 'react'
@@ -7,27 +23,33 @@ import Alert from "../components/alert";
 import { useLocation } from 'react-router-dom'
 
 function Home() {
+
+    // Read location state to display an alert if redirected with badge info
     const location = useLocation();
     const showBadgeAlert = location.state?.alertText;
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 
+    // Check current user session on component mount
     useEffect(() => {
         const checkSession = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            setIsLoggedIn(!!session);
+            setIsLoggedIn(!!session); // Set logged-in state based on session
         };
 
         checkSession();
     }, []);
 
+    //Initializing state for site statistics device count, number of client donated, and CO2 stats
     const [stats, setStats] = useState({
         devices: 0,
         clients: 0,
         co2: 0,
     });
 
+
+    // Fetch statistics from the Supabase 'devices' table
     useEffect(() => {
         const fetchStats = async () => {
             const { data, error } = await supabase.from('devices').select('*');
@@ -37,6 +59,7 @@ function Home() {
                 return;
             }
 
+            // Calculate total devices collected, distinct number of clients donated, and total CO2 emissions saved
             const devicesCount = data.length;
             const uniqueClients = new Set(data.map((d) => d.user_id)).size;
             const totalCO2 = data.reduce((sum, d) => sum + (d.co2_emissions || 0), 0);
@@ -54,6 +77,7 @@ function Home() {
     return (
         <div className="flex flex-col items-center justify-center">
             {showBadgeAlert && <Alert text={showBadgeAlert} show={true} />}
+
             {/* Get Started Section */}
             <section className="flex w-full h-[80vh] px-8 py-12 justify-between items-center gap-4 z-0">
 
@@ -65,6 +89,8 @@ function Home() {
                     <p className="text-lg sm:text-xl font-semibold mb-10 md:mb-25">
                         Bridging the Digital Divide Worldwide
                     </p>
+
+                    {/* Link to either Device Submission or Login based on login status */}
                     <Link to={isLoggedIn ? "/device-info-submission" : "/login"}>
                         <button className="bg-[#FFE017] cursor-pointer text-white font-bold text-xl md:text-2xl px-10 md:px-20 py-3 rounded-full shadow-md hover:brightness-105 transition mb-5 md:mb-10">
                             {isLoggedIn ? "GET STARTED" : "LOGIN"}
@@ -73,6 +99,7 @@ function Home() {
                 </div>
 
                 {/* Right: Laptop Image */}
+                {/* Hidden on small screens */}
                 <div className=" hidden md:flex w-1/2 justify-center z-0">
                     <img src={Laptop} alt="Laptop" className="w-[110%] h-auto max-w-[925px]" />
                 </div>

@@ -8,3 +8,8 @@ export interface Profile {
   password: string | null;
   created: string;
 }
+
+export interface Badge {
+  id: number;
+  name: string;
+}

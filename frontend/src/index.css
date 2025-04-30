@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
+/* Global body styles */
 body {
+    /* Apply a linear gradient background from dark green to light yellow-green */
     background: linear-gradient(135deg, #187362, #A8D5BA, #FBE598);
-    font-family: 'Bitter', serif;
+    font-family: 'Bitter', serif; /* Use the 'Bitter' serif font throughout the app */
+    background-size: cover; /* Ensure the gradient covers the entire background */
     min-height: 100vh;
-    background-size: cover;
     margin: 0;
     padding: 0;
 }
