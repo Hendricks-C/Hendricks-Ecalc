@@ -1,3 +1,10 @@
+/*
+    This file is responsible for the device submission form/page.
+    It allows users to enter device information, including type, manufacturer, model, condition, weight, and serial number.
+    The form also allows users to upload an image of the serial number for verification.
+    The form is connected to a Supabase backend for data storage and retrieval.
+    The form draws its options for device types, manufacturers, and models from a predefined set of selections located in utils/deviceFormSelections.ts. Modify that file to change the options displayed
+*/
 import { useState, useEffect } from 'react'
 import supabase from '../utils/supabase'
 import { useNavigate } from 'react-router-dom'

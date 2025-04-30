@@ -1,3 +1,6 @@
+/*
+    Modify the text contents of this page to change what is displayed on the about us page.
+*/
 import { useEffect, useState } from "react";
 import supabase from "../utils/supabase";
 
