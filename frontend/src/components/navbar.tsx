@@ -1,3 +1,6 @@
+/*
+    Note: modify the line "setIsAdmin(sessionUser.email?.endsWith('@hendricks-foundation.org') || false);" to change which email domains are considered admin. Only admins can see the admin page.
+*/
 import { Link, useNavigate } from 'react-router-dom'
 import supabase from '../utils/supabase'
 import { useEffect, useState } from 'react';
@@ -51,7 +54,7 @@ function Navbar() {
             }
 
             setUser(sessionUser);
-            setIsAdmin(sessionUser.email?.endsWith('@gmail.com') || false);
+            setIsAdmin(sessionUser.email?.endsWith('@hendricks-foundation.org') || false); //modify this to change what email domains are considered admin
         }
 
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
