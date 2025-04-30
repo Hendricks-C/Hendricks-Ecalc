@@ -35,8 +35,9 @@ interface DevicesQuery{
     batteries: number;
     co2_emissions: number;
 }
-type ViewKey = "All" | "Donors" | "Devices" | "Ewaste";
 
+// This is the column visibility configuration for different view filters
+type ViewKey = "All" | "Donors" | "Devices" | "Ewaste";
 const columnVisibilityConfigs: Record<ViewKey, VisibilityState> = {
     All: {
         name: true,
@@ -155,14 +156,14 @@ function AdminPage() {
                 navigate("/login");
             }
         }
-
+        // Check if the user is logged in
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             if (!session) {
                 navigate("/");
             } else {
                 checkUser(session.user)
             }
-
+            // Check if the user is an admin
             setIsAdmin(session?.user?.email?.endsWith('@hendricks-foundation.org') || false); // Change this to your admin email domain
             if (!isAdmin) {
                 navigate("/");
@@ -229,6 +230,7 @@ function AdminPage() {
     },[]);
 
     //columns definition for tanstack table
+    // add more accesor keys here if you want to display more columns/data, just follow the template.
     const columns: ColumnDef<DevicesQuery>[] = [
         { accessorKey: "name", header: "Full Name", cell: (props) => <p>{String(props.getValue())}</p> },
         { accessorKey: "device_id", header: "Device ID", cell: (props) => <p>{String(props.getValue())}</p> },
@@ -277,8 +279,11 @@ function AdminPage() {
     
     return (
         <>
+            {/* This is the main container for the Admin Page */}
             <div className='flex flex-col justify-center rounded-4xl bg-white border border-gray-300 m-4 h-[85vh] p-8'>
+                {/* This container holds the filters */}
                 <div className="w-full mx-auto flex flex-col md:flex-row gap-2 mt-0">
+                    {/* This table holds the toggleable the view filters*/}
                     <table className="table-auto border-collapse">
                         <tr className='[&>td>button]:w-full [&>td>button]:py-2 [&>td>button]:px-4 [&>td]:border-gray-100 [&>td>button]:cursor-pointer flex flex-col sm:flex-row gap-2 sm:gap-0'>
                             <td><button onClick={() => handleViewChange("All")} className={`border border-neutral-200 rounded-md sm:rounded-none sm:rounded-l-md ${view === "All" ? "bg-blue-200 text-blue-500" : "bg-gray-100 text-black"}`}>All</button></td>
@@ -294,7 +299,7 @@ function AdminPage() {
                         className="border border-gray-300 rounded-md p-2 placeholder-gray-400 focus:outline-none focus:ring-2 bg-white w-full"
                     />
                 </div>
-
+                {/* This container holds the actual admin table */}
                 <div className='flex overflow-auto w-full mx-auto border border-gray-300 rounded-xl h-[60vh] mb-[2vh] mt-8'>
                     <table className="table-auto border-collapse rounded-xl border-neutral-200 bg-white w-full">
                         <thead>
@@ -324,6 +329,7 @@ function AdminPage() {
                     </table>              
                 </div>
 
+                {/* Pagination Buttons for Admin Table*/}
                 <div className='flex justify-center gap-10'>
                     <button className='text-xl text-gray-500 hover:text-black cursor-pointer' onClick={() => adminTable.firstPage()} disabled={!adminTable.getCanPreviousPage()}>
                         {'<<'}
