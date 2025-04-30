@@ -163,7 +163,7 @@ function AdminPage() {
                 checkUser(session.user)
             }
 
-            setIsAdmin(session?.user?.email?.endsWith('@gmail.com') || false); // Change this to your admin email domain
+            setIsAdmin(session?.user?.email?.endsWith('@hendricks-foundation.org') || false); // Change this to your admin email domain
             if (!isAdmin) {
                 navigate("/");
             }
