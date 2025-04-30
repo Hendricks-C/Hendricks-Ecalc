@@ -14,8 +14,8 @@ Before running the app, you’ll need to set up accounts and configurations for 
 ### [Supabase](https://supabase.com)
 
 1. Click on new project then create a Supabase project.
-2. Then note down the supabase URL and anon key.
-3. Then also go to project settings, Data API and get your service role key as well.
+2. Then go to project settings and click on Data API.
+3. Then note down the supabase URL, anon key, and service role key.
 
 ### [Cloudflare Captcha (Turnstile)](https://www.cloudflare.com/application-services/products/turnstile/)
 
