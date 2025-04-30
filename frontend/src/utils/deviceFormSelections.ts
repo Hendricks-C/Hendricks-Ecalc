@@ -1,10 +1,27 @@
+//These are the device types that will be displayed on the device submission page. Modify as needed.
+export const deviceTypes: string[] = [
+    "CPU",
+    "Smartphone",
+    "Tablet",
+    "Laptop",
+    "Modern Monitor",
+    "Laptop Screen",
+    "CRT Monitor (Older, Not In Laptop)",
+    "Mouse",
+    "Keyboard",
+    "External Hard Drive",
+    "Charger",
+    "Printer",
+    "Scanner",
+    "Copier"
+];
+
+// This interface is used to define the structure of the deviceFormOptions object below.
 interface deviceFormOptionsType {
     [key: string]: {
         [key: string]: string[];
     };
 }
-
-
 //Below model options will display on the device submission page depending on selected Device type and Manufacturer. 
 // Change the values here to change what options users can select during device submission.
 export const deviceFormOptions: deviceFormOptionsType = {
@@ -367,19 +384,3 @@ export const deviceFormOptions: deviceFormOptionsType = {
     },
 };
 
-export const deviceTypes: string[] = [
-    "CPU",
-    "Smartphone",
-    "Tablet",
-    "Laptop",
-    "Modern Monitor",
-    "Laptop Screen",
-    "CRT Monitor (Older, Not In Laptop)",
-    "Mouse",
-    "Keyboard",
-    "External Hard Drive",
-    "Charger",
-    "Printer",
-    "Scanner",
-    "Copier"
-];
