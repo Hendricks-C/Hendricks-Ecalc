@@ -2,7 +2,14 @@ import { useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import supabase from '../utils/supabase';
 
+/**
+ * Handles the password reset flow after a user clicks the link sent to their email.
+ * Validates session type, handles password update with Supabase,
+ * and provides user feedback and redirects.
+ */
 function ForgotPassword() {
+    
+    // Local state for input and validation
     const [password, setPassword] = useState<string>('')
     const [confirm, setConfirm] = useState<string>('')
     const [validSession, setValidSession] = useState<boolean>(false)
@@ -11,7 +18,11 @@ function ForgotPassword() {
 
     const navigate = useNavigate()
 
-    // Check for existing user session
+    /**
+     * useEffect runs once on mount.
+     * Listens for auth state changes to confirm it's a password recovery session.
+     * If not, redirects to homepage for safety.
+     */
     useEffect(() => {
         supabase.auth.onAuthStateChange(async (event, _session) => {
             if (event == "PASSWORD_RECOVERY") {
@@ -22,7 +33,12 @@ function ForgotPassword() {
         })
     }, [])
 
-    // Reset password
+    /**
+     * Handles the password reset form submission using Supabase updateUser()
+     * Validates form inputs, ensures session is valid, updates password, and gives feedback.
+     * 
+     * @param event - Form submit event
+     */
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault()
         setLoading(true);
@@ -37,7 +53,9 @@ function ForgotPassword() {
             return
         } 
         else { // reset password if all checks pass
-            const { data:_userResponse, error } = await supabase.auth.updateUser({ //call update user function from supabase
+            
+            //call update user function from supabase
+            const { data:_userResponse, error } = await supabase.auth.updateUser({
                 password: password
             })
 

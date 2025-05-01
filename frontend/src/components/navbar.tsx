@@ -11,28 +11,45 @@ import { useLocation } from 'react-router-dom';
 
 import { Menu, X } from 'lucide-react';
 
+
+/**
+ * Navbar Component
+ * 
+ * Displays a responsive navigation bar with authentication-aware links.
+ * Admins (based on email domain) see the "Admin" link.
+ * Uses Supabase to track and verify authenticated users and 2FA status.
+ */
 function Navbar() {
     const location = useLocation();
-
-    const [user, setUser] = useState<any>(null)
-    const [isAdmin, setIsAdmin] = useState(false)
     const navigate = useNavigate()
 
+    // User session state
+    const [user, setUser] = useState<any>(null)
+    const [isAdmin, setIsAdmin] = useState(false)
+
+    // Mobile menu toggle
     const [isOpen, setOpen] = useState(false);
 
-    // Check for existing user session
+    /**
+     * Check for a valid Supabase session and pull user data.
+     * If valid and 2FA verified, store user in state.
+     */
     useEffect(() => {
         async function checkUser() {
+            // Fetch session user from Supabase
             const { data, error } = await supabase.auth.getUser();
             
+            // Assigning user data so it can be used to get the user.id
             const sessionUser = data?.user;
 
+            // Error handling incase was not able to get the user.
             if (error || !sessionUser) {
                 setUser(null);
                 setIsAdmin(false);
                 return;
             }
 
+            // Get full user profile from Supabase DB
             const { data: rawData, error: userError } = await supabase
             .from('profiles')
             .select('*')
@@ -47,16 +64,21 @@ function Navbar() {
 
             const userData = rawData as Profile;
 
+            // Prevent login if user hasn’t passed 2FA
             if (!userData.two_fa_verified) {
                 setUser(null);
                 setIsAdmin(false);
                 return;
             }
 
+            // User is valid and verified — update state
             setUser(sessionUser);
-            setIsAdmin(sessionUser.email?.endsWith('@hendricks-foundation.org') || false); //modify this to change what email domains are considered admin
+
+            // Change domain logic here for different admin scopes
+            setIsAdmin(sessionUser.email?.endsWith('@hendricks-foundation.org') || false);
         }
 
+        // Trigger checkUser on auth state change or path change
         const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
             if (session?.user) {
                 checkUser();
@@ -72,7 +94,9 @@ function Navbar() {
         }
     }, [location.pathname]);
 
-    // Resizing 
+    /**
+     * Collapse mobile menu on window resize if over breakpoint
+     */
     useEffect( () => {
         function handleResize() {
             if (window.innerWidth >= 1020){
@@ -90,21 +114,26 @@ function Navbar() {
         }
     }, [])
 
-    // handle signout button
+    /**
+     * Sign out the user and reset 2FA flag.
+     */
     const handleClick = async () => {
+        // Update the 2FA verified in the profiles table to false
         const { error: updateError } = await supabase
         .from("profiles")
         .update({ two_fa_verified: false })
         .eq("id", user.id);
     
+        // Error handling incase update fails
         if (updateError) {
             console.error("Error updating profile for 2FA:", updateError);
             return;
         }
         
+        // Then sign out using Supabase signOut()
         const { error } = await supabase.auth.signOut()
         
-        if (error) { // Error handling
+        if (error) { // Error handling incase logout fails
             console.error('Error logging out:', error.message)
             return
         }
@@ -115,6 +144,8 @@ function Navbar() {
     return (
         // z-50 is to ensure navbar stays above all other content
         <nav className={`z-50 px-10 py-4 m-4 bg-white shadow-md ${isOpen ? "rounded-4xl" : "rounded-full"}` }>
+
+            {/* Desktop Navbar */}
             <div className='hidden relative lg:flex justify-between items-center'>
                 <div className="flex items-center">
                     <img src={HendricksLogo} alt="Hendricks Foundation Logo" className="w-10 h-10 rounded-full mr-4" />
@@ -140,6 +171,7 @@ function Navbar() {
                 </div>
             </div>
 
+            {/* Mobile Navbar */}
             <div className='flex lg:hidden relative justify-between items-center'>
                 <div className="flex items-center">
                     <img src={HendricksLogo} alt="Hendricks Foundation Logo" className="w-10 h-10 rounded-full mr-4" />
@@ -148,6 +180,7 @@ function Navbar() {
                 {isOpen ? <X className='block lg:hidden h-[30px] w-[30px]' onClick={() => setOpen(!isOpen)}/> : <Menu className='block lg:hidden h-[30px] w-[30px]' onClick={() => setOpen(!isOpen)}/>}
             </div>
 
+            {/* Mobile Dropdown Menu */}
             {isOpen && 
             <>
                 <div className="flex flex-col justify-center items-center mt-4 gap-4 sm:gap-10 text-black font-bitter text-sm sm:text-lg">

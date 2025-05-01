@@ -1,18 +1,31 @@
 import { useState } from 'react';
 import supabase from '../utils/supabase';
 
+/**
+ * ForgotPassword Component (Request Reset Email)
+ *
+ * This component allows users to input their email to receive a password reset link.
+ * The link redirects them to a secure frontend route to complete the password reset process.
+ */
 function ForgotPassword() {
+    // Form state
     const [email, setEmail] = useState<string>('')
     const [loading, setLoading] = useState(false);
-    // const [visibility, setVisibility] = useState<boolean>(false)
 
+    // Fallback frontend redirect URL
     const frontendURL = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
 
+    /**
+     * Handles form submission and triggers password reset email via Supabase.
+     * 
+     * @param event - Form event from the submit action.
+     */
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault()
         setLoading(true);
         
-        const { data, error } = await supabase.auth.resetPasswordForEmail(email, { //call reset password function from supabase
+        // Trigger Supabase password reset email
+        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: `${frontendURL}/reset-password`,
         })
 
