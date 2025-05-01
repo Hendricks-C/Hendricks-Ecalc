@@ -66,7 +66,7 @@ export async function send2FACode (req:Request, res:Response): Promise<void> {
 
     // Send the code to the users email using resend
     const { error:emailError } = await resend.emails.send({
-      from: 'Hendricks Foundation <no-reply@jordany.xyz>',
+      from: 'Hendricks Foundation <no-reply@calc.hendricks-foundation.org>',
       to: userEmail,
       subject: 'Your 2FA Code!',
       html: `<strong>Here is your 2FA code: </strong> ${userCode}`,
@@ -155,7 +155,7 @@ export async function SendContactEmail(req:Request, res:Response): Promise<void>
     // Send the email with data from the contact form
     // Determine who you want to send the email to
     const { error: emailError } = await resend.emails.send({
-      from: 'Hendricks Foundation <no-reply@jordany.xyz>',
+      from: 'Hendricks Foundation <no-reply@calc.hendricks-foundation.org>',
       to: 'jordan.chea3@gmail.com',
       subject: subject,
       replyTo: email,
