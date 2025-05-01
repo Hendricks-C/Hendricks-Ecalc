@@ -681,13 +681,13 @@ const UserProfile = () => {
                                                             setConfirmEmail('');
                                                             setEmailUpdateMessage('');
                                                         }}
-                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-1 px-4"
+                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 cursor-pointer text-sm font-semibold py-1 px-4"
                                                     >
                                                         Cancel
                                                     </button>
                                                     <button
                                                         onClick={handleEmailUpdate}
-                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 text-sm font-semibold py-1 px-4"
+                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 cursor-pointer text-sm font-semibold py-1 px-4"
                                                     >
                                                         Submit
                                                     </button>
@@ -773,13 +773,13 @@ const UserProfile = () => {
                                                             setWrongPasswordError(false);
                                                             setPasswordConfirmError(false);
                                                         }}
-                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-1 px-4"
+                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 cursor-pointer text-sm font-semibold py-1 px-4"
                                                     >
                                                         Cancel
                                                     </button>
                                                     <button
                                                         type="submit"
-                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 text-sm font-semibold py-1 px-4"
+                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 cursor-pointer text-sm font-semibold py-1 px-4"
                                                     >
                                                         Save
                                                     </button>
@@ -823,13 +823,13 @@ const UserProfile = () => {
                                                 <div className="flex gap-2 p-1 justify-end">
                                                     <button
                                                         onClick={() => setEditingField(null)}
-                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 text-sm font-semibold py-1 px-4"
+                                                        className="rounded-full bg-gray-300 hover:bg-gray-200 cursor-pointer text-sm font-semibold py-1 px-4"
                                                     >
                                                         Cancel
                                                     </button>
                                                     <button
                                                         onClick={handleCompanyUpdate}
-                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 text-sm font-semibold py-1 px-4"
+                                                        className="rounded-full bg-[#2E7D32] text-white hover:brightness-110 cursor-pointer text-sm font-semibold py-1 px-4"
                                                     >
                                                         Save
                                                     </button>
