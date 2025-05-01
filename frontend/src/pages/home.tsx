@@ -52,7 +52,7 @@ function Home() {
     // Fetch statistics from the Supabase 'devices' table
     useEffect(() => {
         const fetchStats = async () => {
-            const { data, error } = await supabase.from('devices').select('*');
+            const { data, error } = await supabase.from('devices').select('user_id, co2_emissions'); // Fetch only needed fields
 
             if (error) {
                 console.error('Error fetching devices:', error.message);
