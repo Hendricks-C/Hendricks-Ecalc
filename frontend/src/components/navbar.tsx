@@ -143,7 +143,7 @@ function Navbar() {
     }
     return (
         // z-50 is to ensure navbar stays above all other content
-        <nav className={`z-50 px-10 py-4 m-4 bg-white shadow-md ${isOpen ? "rounded-4xl" : "rounded-full"}` }>
+        <nav className="z-50 px-10 py-4 m-4 bg-white shadow-md rounded-[2.25rem] transition-all duration-300">
 
             {/* Desktop Navbar */}
             <div className='hidden relative lg:flex justify-between items-center'>
@@ -181,28 +181,26 @@ function Navbar() {
             </div>
 
             {/* Mobile Dropdown Menu */}
-            {isOpen && 
-            <>
+            <div className={`transition-all duration-400 ease-in-out overflow-hidden ${isOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}>
                 <div className="flex flex-col justify-center items-center mt-4 gap-4 sm:gap-10 text-black font-bitter text-sm sm:text-lg">
-                    <Link to="/" className='no-underline hover:underline'>Home</Link>
-                    <Link to="/about" className='no-underline hover:underline'>About Us</Link>
-                    <Link to="/contact" className='no-underline hover:underline'>Contact</Link>
+                    <Link to="/" className='no-underline hover:underline' onClick={() => setOpen(!isOpen)}>Home</Link>
+                    <Link to="/about" className='no-underline hover:underline' onClick={() => setOpen(!isOpen)}>About Us</Link>
+                    <Link to="/contact" className='no-underline hover:underline' onClick={() => setOpen(!isOpen)}>Contact</Link>
                     {!user ? (
                         <>
-                            <Link to="/login" className="no-underline hover:underline">Login</Link>
-                            <Link to="/register" className="no-underline hover:underline">Register</Link>
+                            <Link to="/login" className="no-underline hover:underline" onClick={() => setOpen(!isOpen)}>Login</Link>
+                            <Link to="/register" className="no-underline hover:underline" onClick={() => setOpen(!isOpen)}>Register</Link>
                         </>
                     ) : (
                         <>
-                            <Link to="/device-info-submission" className="no-underline hover:underline">Devices</Link>
-                            <Link to="/profile" className="no-underline hover:underline">Profile</Link>
-                            {isAdmin ? <Link to="/admin" className="no-underline hover:underline">Admin</Link> : null}
+                            <Link to="/device-info-submission" className="no-underline hover:underline" onClick={() => setOpen(!isOpen)}>Devices</Link>
+                            <Link to="/profile" className="no-underline hover:underline" onClick={() => setOpen(!isOpen)}>Profile</Link>
+                            {isAdmin ? <Link to="/admin" className="no-underline hover:underline" onClick={() => setOpen(!isOpen)}>Admin</Link> : null}
                             <button onClick={handleClick} className='bg-[#FFE017] px-4 py-2 rounded-md text-white transition duration-200 cursor-pointer hover:brightness-105'>Sign Out</button>
                         </>
                     )}
                 </div>
-            </>
-            }
+            </div>
             
             
         </nav>
