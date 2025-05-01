@@ -3,6 +3,9 @@
 */
 import { useEffect, useState } from "react";
 import supabase from "../utils/supabase";
+import Dean from "../assets/Dean.webp"
+import Laptop from "../assets/Laptop.webp"
+import ewaste from "../assets/ewaste.webp"
 
 export default function AboutUs(){
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -21,7 +24,7 @@ export default function AboutUs(){
                 <div className="w-full">
                     {/* This is the image section for the founder */}
                     <img
-                        src="https://cdn.dorik.com/661bed391d6c29001137f946/images/Dean-Hendricks-_-Founder-Director-President-nxccF.jpg" //modify this link if you want to change the image
+                        src={Dean} //modify this link if you want to change the image
                         alt="Dean's Picture"
                         className="w-full max-w-[500px] h-auto rounded-[30px] object-cover"
                     />
@@ -47,8 +50,8 @@ export default function AboutUs(){
                 <div className="w-full flex justify-end order-1 md:order-2">
                     {/* This is the image section for the founder */}
                     <img
-                        src="https://cdn.dorik.com/661bed391d6c29001137f946/images/Dean-Hendricks-_-Founder-Director-President-nxccF.jpg" //modify this if you want to change the image
-                        alt="Dean's Picture"
+                        src={Laptop} //modify this if you want to change the image
+                        alt="Donation of a laptop"
                         className="w-full max-w-[500px] h-auto rounded-[30px] object-cover"
                     />
                 </div>
@@ -59,8 +62,8 @@ export default function AboutUs(){
                 <div className="w-full">
                     {/* This is the image section of the bottom section of the page*/}
                     <img
-                        src="https://cdn.dorik.com/661bed391d6c29001137f946/images/Dean-Hendricks-_-Founder-Director-President-nxccF.jpg" //modify this if you want to change the image
-                        alt="Dean's Picture"
+                        src={ewaste} //modify this if you want to change the image
+                        alt="ewaste"
                         className="w-full max-w-[500px] h-auto rounded-[30px] object-cover"
                     />
                 </div>
