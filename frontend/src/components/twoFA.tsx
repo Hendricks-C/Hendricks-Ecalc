@@ -233,7 +233,7 @@ function TwoFAModal({ isOpen, onClose, userData, navigate }: TwoFAModalProps) {
             className={`w-3/4 text-white font-semibold py-2 px-10 rounded-full transition duration-200 ${
               isLoading || enteredCode.length !== 6
                 ? "bg-[#fff3a5] cursor-not-allowed"
-                : "bg-[#FFE017] hover:brightness-105"
+                : "bg-[#FFE017] hover:brightness-105 cursor-pointer"
             }`}
           >
             {isLoading ? "Verifying..." : "Verify"}
