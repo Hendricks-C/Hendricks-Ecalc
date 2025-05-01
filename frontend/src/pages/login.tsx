@@ -44,14 +44,14 @@ function Login() {
 
   const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-  // Redirect if already logged in BEFORE running profile/2FA checks
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate("/profile");
-      }
-    });
-  }, []);
+  // // Redirect if already logged in BEFORE running profile/2FA checks
+  // useEffect(() => {
+  //   supabase.auth.getSession().then(({ data: { session } }) => {
+  //     if (session?.user) {
+  //       navigate("/profile");
+  //     }
+  //   });
+  // }, []);
 
   // Check for existing user session
   useEffect(() => {
