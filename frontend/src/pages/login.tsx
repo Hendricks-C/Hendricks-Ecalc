@@ -210,7 +210,7 @@ function Login() {
               </div>
 
               {/* CAPTCHA widget */}
-              <div className='flex justify-center items-center'>
+              <div className='flex flex-col justify-center items-center'>
                 <Turnstile
                   key={captchaKey}
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
