@@ -52,23 +52,32 @@ function Home() {
     // Fetch statistics from the Supabase 'devices' table
     useEffect(() => {
         const fetchStats = async () => {
-            const { data, error } = await supabase.from('devices').select('user_id, co2_emissions'); // Fetch only needed fields
+            
+            // We order by `last_updated` in descending order to fetch the most recent row,
+            // though multiple rows are unlikely due to enforced constraints.
+            // `.single()` ensures we receive a single object instead of an array.
+            const { data, error } = await supabase
+                .from('website_statistics')
+                .select('devices_count, donors_count, total_co2')
+                .order('last_updated', { ascending: false })
+                .limit(1)
+                .single();
 
+
+            // Handle error fetching stats
             if (error) {
                 console.error('Error fetching devices:', error.message);
                 return;
             }
 
-            // Calculate total devices collected, distinct number of clients donated, and total CO2 emissions saved
-            const devicesCount = data.length;
-            const uniqueClients = new Set(data.map((d) => d.user_id)).size;
-            const totalCO2 = data.reduce((sum, d) => sum + (d.co2_emissions || 0), 0);
 
+            // Update React state with the fetched values
             setStats({
-                devices: devicesCount,
-                clients: uniqueClients,
-                co2: Math.round(totalCO2),
+                devices: data.devices_count,
+                clients: data.donors_count,
+                co2: Math.round(data.total_co2),
             });
+
         };
 
         fetchStats();
