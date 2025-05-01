@@ -993,12 +993,13 @@ const UserProfile = () => {
                             <Box
                                 sx={{
                                     width: '90%',
+                                    minWidth: 'min(100%, 500px)',
                                     margin: '0 auto',
                                     position: 'relative',
                                 }}
                             >
                                 {/* LineChart from MUI X Charts showing emission breakdowns over time */}
-                                <div className="relative w-full">
+                                <div className="relative w-full  min-w-[350px] sm:min-w-[450px] md:min-w-[850px]">
 
                                     {/* LineChart will fill the width of its container */}
                                     <LineChart
@@ -1017,6 +1018,8 @@ const UserProfile = () => {
                                         sx={{
                                             width: '100%',
                                             marginBottom: '1rem',
+                                            position: 'relative',
+                                            minWidth: 'min(100%, 350px)',
                                         }}
                                     />
 
