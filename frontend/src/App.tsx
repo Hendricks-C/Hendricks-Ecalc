@@ -13,11 +13,19 @@ import Contact from './pages/contact.tsx'
 import Home from './pages/home.tsx'
 import ThankYou from './pages/thankYou.tsx'
 
+/**
+ * App Component
+ * 
+ * The root of the application. Sets up routing for all pages using React Router.
+ * Includes a persistent Navbar and defines each route's path and corresponding component.
+ */
 function App() {
   return (
     <BrowserRouter>
+      {/* Top navigation bar visible on all routes */}
       <Navbar />
 
+      {/* Define route paths and associated page components */}
       <Routes>
         <Route path="/" element={<Home/>} />
         <Route path="/about" element={<AboutUs/>} />

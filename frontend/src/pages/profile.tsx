@@ -512,7 +512,7 @@ const UserProfile = () => {
         <div className='flex flex-col justify-center items-center'>
 
             {/* A tab selector ("Account", "Devices", "E-Waste") that switches views */}
-            <div className="w-full flex justify-center mt-6 mb-3 w-full">
+            <div className="w-full flex justify-center mt-6 mb-3">
                 <div className="flex w-[90%] sm:w-[70%] max-w-[1200px] p-1 sm:p-2 bg-white rounded-full shadow-md overflow-hidden">
                     {['Account', 'Devices', 'E-Waste'].map((tab) => (
                         <button

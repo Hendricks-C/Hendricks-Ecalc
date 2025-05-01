@@ -2,7 +2,14 @@ import { SyntheticEvent, useState } from "react";
 import { Mail, MapPin, Facebook, Twitter, Linkedin, Instagram } from "lucide-react"
 import axios from "axios";
 
+/**
+ * Contact Component
+ * 
+ * Displays a contact form and organization info. Users can submit a message
+ * that is sent to the backend via an API call. Also includes social media links.
+ */
 const Contact = () => {
+  // Form input state
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -10,18 +17,27 @@ const Contact = () => {
 
   const [loading, setLoading] = useState(false);
 
+  // Base API URL (from env, fallback to localhost)
   const apiBase = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+  /**
+   * Handles form submission to send contact email
+   * 
+   * @param e - Synthetic event from the form
+   */
   const sendEmail = async (e:SyntheticEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      // Send POST request to backend for the resend API to send the email with contact info
       await axios.post(`${apiBase}/api/users/send-contact`, {
         name,
         email,
         subject,
         message
       });
+
+      // Clear form after successful submission
       setName("");
       setEmail("");
       setSubject("");
