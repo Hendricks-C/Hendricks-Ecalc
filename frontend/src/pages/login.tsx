@@ -148,22 +148,6 @@ function Login() {
         setIsLoading(false);
         return;
       }
-
-      // Send 2FA code but don't navigate away - instead show the modal
-      const response = await axios.post(`${apiBase}/api/users/2FA`, {
-        userEmail: data.user.email,
-        userId: data.user.id
-      });
-
-      // Save the expiration timestamp globally
-      if (response.data.expires_at) {
-        localStorage.setItem('2fa_expires_at', response.data.expires_at);
-      }
-
-      // Set the current user and show the 2FA modal
-      setCurrentUser(data.user);
-
-      setShowTwoFAModal(true);
     } catch (error) {
       console.error("Login error:", error);
       alert("An error occurred during login. Please try again.");

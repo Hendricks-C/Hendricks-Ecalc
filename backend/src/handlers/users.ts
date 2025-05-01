@@ -23,6 +23,15 @@ export async function send2FACode (req:Request, res:Response): Promise<void> {
     .eq("id", userId)
     .single();
 
+    console.log(codeError)
+
+    // If there was an unexpected error (not just "no row found"), stop
+    if (codeError && codeError.code !== 'PGRST116') {
+      console.error("Supabase select error:", codeError);
+      res.status(500).json({ error: "Database select error" });
+      return;
+    }
+
     // If we get a row then we know there was a code that was already sent
     if (codeData){
       const createdAt = new Date(codeData.created_at);
