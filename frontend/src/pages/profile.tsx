@@ -999,7 +999,7 @@ const UserProfile = () => {
                                 }}
                             >
                                 {/* LineChart from MUI X Charts showing emission breakdowns over time */}
-                                <div className="relative w-full  min-w-[350px] sm:min-w-[450px] md:min-w-[850px]">
+                                <div className="relative w-full  max-w-[350px] sm:max-w-[450px] md:max-w-max">
 
                                     {/* LineChart will fill the width of its container */}
                                     <LineChart
