@@ -20,6 +20,9 @@ import { Turnstile } from '@marsidev/react-turnstile'
 import { User } from '@supabase/supabase-js'
 import { Profile } from '../utils/types'
 
+import Alert from '../components/alert.tsx';
+import { useAlert } from '../hooks/useAlert.tsx';
+
 function Register() {
 
   // Form input states
@@ -34,7 +37,9 @@ function Register() {
 
   const navigate = useNavigate() //used to redirect to different page
 
+  // Loading state + alerts
   const [loading, setLoading] = useState(false);
+  const { alertText, showAlert, triggerAlert } = useAlert();
 
   const frontendURL = import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173";
 
@@ -101,27 +106,29 @@ function Register() {
 
     // Error handling
     if (error) {
-      console.error('Error signing up:', error.message)
-      alert(error.message)
-      setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component after a failed registration attempt
+      console.error('Error signing up:', error.message);
+      triggerAlert(error.message);
+      setCaptchaKey((prev) => prev + 1);
       setLoading(false);
       return
     } else if (data.user?.identities?.length === 0) {
-      console.error('User already Exists')
-      alert('User already Exists')
-      setCaptchaKey((prev) => prev + 1); // Trigger re-render Turnstile component after a failed registration attempt
+      console.error('User already Exists');
+      triggerAlert('User already exists');
+      setCaptchaKey((prev) => prev + 1);
       setLoading(false);
       return
     }
 
     //success message
-    console.log('Account Created: ', data.user)
+    console.log('Account Created: ', data.user);
+    triggerAlert('Signup successful! Check your email for confirmation.');
+    setCaptchaKey((prev) => prev + 1);
     setLoading(false);
-    alert('Signup successful! Check your email for confirmation.');
   }
 
   return (
     <>
+      <Alert text={alertText} show={showAlert} />
       <div className='flex items-center justify-evenly px-4 py-8 md:px-10 md:py-10'>
 
         {/* Left - Laptop Image */}
@@ -187,7 +194,7 @@ function Register() {
               </div>
 
               {/* CAPTCHA widget */}
-              <div className='flex justify-center items-center'>
+              <div className='flex flex-col justify-center items-center'>
                 <Turnstile
                   key={captchaKey}
                   siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
