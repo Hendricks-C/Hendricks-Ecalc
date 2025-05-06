@@ -34,6 +34,8 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import SearchIcon from '@mui/icons-material/Search';
 import { User } from "@supabase/supabase-js";
 import { Profile, Badge } from "../utils/types";
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 
 const UserProfile = () => {
 
@@ -63,7 +65,7 @@ const UserProfile = () => {
 
     // Message shown after email update request is triggered
     const [emailUpdateMessage, setEmailUpdateMessage] = useState("");
-    const [emailErrorMessage, setEmailErrorMessage] = useState(""); 
+    const [emailErrorMessage, setEmailErrorMessage] = useState("");
 
 
     // Tracks which field is currently being edited: name, email, password, or company
@@ -86,6 +88,26 @@ const UserProfile = () => {
     //Devices table 
     const [devices, setDevices] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
+
+    // - Filters the list of devices based on the search query
+    // - Matches the query against device ID, type, model, manufacturer, and formatted donation date
+    const filteredDevices = devices.filter((device) => {
+        const formattedDate = new Date(device.date_donated).toLocaleDateString();
+        return [
+            device.device_id,
+            device.device_type,
+            device.model,
+            device.manufacturer,
+            formattedDate
+        ].some((val) =>
+            String(val).toLowerCase().includes(searchQuery.toLowerCase().trim())
+        );
+    });
+
+    // Pagination state for the devices table
+    const [currentPage, setCurrentPage] = useState(1); // Current page number
+    const itemsPerPage = 20; // Defines how many devices to show per page — adjust this if you wish to show more or fewer
+    const totalPages = Math.max(1, Math.ceil(filteredDevices.length / itemsPerPage));
 
     //Line Chart Data
     const [lineChartData, setLineChartData] = useState<any[]>([]);
@@ -713,7 +735,7 @@ const UserProfile = () => {
                                                 {emailUpdateMessage && (
                                                     <p className="text-green-600 text-sm text-center">{emailUpdateMessage}</p>
                                                 )}
-                                                
+
                                             </div>
                                         )}
                                     </div>
@@ -894,7 +916,10 @@ const UserProfile = () => {
                                         type="text"
                                         placeholder="Search..."
                                         value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        onChange={(e) => {
+                                            setSearchQuery(e.target.value)
+                                            setCurrentPage(1); // reset to first page on new search
+                                        }}
                                         className="w-full focus:outline-none"
                                     />
                                 </div>
@@ -926,21 +951,9 @@ const UserProfile = () => {
                                             </tr>
                                         )}
                                         {/* Filter devices based on keyword match in any relevant column */}
-                                        {devices
-                                            .filter((device) => {
-                                                const formattedDate = new Date(device.date_donated).toLocaleDateString();
-
-                                                return [
-                                                    //searches keyword in these values
-                                                    device.device_id,
-                                                    device.device_type,
-                                                    device.model,
-                                                    device.manufacturer,
-                                                    formattedDate //to skip timestamp bits using formatted date
-                                                ].some((val) =>
-                                                    String(val).toLowerCase().includes(searchQuery.toLowerCase().trim())
-                                                );
-                                            })
+                                        {filteredDevices
+                                            // Pagination logic: slice devices for current page
+                                            .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                                             .map((device, _idx) => (
 
                                                 // Highlight unverified devices in red
@@ -958,6 +971,18 @@ const UserProfile = () => {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* Pagination controls */}
+                            <Stack spacing={2} alignItems="center" mt={2}>
+                                <Pagination
+                                    count={totalPages}
+                                    page={currentPage}
+                                    onChange={(_, page) => setCurrentPage(page)}
+                                    shape="rounded"
+                                    size="small"
+                                    disabled={filteredDevices.length === 0}
+                                />
+                            </Stack>
 
                             {/* -------- Legend -------- */}
                             <div className="flex justify-center items-center gap-8 mt-6">
@@ -1063,7 +1088,7 @@ const UserProfile = () => {
                         {/* -------- Badges Section -------- */}
                         <h1 className="text-2xl text-center mb-4 font-bold">Badges</h1>
                         <div className="w-full max-w-5xl flex flex-wrap gap-2 mt-2 justify-center p-6 shadow-sm mb-8 bg-[#D9D9D9] backdrop-blur-md rounded-xl">
-                            
+
                             {/* Display earned badges, if any */}
                             {badges.length > 0 ? (
                                 badges.map((badge, index) => (
