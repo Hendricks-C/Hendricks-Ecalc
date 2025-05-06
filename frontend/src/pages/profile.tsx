@@ -63,6 +63,7 @@ const UserProfile = () => {
 
     // Message shown after email update request is triggered
     const [emailUpdateMessage, setEmailUpdateMessage] = useState("");
+    const [emailErrorMessage, setEmailErrorMessage] = useState(""); 
 
 
     // Tracks which field is currently being edited: name, email, password, or company
@@ -306,9 +307,15 @@ const UserProfile = () => {
         // Ensure the user is logged in and both input fields are non-empty
         if (!user || !newEmail.trim() || !confirmEmail.trim()) return;
 
+        // Check if old and new emails are same
+        if (newEmail.trim() === email.trim()) {
+            setEmailErrorMessage("New email cannot be the same as your current email.")
+            return;
+        }
+
         // Check if the two email inputs match
         if (newEmail.trim() !== confirmEmail.trim()) {
-            alert("Emails do not match.");
+            setEmailErrorMessage("Emails do not match.");
             return;
         }
 
@@ -329,6 +336,8 @@ const UserProfile = () => {
             console.error("Email update error:", error.message);
             alert("Failed to update email: " + error.message);
         } else {
+
+            setEmailErrorMessage("")
 
             // Email update initiated successfully
             // User must click the confirmation link sent to their new email.
@@ -659,7 +668,10 @@ const UserProfile = () => {
                                                     type="text"
                                                     placeholder="New Email"
                                                     value={newEmail}
-                                                    onChange={(e) => setNewEmail(e.target.value)}
+                                                    onChange={(e) => {
+                                                        setNewEmail(e.target.value);
+                                                        setEmailErrorMessage("");
+                                                    }}
                                                     className="border border-gray-300 rounded-md p-2"
                                                 />
 
@@ -668,9 +680,15 @@ const UserProfile = () => {
                                                     type="text"
                                                     placeholder="Confirm New Email"
                                                     value={confirmEmail}
-                                                    onChange={(e) => setConfirmEmail(e.target.value)}
+                                                    onChange={(e) => {
+                                                        setConfirmEmail(e.target.value);
+                                                        setEmailErrorMessage("");
+                                                    }}
                                                     className="border border-gray-300 rounded-md p-2"
                                                 />
+                                                {emailErrorMessage && (
+                                                    <p className="text-red-500 text-sm">{emailErrorMessage}</p>
+                                                )}
 
                                                 {/* Save & Cancel Buttons */}
                                                 <div className="flex gap-3 pt-1">
@@ -695,6 +713,7 @@ const UserProfile = () => {
                                                 {emailUpdateMessage && (
                                                     <p className="text-green-600 text-sm text-center">{emailUpdateMessage}</p>
                                                 )}
+                                                
                                             </div>
                                         )}
                                     </div>
