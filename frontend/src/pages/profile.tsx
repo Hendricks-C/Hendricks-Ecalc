@@ -967,7 +967,7 @@ const UserProfile = () => {
 
                 {/* E-WASTE TAB: Displays a line chart of emissions and earned badges */}
                 {activeTab === 'E-Waste' && (
-                    <div>
+                    <div className="w-full">
 
                         {/* -------- Emissions Line Chart Section -------- */}
                         <div className="w-full max-w-5xl bg-white/50 backdrop-blur-md rounded-xl p-6 shadow-sm mb-8 relative">
@@ -993,13 +993,12 @@ const UserProfile = () => {
                             <Box
                                 sx={{
                                     width: '90%',
-                                    minWidth: 'min(100%, 500px)',
                                     margin: '0 auto',
                                     position: 'relative',
                                 }}
                             >
                                 {/* LineChart from MUI X Charts showing emission breakdowns over time */}
-                                <div className="relative w-full  max-w-[350px] sm:max-w-[450px] md:max-w-full">
+                                <div className="relative w-full">
 
                                     {/* LineChart will fill the width of its container */}
                                     <LineChart
@@ -1018,8 +1017,6 @@ const UserProfile = () => {
                                         sx={{
                                             width: '100%',
                                             marginBottom: '1rem',
-                                            position: 'relative',
-                                            minWidth: 'min(100%, 350px)',
                                         }}
                                     />
 
