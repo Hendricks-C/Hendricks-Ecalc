@@ -39,7 +39,7 @@ Before running the app, you’ll need to set up accounts and configurations for 
 7. Go to IAM & Admin > Service Accounts.
 8. Click "Create Service Account".
 9. Give it a name (e.g., ocr-service), click "Create and Continue".
-10. On the “Grant this service account access” screen, you can skip permissions (optional) and click "Done".
+10. On the “Grant this service account access” screen select "Owner". You can skip permissions (optional) and click "Done".
 
 #### Generate JSON Key
 11. After creating the service account, click its three-dot menu → Manage keys.
