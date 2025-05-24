@@ -66,10 +66,45 @@ export async function send2FACode (req:Request, res:Response): Promise<void> {
 
     // Send the code to the users email using resend
     const { error:emailError } = await resend.emails.send({
-      from: 'Hendricks Foundation <no-reply@calc.hendricks-foundation.org>',
+      from: 'Hendricks Foundation <no-reply@access-all.org>',
       to: userEmail,
       subject: 'Your 2FA Code!',
-      html: `<strong>Here is your 2FA code: </strong> ${userCode}`,
+      html: `    
+        <div style="max-width: 600px; margin: auto; padding: 40px 24px; font-family: 'Bitter', serif; background-color: #F9F9F9; color: #333; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #2E7D32; font-size: 28px; margin-bottom: 8px;">Two-Factor Authentication</h1>
+            <p style="font-size: 16px; color: #555;">Powered by the Hendricks Foundation</p>
+          </div>
+
+          <!-- Body Card -->
+          <div style="background-color: #ffffff; border-radius: 16px; padding: 24px; text-align: center;">
+            <h2 style="font-size: 20px; color: #2E7D32; margin-bottom: 12px;">Your 2FA Code</h2>
+            <p style="font-size: 16px; line-height: 1.6; color: #555; margin-bottom: 24px;">
+              Use the following code to complete your login. It will expire shortly.
+            </p>
+
+            <div style="font-size: 32px; font-weight: bold; color: #2E7D32; margin: 16px 0;">
+              ${userCode}
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="text-align: center; font-size: 14px; color: #888; margin-top: 40px;">
+            <p>If you didn’t try to sign in, you can safely ignore this message.</p>
+
+            <hr style="margin: 24px auto; border: none; border-top: 1px solid #ddd; width: 60%;" />
+
+            <p style="margin: 4px 0;"><strong>HENDRICKS FOUNDATION</strong></p>
+            <p style="margin: 4px 0;">
+              <a href="mailto:support@hendricks-foundation.org" style="color: #2E7D32; text-decoration: none;">
+                ewaste@hendricks-foundation.org
+              </a>
+            </p>
+          </div>
+        </div>
+      `,
     });
   
     if (emailError) {
@@ -155,8 +190,8 @@ export async function SendContactEmail(req:Request, res:Response): Promise<void>
     // Send the email with data from the contact form
     // Determine who you want to send the email to
     const { error: emailError } = await resend.emails.send({
-      from: 'Hendricks Foundation <no-reply@calc.hendricks-foundation.org>',
-      to: 'jordan.chea3@gmail.com',
+      from: 'Hendricks Foundation <no-reply@access-all.org>',
+      to: 'Dhendricks@access-all.org',
       subject: subject,
       replyTo: email,
       html: `

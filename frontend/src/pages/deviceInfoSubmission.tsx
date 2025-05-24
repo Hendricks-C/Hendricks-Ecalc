@@ -37,7 +37,7 @@ export interface DeviceInfo {
 }
 // list of manufacturers that support OCR for verifying serial numbers
 const ocr_manufacturers: string[] = [
-    "Apple"
+    // "Apple"
 ];
 function DeviceInfoSubmission() {
     // state to store and update device info using DeviceInfo objects in an array
